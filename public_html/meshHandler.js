@@ -946,6 +946,7 @@ MeshHandler.prototype.setupDiffusedBox = function () {
             "// init Varyings \n" +
             "varying vec2 vTexCoords;\n" +
             "varying vec3 vLighting;\n" +
+            "varying vec3 vNormalCol;\n" + 
             
             "void main() {\n" +
             "   vTexCoords = texCoords;\n" +
@@ -966,6 +967,8 @@ MeshHandler.prototype.setupDiffusedBox = function () {
             "// compute Lambert-Factor \n" +
             "   float lambert = max(dot(transformedNormal.xyz, directionalVector), 0.0);\n" +
             "   vLighting = ambientLight + (directionalLightColor * lambert);\n" +
+            
+            "   vNormalCol = normal;\n" +
             "}\n";
 
     // Fragment shader string
@@ -978,10 +981,14 @@ MeshHandler.prototype.setupDiffusedBox = function () {
             
             "// forwarded diffuse lighting \n" +
             "varying vec3 vLighting;\n" +
+                
+            "varying vec3 vNormalCol;\n" + 
             
             "void main() {\n" +
             "   vec4 texelColor = texture2D(tex, vTexCoords);\n" +
+            //" vec3 normal = (normalize(vNormalCol) + 1.0) / 2.0;\n" +
             "   gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);\n" +
+            //"   gl_FragColor = vec4(normal, 1.0);\n" +
             "}\n";
 
     // Setup triangle vertices

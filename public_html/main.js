@@ -18,12 +18,12 @@ var angleX = 0;
 var angleY = 0;
 var radY = 0;
 var radX = 0;
-var camPos = new VecMath.SFVec3f(0.0, 0.0, 0.0);
+var camPos = new VecMath.SFVec3f(0.0, 0.0, 10.0);
 var mouseDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
-var moveVecNF = new VecMath.SFVec4f(0.0, 0.0, 0.0, 1.0),
-    moveVecLR = new VecMath.SFVec4f(0.0, 0.0, 0.0, 1.0);
+var moveVecNF = new VecMath.SFVec3f(0.0, 0.0, 0.0),
+    moveVecLR = new VecMath.SFVec3f(0.0, 0.0, 0.0);
 
 // make sure browser knows requestAnimationFrame method
 if (!window.requestAnimationFrame) {
@@ -909,6 +909,7 @@ function handleMouseMove(event){
                                      Math.sin(deltaY));                                                              
     moveVecLR = moveVecLR.normalize();
     
+   // viewMat = viewMat.transpose();
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(deltaX))); 
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(deltaY)));
     
@@ -918,7 +919,7 @@ function handleMouseMove(event){
 
 // Setup perspective projection
 function initProjection() {
-    viewMat = VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0, 0, 10)).inverse();
+    viewMat = VecMath.SFMatrix4f.translation(camPos).inverse();
     projectionMat = VecMath.SFMatrix4f.perspective(Math.PI / 4, 1.0, 0.1, 1000.0);
 }
 

@@ -497,8 +497,8 @@ LightningTextureDrawable.prototype.computeFaceNormals = function(verts){
         var norm = a.cross(b).normalize();
         
         normals.push(norm);
-        //normals.push(norm);
-        //normals.push(norm);
+        normals.push(norm);
+        normals.push(norm);
     }
     console.log("norms: " + normals.length.toString());
     console.log("norms: " + normals.toString());
@@ -506,54 +506,46 @@ LightningTextureDrawable.prototype.computeFaceNormals = function(verts){
 };
 
 LightningTextureDrawable.prototype.computeFaceNormals1 = function(verts, indices){
-    var normals = new Array();
+    var normals = new Array(verts.length / 3);
+    for(var i = 0; i < normals.length; i++)
+        normals[i] = new VecMath.SFVec3f(0.0, 0.0, 0.0);
+    
     //var i0, i1, i2;
     console.log("posXYZ: " + verts.length + " and vectors: " + verts.length / 3);
     console.log("verts: " + verts.toString());
     console.log("indices: " + indices.length.toString());
     console.log("indices: " + indices.toString());
-    for(var i = 0; i < indices.length; i+=9){
-        var v0 = new VecMath.SFVec3f(verts[indices[i]], verts[indices[i+1]], verts[indices[i+2]]);
-        var v1 = new VecMath.SFVec3f(verts[indices[i+3]], verts[indices[i+4]], verts[indices[i+5]]);
-        var v2 = new VecMath.SFVec3f(verts[indices[i+6]], verts[indices[i+7]], verts[indices[i+8]]);
+    for(i = 0; i < indices.length; i+=3){
+        var v0 = new VecMath.SFVec3f(verts[3 * indices[i]], verts[3 * indices[i]+1], verts[3 * indices[i]+2]);
+        var v1 = new VecMath.SFVec3f(verts[3 * indices[i+1]], verts[3 * indices[i+1]+1], verts[3 * indices[i+2]+2]);
+        var v2 = new VecMath.SFVec3f(verts[3 * indices[i+2]], verts[3 * indices[i+2]+1], verts[3 * indices[i+2]+2]);
 
         var a = v1.subtract(v0);
         var b = v2.subtract(v1);
 
-        var norm = a.cross(b);//.normalize();
+        var norm = a.cross(b).normalize();
 
-        normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
-                normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
-                normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
-                normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
-                normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
-                normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
-                normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
-                normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
-                normals.push(norm);
-        normals.push(norm);
-        normals.push(norm);
+        normals[indices[i]] = normals[indices[i]].add(norm);
+        normals[indices[i + 1]] = normals[indices[i + 1]].add(norm);
+        normals[indices[i + 2]] = normals[indices[i + 2]].add(norm);
         
     }
+    for(i = 0; i < normals.length; i++)
+        normals[i] = normals[i].normalize();
+    
+    var finNorms = new Array();
+    
+    for(i = 0; i < normals.length; i++){
+        finNorms[i * 3    ] = normals[i].x;
+        finNorms[i * 3 + 1] = normals[i].y;
+        finNorms[i * 3 + 2] = normals[i].z;
+    }
+    
+    
+    
     console.log("norms: " + normals.length.toString());
     console.log("norms: " + normals.toString());
-    return normals;
+    return finNorms;
 };
 
 
