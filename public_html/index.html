@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!--
+NOTE: Autoformat shift+alt+f
+    Created on : 25.04.2015, 14:38:18
+    Author     : Bambi
+-->
+<html>
+    <head>
+        <title>WebGL U1</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- X3DOM math lib -->
+        <script type="text/javascript" src="fields.js"></script>
+        <!-- Bambis small math lib extension :) -->
+        <script type="text/javascript" src="mathHelper.js"></script>
+        <!-- Use meshHandler first -->
+        <script type="text/javascript" src="meshHandler.js"></script>
+        <!--  Second is meshHandler first -->
+        <script type="text/javascript" src="shader.js"></script>
+        <!-- Third is drawable-->
+        <script type="text/javascript" src="drawable.js"></script>
+        <!-- Main to init the renderer -->
+        <script type="text/javascript" src="main.js"></script>
+        <!-- Add a scene -->
+        <script type="text/javascript" src="MultipleObjectsScene.js"></script>
+        <!-- Canvas style -->
+        <link rel="stylesheet" href="cStyle.css" type="text/css">
+    </head>
+    <body onload="main()" onunload="cleanUp()">
+        <div id="container">
+            <img id="clock" src="clock.png" alt="clock" width="200" height="200"/>
+            <canvas id="glCanvas" width="768" height="768"></canvas>
+        </div>
+    </body>
+</html>
