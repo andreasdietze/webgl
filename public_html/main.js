@@ -18,10 +18,11 @@ var angleX = 0;
 var angleY = 0;
 var radY = 0;
 var radX = 0;
-var camPos = new VecMath.SFVec3f(0.0, 0.0, 10.0);
+var camPos = new VecMath.SFVec3f(0.0, 0.0, 7.5);
 var mouseDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
+var mouseX = null, mouseY = null;
 var moveVecNF = new VecMath.SFVec3f(0.0, 0.0, 0.0),
     moveVecLR = new VecMath.SFVec3f(0.0, 0.0, 0.0);
 
@@ -85,6 +86,8 @@ var sphereTexShader = new TextureShader();
 var sphereTex = new TextureDrawable();
 
 var sceneOne;
+
+var orientationScene;
 
 var boxDiffuseShader = new DiffuseLightingShader();
 var boxDiffuse = new LightningTextureDrawable();
@@ -240,6 +243,8 @@ function main() {
 
     sceneOne = new MultipleObjects(gl, mh);
     
+    orientationScene = new OrientationScene(gl, mh);
+    
     mh.setupDiffusedBox();
     boxDiffuseShader.initGL(gl);
     boxDiffuseShader.initShader(mh.vss, mh.fss);
@@ -260,6 +265,8 @@ function main() {
         draw(canvas);
 
         //house.draw(houseShader.sp, viewMat, projectionMat);
+        
+        // Colored and textured without lighting
         secondPointer.draw(secondPointerShader.sp, viewMat, projectionMat);
         minutePointer.draw(minutePointerShader.sp, viewMat, projectionMat);
         hourPointer.draw(hourPointerShader.sp, viewMat, projectionMat);
@@ -271,8 +278,11 @@ function main() {
         boxTex2.draw(boxShaderTex.sp, viewMat, projectionMat);
         sphereTex.draw(sphereTexShader.sp, viewMat, projectionMat);
         
+        // Scenes
         sceneOne.draw(boxShader, sphereShader, viewMat, projectionMat);
+        orientationScene.draw(boxShader, viewMat, projectionMat);
         
+        // Lighting
         boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
         
         // Renderloop 
@@ -651,6 +661,10 @@ function animate(canvas) {
     
     rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
     sceneOne.update(rotMat);
+    
+    //var scaleMat = VecMath.SFMatrix4f.identity();
+    //scaleMat = scaleMat.mult(VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1)));
+    //orientationScene.update(scaleMat);
 
     angle -= 1; //* dT;
     var rad = Math.PI * angle / 180.0; // convert to rads
@@ -779,7 +793,9 @@ function cleanUp() {
     // Free textures
     gl.deleteTexture(tex);
     
+    // Scenes
     sceneOne.dispose();
+    orientationScene.dispose();
 }
 
 // Unser input and controls
@@ -861,14 +877,15 @@ function handleKeyboard(canvas, dT) {
     // Add movement
     //viewMat = VecMath.SFMatrix4f.identity();
     //viewMat = VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0, 0, 10)).inverse();
-    camPos.x = camPos.x * 0.01;
-    camPos.y = camPos.y * 0.01;
-    camPos.z = camPos.z * 0.01;
+    camPos.x = camPos.x * 0.001;
+    camPos.y = camPos.y * 0.001;
+    camPos.z = camPos.z * 0.001;
     viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos));
     //console.log("campos: " + camPos.toString());
     // Add rotation
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(radY)); 
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(radX));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(radY)); // (MathHelper.DTR(mouseX)));//(radY)); 
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(radX)); //(MathHelper.DTR(mouseY))); //(radX));
+    
 
     //console.log(moveVec);
     //console.log(viewMat);
@@ -897,6 +914,8 @@ function handleMouseMove(event){
     var deltaX = (newX - lastMouseX) * turnSpeed;
     var deltaY = (newY - lastMouseY) * turnSpeed;
     //console.log(deltaX + " " + deltaY);
+    
+    mouseX = deltaX; mouseY = deltaY;
     
     // Move to direction we are looking at
     moveVecNF = new VecMath.SFVec3f(Math.sin(-deltaY),
