@@ -25,6 +25,8 @@ var lastMouseY = null;
 var mouseX = null, mouseY = null;
 var moveVecNF = new VecMath.SFVec3f(0.0, 0.0, 0.0),
     moveVecLR = new VecMath.SFVec3f(0.0, 0.0, 0.0);
+    
+var heading = 0.0, xpos = 0.0, zpos = 0.0, yrot = 0.0;
 
 // make sure browser knows requestAnimationFrame method
 if (!window.requestAnimationFrame) {
@@ -77,20 +79,29 @@ var boxTex = new TextureDrawable();
 var sphereShader = new ColorShader();
 var sphere = new ColorDrawable();
 
+// Another sphere
 var sphereShader1 = new ColorShader();
 var sphere1 = new ColorDrawable();
 
+// Textured box
 var boxTex2 = new TextureDrawable();
 
+// Textured sphere
 var sphereTexShader = new TextureShader();
 var sphereTex = new TextureDrawable();
 
-var sceneOne;
+// Orientation box
+var oBoxShader = new ColorShader();
+var oBox = new ColorDrawable();
 
+// Scenes
+var sceneOne;
 var orientationScene;
 
 var boxDiffuseShader = new DiffuseLightingShader();
 var boxDiffuse = new LightningTextureDrawable();
+
+
 
 // MAIN
 function main() {
@@ -240,9 +251,19 @@ function main() {
             mh.mesh.indices,
             mh.mesh.trans);
     sphereTex.initTexture("crazyCube.png");
+    
+    mh.setupBox6c(0.25);
+    oBoxShader.initGL(gl);
+    oBoxShader.initShader(mh.vss, mh.fss);
+    oBox.initGL(gl);
+    oBox.setBufferData(mh.mesh.vertices,
+            mh.mesh.col,
+            mh.mesh.indices,
+            mh.mesh.trans,
+            mh.mesh.cosA,
+            mh.mesh.sinA);  
 
     sceneOne = new MultipleObjects(gl, mh);
-    
     orientationScene = new OrientationScene(gl, mh);
     
     mh.setupDiffusedBox();
@@ -277,6 +298,8 @@ function main() {
         boxTex.draw(boxShaderTex.sp, viewMat, projectionMat);
         boxTex2.draw(boxShaderTex.sp, viewMat, projectionMat);
         sphereTex.draw(sphereTexShader.sp, viewMat, projectionMat);
+        
+        //oBox.draw(oBoxShader.sp, viewMat, projectionMat);
         
         // Scenes
         sceneOne.draw(boxShader, sphereShader, viewMat, projectionMat);
@@ -658,6 +681,14 @@ function animate(canvas) {
     boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); 
    
+    oBox.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    oBox.md.transformMatrix = oBox.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
+    oBox.md.transformMatrix = oBox.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(0.0)));
+    oBox.md.transformMatrix = oBox.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(30, 30, 60))); 
+   
     
     rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
     sceneOne.update(rotMat);
@@ -823,28 +854,41 @@ function handleKeyboard(canvas, dT) {
             case 37: /* left */
                 //viewMat._03 -= 0.01 * dT;
                 //camPos.x -= 0.01 * dT;
-                camPos = camPos.subtract(moveVecLR);
-                console.log(moveVecLR.toString());
+               camPos = camPos.subtract(moveVecLR);
+                //console.log(moveVecLR.toString());
+		//xpos -= Math.sin(heading + 90.0) * 0.1;
+		//zpos -= Math.cos(heading + 90.0) * 0.1;
                 break;
             case 38: /* up */
                 //viewMat._13 += 0.01 * dT;
-               // camPos.z += 0.01 * dT;
+                //camPos.z += 0.01 * dT;
                 camPos = camPos.add(moveVecNF);
-                console.log(moveVecNF.toString());
+                //console.log(moveVecNF.toString());
+                
+                //xpos -= Math.sin(heading) * 0.1;
+		//zpos -= Math.cos(heading) * 0.1;
                 break;
             case 39: /* right */
                 //viewMat._03 += 0.01 * dT;
                 //camPos.x += 0.01 * dT;
                 camPos = camPos.add(moveVecLR);
-                console.log(moveVecLR.toString());
+                //console.log(moveVecLR.toString());
+                
+                //xpos += Math.sin(heading + 90.0) * 0.1;
+		//zpos += Math.cos(heading + 90.0) * 0.1;
                 break;
             case 40: /* down */
                // viewMat._13 -= 0.01 * dT;
                 //camPos.z -= 0.01 * dT;
                 camPos = camPos.subtract(moveVecNF);
+                
                // camPos.x = camPos.x - moveVecNF * 0.01;
                 //camPos.y = camPos.y - moveVecNF * 0.01;
                 //camPos.z = camPos.z - moveVecNF * 0.01;
+                
+                //xpos += Math.sin(heading) * 0.1;
+		//zpos += Math.cos(heading) * 0.1;
+                
                 
                 console.log(moveVecNF.toString());
                 break;
@@ -862,14 +906,20 @@ function handleKeyboard(canvas, dT) {
             case 83: /* s */
                 angleX += -0.01 * dT;
                 break;
+                
+                
+            // Rotate
+            case 74: /* j */
+                heading += -0.2 * dT;
+                yrot = heading;
+                console.log(yrot);
+                break;
+            case 76: /* l */
+                heading -= 0.2 * dT;
+                yrot = heading;
+                break;
         } 
-    }, true);
-   
-    
-    canvas.addEventListener('mousedown', handleMouseDown, true);
-    canvas.addEventListener('mouseup', handleMouseUp, true);
-    canvas.addEventListener('mousemove', handleMouseMove, true);
-    
+        
     // To rads
     radY = Math.PI * angleY / 180;
     //radY = MathHelper.DTR(radY);
@@ -884,7 +934,18 @@ function handleKeyboard(canvas, dT) {
     //console.log("campos: " + camPos.toString());
     // Add rotation
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(radY)); // (MathHelper.DTR(mouseX)));//(radY)); 
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(radX)); //(MathHelper.DTR(mouseY))); //(radX));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(radX)); //(MathHelper.DTR(mouseY)));
+    
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(yrot)));
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(xpos, 0.0, zpos)));
+    }, true);
+   
+    
+    canvas.addEventListener('mousedown', handleMouseDown, true);
+    canvas.addEventListener('mouseup', handleMouseUp, true);
+    canvas.addEventListener('mousemove', handleMouseMove, true);
+    
+ //(radX));
     
 
     //console.log(moveVec);

@@ -388,6 +388,89 @@ MeshHandler.prototype.setupBox = function (size) {
     this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
 };
 
+MeshHandler.prototype.setupBox6c = function (size) {
+    this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+            "  precision highp float;\n" +
+            "#else\n" +
+            "  precision mediump float;\n" +
+            "#endif\n\n";
+
+    this.vss =
+            "attribute vec3 position;\n" +
+            "attribute vec3 color;\n" +
+            "uniform vec3 translation;\n" +
+            "uniform float u_cosA;\n" +
+            "uniform float u_sinA;\n" +
+            "uniform mat4 transformation;\n" +
+            "varying vec3 vColor;\n" +
+            "varying vec3 vAmbient;\n" +
+            "void main() {\n" +
+            "   vAmbient = vec3(0.8, 0.8, 0.8);\n" +
+            "   gl_Position = transformation * vec4(position, 1.0);\n" +
+            "   vColor = color;\n" +
+            "}\n";
+
+    // Fragment shader string
+    this.fss = this.prea +
+            "varying vec3 vColor;\n" +
+            "varying vec3 vAmbient;\n" + 
+            "void main() {\n" +
+            "   gl_FragColor = vec4(vColor * vAmbient, 1.0);\n" +
+            "}\n";
+
+    // Setup triangle vertices
+    this.mesh = {
+        vertices: [
+            // front
+            -size, -size, size, // P0
+            size, -size, size, // P1
+            size, size, size, // P2
+            -size, size, size, // P3
+            // back
+            -size, -size, -size, // P4
+            size, -size, -size, // P5
+            size, size, -size, // P6
+            -size, size, -size // P7
+        ],
+        col: [
+            // front
+            0.6, 0.6, 0.6,
+            0.6, 0.6, 0.6,
+            0.6, 0.6, 0.6,
+            0.6, 0.6, 0.6,
+            // back
+            0.2, 0.2, 0.2,
+            0.2, 0.2, 0.2,
+            0.2, 0.2, 0.2,
+            0.2, 0.2, 0.2
+        ],
+        indices: [
+            // front
+            0, 2, 3, 
+            0, 1, 2, 
+            // rigth
+            1, 6, 2,
+            1, 5, 6,
+            // back
+            5, 7, 6,
+            5, 4, 7,
+            // left
+            4, 3, 7,
+            4, 0, 3,
+            // top
+            3, 6, 7,
+            3, 2, 6,
+            // bottom
+            4, 1, 0,
+            4, 5, 1
+        ],
+        trans: {x: 0, y: 0, z: 0}
+    };
+    this.mesh.cosA = 1.0;
+    this.mesh.sinA = 0.0;
+    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
+};
+
 
 MeshHandler.prototype.setupSphere = function (radius, colorMode) {
     this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
