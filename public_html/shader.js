@@ -251,3 +251,85 @@ DiffuseLightingShader.prototype.dispose = function () {
     this.gl.deleteProgram(this.sp);
     this.sp = null;
 };
+
+// ----------------------------------------------------------------------- //
+// ----------------------------- LightingShader -------------------------- //
+// ----------------------------------------------------------------------- //
+
+// Basic constructor -> set interface to GL-API
+var LightingShader = function (gl) {
+    this.gl = null; // Interface to GL-API
+    this.vs = null; // VertexShader
+    this.fs = null; // FragmentShader
+    this.sp = null; // ShaderProgram
+};
+
+// Init interface to GL
+LightingShader.prototype.initGL = function (gl) {
+    this.gl = gl;
+};
+
+// Initialize vertex- and fragmentShader
+LightingShader.prototype.initShader = function (vsSourceString, fsSourceString) {
+    // First, create vertexShader
+    this.vs = this.gl.createShader(this.gl.VERTEX_SHADER);
+    // Set vs source string
+    this.gl.shaderSource(this.vs, vsSourceString);
+    // Compile vertexShader
+    this.gl.compileShader(this.vs);
+    // Check compile status
+    if (!this.gl.getShaderParameter(this.vs, this.gl.COMPILE_STATUS)) {
+        console.warn("VertexShader: " + this.gl.getShaderInfoLog(this.vs));
+    }
+
+    // Create fragmentShader
+    this.fs = this.gl.createShader(this.gl.FRAGMENT_SHADER);
+    // Set fs source string
+    this.gl.shaderSource(this.fs, fsSourceString);
+    // Compile fragmentShader
+    this.gl.compileShader(this.fs);
+    // Check compile status
+    if (!this.gl.getShaderParameter(this.fs, this.gl.COMPILE_STATUS)) {
+        console.warn("FragmentShader: " + this.gl.getShaderInfoLog(this.fs));
+    }
+
+    // Create shaderProgram
+    this.sp = this.gl.createProgram();
+
+    // Attach shaders
+    this.gl.attachShader(this.sp, this.vs);
+    this.gl.attachShader(this.sp, this.fs);
+
+    // Link shaders
+    this.gl.linkProgram(this.sp);
+    // Check link status
+    if (!this.gl.getProgramParameter(this.sp, this.gl.LINK_STATUS)) {
+        console.warn("Could not link program: " + this.gl.getProgramInfoLog(this.sp));
+    }
+
+    // Initialize shaderVariables
+    // Attributes
+    this.sp.position = this.gl.getAttribLocation(this.sp, "position");
+    this.sp.normal = this.gl.getAttribLocation(this.sp, "normal");
+
+    // Uniforms
+    this.sp.translation = this.gl.getUniformLocation(this.sp, "translation");
+    this.sp.transformation = this.gl.getUniformLocation(this.sp, "transformation");
+    this.sp.normalMat = this.gl.getUniformLocation(this.sp, "normalMat");
+    this.sp.modelViewMat = this.gl.getUniformLocation(this.sp, "modelViewMat");
+};
+
+// Dispose shaders and shaderProgram
+LightingShader.prototype.dispose = function () {
+    // Free vertexShader
+    this.gl.detachShader(this.sp, this.vs);
+    this.gl.deleteShader(this.vs);
+
+    // Free fragmentShader
+    this.gl.detachShader(this.sp, this.fs);
+    this.gl.deleteShader(this.fs);
+
+    // Free program
+    this.gl.deleteProgram(this.sp);
+    this.sp = null;
+};

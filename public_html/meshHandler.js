@@ -1159,3 +1159,223 @@ MeshHandler.prototype.setupDiffusedBox = function () {
 
     this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
 };
+
+
+MeshHandler.prototype.loadOBJ = function (fileName, scaleFac) {
+    this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+            "  precision highp float;\n" +
+            "#else\n" +
+            "  precision mediump float;\n" +
+            "#endif\n\n";
+
+    this.vss =
+            "// init Attributes \n" +
+            "attribute vec3 position;\n" +
+            "attribute vec3 normal;\n" +
+            "attribute vec3 color;\n" +
+            
+            "// init Uniforms \n" +
+            "uniform vec3 translation;\n" +
+            "uniform mat4 transformation;\n" +
+            "uniform mat4 normalMat;\n" + 
+            
+            "// init Varyings \n" +
+            "varying vec3 vColor;\n" +
+            "varying vec3 vLighting;\n" +
+            //"varying vec3 vNormalCol;\n" + 
+            
+            "void main() {\n" +
+            "   vColor = vec3(0.7, 0.7, 0.3);\n" +
+            "   gl_Position = transformation * vec4(position, 1.0);\n" +
+            
+            "// set ambient color \n" +
+            "   vec3 ambientLight = vec3(0.6, 0.6, 0.6);\n" +
+            
+            "// set light color \n" +
+            "   vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n" +
+            
+            "// set light direction \n" +
+            "   vec3 directionalVector = vec3(1.0, 0.0, -1.0); //vec3(0.85, 0.8, 0.75);\n" +
+            
+            "// compute normalVector via normalMat * normal \n" +
+            "   vec4 transformedNormal = normalMat * vec4(normal, 1.0);\n" +
+            
+            "// compute Lambert-Factor \n" +
+            "   float lambert = max(dot(transformedNormal.xyz, directionalVector), 0.0);\n" +
+            "   vLighting = ambientLight + (directionalLightColor * lambert);\n" +
+            
+            //"   vNormalCol = normal;\n" +
+            "}\n";
+
+    // Fragment shader string
+    this.fss = this.prea +
+
+            "varying vec3 vColor;\n" +
+            
+            "// forwarded diffuse lighting \n" +
+            "varying vec3 vLighting;\n" +
+                
+            //"varying vec3 vNormalCol;\n" + 
+            
+            "void main() {\n" +
+            "   vec4 texelColor = vec4(vColor, 1.0);\n" +
+            //" vec3 normal = (normalize(vNormalCol) + 1.0) / 2.0;\n" +
+            "   gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);\n" +
+            //"   gl_FragColor = vec4(normal, 1.0);\n" +
+            "}\n";
+
+
+    var that = this;
+     var geo, app;
+     var request = new XMLHttpRequest();
+        request.open('GET', fileName, false);
+        request.send();  
+
+        //request.onload = function() {
+ 
+            if (fileName.toLowerCase().indexOf(".obj") > 0) {
+                var objDoc = new OBJDoc(fileName);
+
+                // parse parameters: file string, scale, reverse normals
+                if (!objDoc.parse(request.responseText, scaleFac, true)) {
+                    console.error("OBJ file parsing error: " + fileName);
+                    return;
+                }
+
+                geo = objDoc.getDrawingInfo();
+                //console.log("Geo " + geo.positions);
+               // app = { imgSrc: [], alpha: 1.0 };
+               // if (geo.textureName)
+                    //app.imgSrc.push(geo.textureName);
+                
+                //console.log("MESH1 " + that.mesh1.vertices);
+                
+                //setTimeout(function(){
+                    //setOBJ1(geo);
+                //}, 2000);
+                
+                
+                this.mesh = setOBJ(geo);
+            }
+            //return geo;
+        // };
+          
+         // console.log(this.mesh.vertices);
+    //this.mesh = setObj(request.onload());
+    
+    /*this.mesh = {
+        vertices: geo.positions,
+        colors: geo.colors,
+        normals: geo.normals,
+        indices: geo.indices,
+        // Setup translation
+        trans: {x: 0, y: 0, z: 0}      
+    };
+    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
+    console.log("mesh1 " + this.mesh.vertices);*/
+    //console.log("mesh1 " + that.mesh1.vertices);
+};
+
+function setOBJ(geo){
+    //console.log("GEO" + geo.vertices);
+    var mesh = {
+        vertices: geo.positions,
+        //colors: geo.colors,
+        normals: geo.normals,
+        indices: geo.indices,
+        // Setup translation
+        trans: {x: 0, y: 0, z: 0}      
+    };
+    mesh.transformMatrix = VecMath.SFMatrix4f.identity();
+    //mesh.transformMatrix = mesh.transformMatrix.mult(
+      //      VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-5.0, 0.0, 0.0)));
+    
+    //console.log("MESH " + mesh.vertices);
+    
+    return mesh;
+}
+
+MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
+    this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+            "  precision highp float;\n" +
+            "#else\n" +
+            "  precision mediump float;\n" +
+            "#endif\n\n";
+
+    this.vss =
+            "// init Attributes \n" +
+            "attribute vec3 position;\n" +
+            "attribute vec3 normal;\n" +
+            
+            "// init Uniforms \n" +
+            "uniform vec3 translation;\n" +
+            "uniform mat4 transformation;\n" +
+            "uniform mat4 normalMat;\n" +
+            "uniform mat4 modelViewMat;\n" +
+            
+            "// init Varyings \n" +
+            "varying vec3 vPosition;\n" +
+            "varying vec3 vNormal;\n" +
+            
+            "void main() {\n" +
+            "   vPosition = (modelViewMat * vec4(position, 1.0)).xyz;\n" +
+            "   vNormal   = (normalMat * vec4(normal, 0.0)).xyz;\n" +
+            "   gl_Position = transformation * vec4(position, 1.0);\n" +
+            "}\n";
+
+    // Fragment shader string
+    this.fss = this.prea +
+            "varying vec3 vPosition;\n" +
+            "varying vec3 vNormal;\n" +
+            
+            "void main() {\n" +
+            "   // colors \n" +
+            "   vec3 diffuseColor = vec3(0.0, 0.0, 1.0);\n" +
+            "   vec3 specularColor = vec3(0.3, 0.3, 0.3);\n" +
+            "   vec3 lightDirection = vec3(-1.0, 1.0, 1.0);\n" +
+            
+            "   vec3 light = normalize(-lightDirection);\n" +
+            "   vec3 view = normalize(-vPosition);\n" +
+            "   vec3 normal = normalize(vNormal);\n" +
+            
+            "   vec3 halfVec = normalize(light + view);\n" +
+            "   vec3 lightColor = vec3(1.0, 1.0, 0.8);\n" +
+            
+            "   // Ambienter Anteil \n" +
+            "   vec3 ambient = vec3(0.1);\n" +
+            
+            "   // Diffuser Anteil \n" +
+            "   float NdotL = max(dot(normal, light), 0.0);\n" +
+            "   vec3 diffuse = diffuseColor * NdotL * lightColor;\n" +
+            
+            "   // Specularer Anteil \n" + 
+            "   float powNdotH = pow(max(dot(normal, halfVec), 0.0), 128.0);\n" +
+            "   vec3 specular = specularColor * powNdotH * lightColor;\n" + 
+            
+            "   // Finale Farbe \n" +
+            "   vec3 color = ambient + diffuse + specular;\n" + 
+            "   gl_FragColor = vec4(color, 1.0);\n" +
+           
+           
+            "}\n";
+
+
+    var geo;
+    var request = new XMLHttpRequest();
+        request.open('GET', fileName, false);
+        request.send();  
+
+    if (fileName.toLowerCase().indexOf(".obj") > 0) {
+        var objDoc = new OBJDoc(fileName);
+
+        // parse parameters: file string, scale, reverse normals
+        if (!objDoc.parse(request.responseText, scaleFac, true)) {
+            console.error("OBJ file parsing error: " + fileName);
+            return;
+        }
+        
+        geo = objDoc.getDrawingInfo();
+        this.mesh = setOBJ(geo);
+    }
+};
+

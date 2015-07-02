@@ -305,7 +305,7 @@ TextureDrawable.prototype.dispose = function () {
 // ----------------------------------------------------------------------- //
 
 // Basic constructor -> set interface to GL-API
-var LightningTextureDrawable = function () {
+var LightingTextureDrawable = function () {
     this.gl = null;       // Access to GL-API
     this.md = null;       // MeshData
     this.angle = 0.0;     // Degrees for rotationZ
@@ -315,12 +315,12 @@ var LightningTextureDrawable = function () {
 };
 
 // Init interface to GL
-LightningTextureDrawable.prototype.initGL = function (gl) {
+LightingTextureDrawable.prototype.initGL = function (gl) {
     this.gl = gl;
 };
 
 // Init and bind buffers
-LightningTextureDrawable.prototype.initBuffers = function () {
+LightingTextureDrawable.prototype.initBuffers = function () {
     this.normals = this.computeFaceNormals1(this.md.vertices, this.md.indices);
 
     // VertexPositionBuffer
@@ -333,6 +333,7 @@ LightningTextureDrawable.prototype.initBuffers = function () {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.texBuffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.tex), this.gl.STATIC_DRAW);
     
+    // NormalBuffer
     this.md.normalBuffer = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.normals), this.gl.STATIC_DRAW);
@@ -345,7 +346,7 @@ LightningTextureDrawable.prototype.initBuffers = function () {
 
 // Set md, translation and rotation. 
 // Finally init buffers
-LightningTextureDrawable.prototype.setBufferData = function (vertices, tex, indices, translation) {
+LightingTextureDrawable.prototype.setBufferData = function (vertices, tex, indices, translation) {
     // Set md
     this.md = {
         // Setup vetices
@@ -366,12 +367,12 @@ LightningTextureDrawable.prototype.setBufferData = function (vertices, tex, indi
 };
 
 
-LightningTextureDrawable.prototype.update = function (transformMatrix) {
+LightingTextureDrawable.prototype.update = function (transformMatrix) {
     this.md.transformMatrix = transformMatrix;
 };
 
 // Render md
-LightningTextureDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
+LightingTextureDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
 
     // Use the shader
     this.gl.useProgram(sp);
@@ -443,7 +444,7 @@ LightningTextureDrawable.prototype.draw = function (sp, viewMat, projectionMat) 
 };
 
 // Setup texture, example: "file.png"
-LightningTextureDrawable.prototype.initTexture = function (path) {
+LightingTextureDrawable.prototype.initTexture = function (path) {
     this.tex = this.gl.createTexture();
     this.tex.image = new Image();
     this.tex.image.crossOrigin = ''; // ?
@@ -466,7 +467,7 @@ function handleLoadedTexture(texture) {
     //this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 };
 
-LightningTextureDrawable.prototype.dispose = function () {
+LightingTextureDrawable.prototype.dispose = function () {
     // Free all buffers
     this.gl.deleteBuffer(this.md.positionBuffer);
     this.gl.deleteBuffer(this.md.texBuffer);
@@ -474,22 +475,22 @@ LightningTextureDrawable.prototype.dispose = function () {
     this.gl.deleteBuffer(this.md.indexBuffer);
 };
 
-LightningTextureDrawable.prototype.computeFaceNormals = function(verts){
+LightingTextureDrawable.prototype.computeFaceNormals = function(verts){
     var normals = new Array();
     //var i0, i1, i2;
-    console.log("verts: " + verts.length / 3);
-    console.log("verts: " + verts.toString());
+    //console.log("verts: " + verts.length / 3);
+    //console.log("verts: " + verts.toString());
     for(var i = 0; i < verts.length; i+=3){
         var i0 = i * 3;
         var i1 = (i + 1) * 3;
         var i2 = (i + 2) * 3;
         
         var p0 = new VecMath.SFVec3f(verts[i0], verts[i0 + 1], verts[i0 + 2]);
-        console.log("P0: " + p0.toString());
+        //console.log("P0: " + p0.toString());
         var p1 = new VecMath.SFVec3f(verts[i1], verts[i1 + 1], verts[i1 + 2]);
-        console.log("P1: " + p1.toString());
+        //console.log("P1: " + p1.toString());
         var p2 = new VecMath.SFVec3f(verts[i2], verts[i2 + 1], verts[i2 + 2]);
-        console.log("P2: " + p2.toString());
+        //console.log("P2: " + p2.toString());
         
         var a = p1.subtract(p0);
         var b = p2.subtract(p1);
@@ -500,21 +501,21 @@ LightningTextureDrawable.prototype.computeFaceNormals = function(verts){
         normals.push(norm);
         normals.push(norm);
     }
-    console.log("norms: " + normals.length.toString());
-    console.log("norms: " + normals.toString());
+    //console.log("norms: " + normals.length.toString());
+    //console.log("norms: " + normals.toString());
     return normals;
 };
 
-LightningTextureDrawable.prototype.computeFaceNormals1 = function(verts, indices){
+LightingTextureDrawable.prototype.computeFaceNormals1 = function(verts, indices){
     var normals = new Array(verts.length / 3);
     for(var i = 0; i < normals.length; i++)
         normals[i] = new VecMath.SFVec3f(0.0, 0.0, 0.0);
     
     //var i0, i1, i2;
-    console.log("posXYZ: " + verts.length + " and vectors: " + verts.length / 3);
-    console.log("verts: " + verts.toString());
-    console.log("indices: " + indices.length.toString());
-    console.log("indices: " + indices.toString());
+   // console.log("posXYZ: " + verts.length + " and vectors: " + verts.length / 3);
+    //console.log("verts: " + verts.toString());
+    //console.log("indices: " + indices.length.toString());
+    //console.log("indices: " + indices.toString());
     for(i = 0; i < indices.length; i+=3){
         var v0 = new VecMath.SFVec3f(verts[3 * indices[i]], verts[3 * indices[i]+1], verts[3 * indices[i]+2]);
         var v1 = new VecMath.SFVec3f(verts[3 * indices[i+1]], verts[3 * indices[i+1]+1], verts[3 * indices[i+2]+2]);
@@ -543,9 +544,157 @@ LightningTextureDrawable.prototype.computeFaceNormals1 = function(verts, indices
     
     
     
-    console.log("norms: " + normals.length.toString());
-    console.log("norms: " + normals.toString());
+   // console.log("norms: " + normals.length.toString());
+   // console.log("norms: " + normals.toString());
     return finNorms;
+};
+
+
+// ----------------------------------------------------------------------- //
+// ---------------------------- LightingDrawable ------------------------- //
+// ----------------------------------------------------------------------- //
+
+// Basic constructor -> set interface to GL-API
+var LightingDrawable = function () {
+    this.gl = null;       // Access to GL-API
+    this.md = null;       // MeshData
+    this.angle = 0.0;     // Degrees for rotationZ
+
+};
+
+// Init interface to GL
+LightingDrawable.prototype.initGL = function (gl) {
+    this.gl = gl;
+};
+
+// Init and bind buffers
+LightingDrawable.prototype.initBuffers = function () {
+
+    // VertexPositionBuffer
+    this.md.positionBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.vertices), this.gl.STATIC_DRAW);
+
+    // Textures/Colors
+    //this.md.colorBuffer = this.gl.createBuffer();
+    //this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.colorBuffer);
+    //this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.colors), this.gl.STATIC_DRAW);
+    
+    // NormalBuffer
+    this.md.normalBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.normals), this.gl.STATIC_DRAW);
+
+    // IndexBuffer
+    this.md.indexBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.md.indices), this.gl.STATIC_DRAW);
+};
+
+// Set md, translation and rotation. 
+// Finally init buffers
+LightingDrawable.prototype.setBufferData = function (vertices, colors, normals, indices, translation) {
+    // Set md
+    this.md = {
+        // Setup vetices
+        vertices: vertices,
+        // Setup vertex colors
+        colors: colors,
+        // Setup normals
+        normals: normals,
+        // Setup indices
+        indices: indices,
+        // Setup translation
+        //trans: {x: 0, y: 0, z: 0}
+        trans: translation
+    };
+
+    this.md.transformMatrix = VecMath.SFMatrix4f.identity();
+
+    // Init buffers
+    this.initBuffers();
+};
+
+
+LightingDrawable.prototype.update = function (transformMatrix) {
+    this.md.transformMatrix = transformMatrix;
+};
+
+// Render md
+LightingDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
+
+    // Use the shader
+    this.gl.useProgram(sp);
+
+    // Set uniforms
+    this.gl.uniform3f(sp.translation,
+            this.md.trans.x,
+            this.md.trans.y,
+            this.md.trans.z);
+            
+    // Set lightSource, viewMat.inverse.transpose aka normalMat
+    //this.gl.uniform3f(sp.directionalLight)
+    var normalMat = viewMat.inverse().transpose();
+    this.gl.uniformMatrix4fv(sp.normalMat, false, new Float32Array(normalMat.toGL()));
+
+    // Set view/projection -> transformMatrix = worldMatrix for object
+    var modelView = viewMat.mult(this.md.transformMatrix);
+    var modelViewProjection = projectionMat.mult(modelView);
+    this.gl.uniformMatrix4fv(sp.modelViewMat, false, new Float32Array(modelView.toGL()));
+    this.gl.uniformMatrix4fv(sp.transformation, false, new Float32Array(modelViewProjection.toGL()));
+
+    // Bind indexBuffer
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
+
+    // Bind vertexPositionBuffer
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
+    this.gl.vertexAttribPointer(sp.position, // index of attribute
+            3, // three position components (x,y,z)
+            this.gl.FLOAT, // provided data type is float
+            false, // do not normalize values
+            0, // stride (in bytes)
+            0); // offset (in bytes)
+    this.gl.enableVertexAttribArray(sp.position);
+    
+    // Bind colorBuffer
+    /*this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.colorBuffer);
+    this.gl.vertexAttribPointer(sp.color, // index of attribute
+            3, // two texCoords (u, v)
+            this.gl.FLOAT, // provided data type is float
+            false, // do not normalize values
+            0, // stride (in bytes)
+            0); // offset (in bytes)
+    this.gl.enableVertexAttribArray(sp.color);*/
+    
+    // Bind normalBuffer
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
+    this.gl.vertexAttribPointer(sp.normal,//sp.normal, // index of attribute
+            3, // three position components (x,y,z)
+            this.gl.FLOAT, // provided data type is float
+            false, // do not normalize values
+            0, // stride (in bytes)
+            0); // offset (in bytes)
+    this.gl.enableVertexAttribArray(sp.normal);
+    
+
+    // Draw call
+    this.gl.drawElements(this.gl.TRIANGLES, // polyg type
+            this.md.indices.length, // buffer length
+            this.gl.UNSIGNED_SHORT, // buffer type
+            0); // start index
+
+    // Disable arributes
+    this.gl.disableVertexAttribArray(sp.position);
+    //this.gl.disableVertexAttribArray(sp.colors);
+    this.gl.disableVertexAttribArray(sp.normals);
+};
+
+LightingDrawable.prototype.dispose = function () {
+    // Free all buffers
+    this.gl.deleteBuffer(this.md.positionBuffer);
+    //this.gl.deleteBuffer(this.md.colorBuffer);
+    this.gl.deleteBuffer(this.md.normalBuffer);
+    this.gl.deleteBuffer(this.md.indexBuffer);
 };
 
 
