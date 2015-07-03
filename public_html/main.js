@@ -987,29 +987,28 @@ function handleKeyboard(canvas, dT) {
     camPos.z = -zPos;
 
 
-    viewMat = VecMath.SFMatrix4f.identity();
+    /*viewMat = VecMath.SFMatrix4f.identity();
     viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));*/
     
    
-    /*viewMat = VecMath.SFMatrix4f.identity();
+   viewMat = VecMath.SFMatrix4f.identity();
     
     var rotMat = viewMat; 
     rotMat = rotMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
     rotMat = rotMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
     
     direction = rotMat.multMatrixPnt(addVec);
-    //normalizedDirection = VecMath.SFVec3f.normalize(direction);
+    normalizedDirection = direction.normalize();
     
     viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(direction));
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch)); 
     
-    */
-    // Dude define the look vector, move leftRight cross from position and look wa ma tryn 
     
+    // addvec auf campos -> translate mit campos
     
     //console.log(pitch + " " + yaw + " " + camPos);
     //console.log(viewMat._03 + " " + viewMat._13 + " " +  viewMat._23);

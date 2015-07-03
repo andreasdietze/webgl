@@ -1178,6 +1178,7 @@ MeshHandler.prototype.loadOBJ = function (fileName, scaleFac) {
             "uniform vec3 translation;\n" +
             "uniform mat4 transformation;\n" +
             "uniform mat4 normalMat;\n" + 
+            "uniform mat4 viewMat;\n" +
             
             "// init Varyings \n" +
             "varying vec3 vColor;\n" +
@@ -1189,13 +1190,13 @@ MeshHandler.prototype.loadOBJ = function (fileName, scaleFac) {
             "   gl_Position = transformation * vec4(position, 1.0);\n" +
             
             "// set ambient color \n" +
-            "   vec3 ambientLight = vec3(0.6, 0.6, 0.6);\n" +
+            "   vec3 ambientLight = vec3(0.3, 0.3, 0.3);\n" +
             
             "// set light color \n" +
             "   vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n" +
             
             "// set light direction \n" +
-            "   vec3 directionalVector = vec3(1.0, 0.0, -1.0); //vec3(0.85, 0.8, 0.75);\n" +
+            "   vec3 directionalVector = (viewMat * vec4(1.0, 0.0, 1.0, 0.0)).xyz; //vec3(0.85, 0.8, 0.75);\n" +
             
             "// compute normalVector via normalMat * normal \n" +
             "   vec4 transformedNormal = normalMat * vec4(normal, 1.0);\n" +

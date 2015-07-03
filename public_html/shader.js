@@ -317,6 +317,8 @@ LightingShader.prototype.initShader = function (vsSourceString, fsSourceString) 
     this.sp.transformation = this.gl.getUniformLocation(this.sp, "transformation");
     this.sp.normalMat = this.gl.getUniformLocation(this.sp, "normalMat");
     this.sp.modelViewMat = this.gl.getUniformLocation(this.sp, "modelViewMat");
+    this.sp.viewMat = this.gl.getUniformLocation(this.sp, "viewMat");
+    
 };
 
 // Dispose shaders and shaderProgram

@@ -634,14 +634,18 @@ LightingDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
             
     // Set lightSource, viewMat.inverse.transpose aka normalMat
     //this.gl.uniform3f(sp.directionalLight)
-    var normalMat = viewMat.inverse().transpose();
-    this.gl.uniformMatrix4fv(sp.normalMat, false, new Float32Array(normalMat.toGL()));
+
 
     // Set view/projection -> transformMatrix = worldMatrix for object
     var modelView = viewMat.mult(this.md.transformMatrix);
     var modelViewProjection = projectionMat.mult(modelView);
     this.gl.uniformMatrix4fv(sp.modelViewMat, false, new Float32Array(modelView.toGL()));
     this.gl.uniformMatrix4fv(sp.transformation, false, new Float32Array(modelViewProjection.toGL()));
+    
+    var normalMat = modelView.inverse().transpose(); // soll moidelviewMat sein
+    this.gl.uniformMatrix4fv(sp.normalMat, false, new Float32Array(normalMat.toGL()));
+    
+    this.gl.uniformMatrix4fv(sp.viewMat, false, new Float32Array(viewMat.toGL()));
 
     // Bind indexBuffer
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
