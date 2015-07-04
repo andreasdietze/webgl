@@ -26,7 +26,7 @@ var mouseX = null, mouseY = null;
 var moveVecNF = new VecMath.SFVec3f(0.0, 0.0, 0.0),
     moveVecLR = new VecMath.SFVec3f(0.0, 0.0, 0.0);
     
-var direction, normalizedDirection;
+var direction;
 
 
 // make sure browser knows requestAnimationFrame method
@@ -740,7 +740,7 @@ function animate(canvas) {
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.75, 0.0)));
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0)));
+            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
    
@@ -748,7 +748,7 @@ function animate(canvas) {
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, -0.75, 0.0)));
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0)));
+            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
    
@@ -950,18 +950,19 @@ function handleKeyboard(canvas, dT) {
 
                 // Rotate
             case 65: /* a */
-                angleY += -0.01 * dT;
+                //angleY += -0.01 * dT;
                 break;
             case 87: /* w */
                 //angleX += 0.01 * dT;
-                addVec.z -= 0.1 *dT;
+                //addVec.z -= 0.1 *dT;
                 break;
             case 68: /* d */
-                angleY += 0.01 * dT;
+                //angleY += 0.01 * dT;
                 break;
             case 83: /* s */
-                addVec.z += 0.1 *dT;
+                //addVec.z += 0.1 *dT;
                // angleX += -0.01 * dT;
+               //camPos.z += 0.1 *dT;
                 break;
 
         } 
@@ -987,25 +988,28 @@ function handleKeyboard(canvas, dT) {
     camPos.z = -zPos;
 
 
-    /*viewMat = VecMath.SFMatrix4f.identity();
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));
+    viewMat = VecMath.SFMatrix4f.identity();
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(0.0, 0.0, -7))));
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));*/
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));
     
    
-   viewMat = VecMath.SFMatrix4f.identity();
+    /*viewMat = VecMath.SFMatrix4f.identity();
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos).inverse());
     
     var rotMat = viewMat; 
     rotMat = rotMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
     rotMat = rotMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
     
-    direction = rotMat.multMatrixPnt(addVec);
-    normalizedDirection = direction.normalize();
+    direction = rotMat.multMatrixPnt(camPos);
+    var normalizedDirection = direction.normalize();
+    camPos.add(normalizedDirection);
+    console.log("CamPos: " + camPos);
     
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(direction));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos));
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch)); 
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));*/
     
     
     // addvec auf campos -> translate mit campos

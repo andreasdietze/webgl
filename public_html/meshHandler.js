@@ -1232,49 +1232,18 @@ MeshHandler.prototype.loadOBJ = function (fileName, scaleFac) {
         request.open('GET', fileName, false);
         request.send();  
 
-        //request.onload = function() {
- 
-            if (fileName.toLowerCase().indexOf(".obj") > 0) {
-                var objDoc = new OBJDoc(fileName);
+    if (fileName.toLowerCase().indexOf(".obj") > 0) {
+        var objDoc = new OBJDoc(fileName);
 
-                // parse parameters: file string, scale, reverse normals
-                if (!objDoc.parse(request.responseText, scaleFac, true)) {
-                    console.error("OBJ file parsing error: " + fileName);
-                    return;
-                }
+        // parse parameters: file string, scale, reverse normals
+        if (!objDoc.parse(request.responseText, scaleFac, true)) {
+            console.error("OBJ file parsing error: " + fileName);
+            return;
+        }
 
-                geo = objDoc.getDrawingInfo();
-                //console.log("Geo " + geo.positions);
-               // app = { imgSrc: [], alpha: 1.0 };
-               // if (geo.textureName)
-                    //app.imgSrc.push(geo.textureName);
-                
-                //console.log("MESH1 " + that.mesh1.vertices);
-                
-                //setTimeout(function(){
-                    //setOBJ1(geo);
-                //}, 2000);
-                
-                
-                this.mesh = setOBJ(geo);
-            }
-            //return geo;
-        // };
-          
-         // console.log(this.mesh.vertices);
-    //this.mesh = setObj(request.onload());
-    
-    /*this.mesh = {
-        vertices: geo.positions,
-        colors: geo.colors,
-        normals: geo.normals,
-        indices: geo.indices,
-        // Setup translation
-        trans: {x: 0, y: 0, z: 0}      
-    };
-    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
-    console.log("mesh1 " + this.mesh.vertices);*/
-    //console.log("mesh1 " + that.mesh1.vertices);
+        geo = objDoc.getDrawingInfo();
+        this.mesh = setOBJ(geo);
+    }
 };
 
 function setOBJ(geo){
@@ -1314,6 +1283,7 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
             "uniform mat4 normalMat;\n" +
             "uniform mat4 modelViewMat;\n" +
             
+            
             "// init Varyings \n" +
             "varying vec3 vPosition;\n" +
             "varying vec3 vNormal;\n" +
@@ -1326,6 +1296,7 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
 
     // Fragment shader string
     this.fss = this.prea +
+            "uniform mat4 viewMat;\n" +
             "varying vec3 vPosition;\n" +
             "varying vec3 vNormal;\n" +
             
@@ -1333,7 +1304,7 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
             "   // colors \n" +
             "   vec3 diffuseColor = vec3(0.0, 0.0, 1.0);\n" +
             "   vec3 specularColor = vec3(0.3, 0.3, 0.3);\n" +
-            "   vec3 lightDirection = vec3(-1.0, 1.0, 1.0);\n" +
+            "   vec3 lightDirection = (viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz;\n" +
             
             "   vec3 light = normalize(-lightDirection);\n" +
             "   vec3 view = normalize(-vPosition);\n" +
@@ -1356,8 +1327,7 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
             "   // Finale Farbe \n" +
             "   vec3 color = ambient + diffuse + specular;\n" + 
             "   gl_FragColor = vec4(color, 1.0);\n" +
-           
-           
+                  
             "}\n";
 
 
