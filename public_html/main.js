@@ -228,7 +228,6 @@ function main() {
             mh.mesh.indices,
             mh.mesh.trans);
     //houseTex.initTexture("crazyCube.png");
-    console.log(houseTex.tex);
     
     mh.setupTexturedBox(0.25);
     boxShaderTex.initGL(gl);
@@ -252,11 +251,20 @@ function main() {
     sphereTexShader.initGL(gl);
     sphereTexShader.initShader(mh.vss, mh.fss);
     sphereTex.initGL(gl);
-    sphereTex.setBufferData(mh.mesh.vertices,
-            mh.mesh.tex,
-            mh.mesh.indices,
-            mh.mesh.trans);
     sphereTex.initTexture("crazyCube.png");
+    while(!sphereTex.tex)
+    {
+       console.log(sphereTex.tex);
+    }
+    
+    if(sphereTex){
+        sphereTex.setBufferData(mh.mesh.vertices,
+                mh.mesh.tex,
+                mh.mesh.indices,
+                mh.mesh.trans);
+        
+    }
+    console.log(sphereTex.tex);
     
     // Lighting ---------------------------------------
     
