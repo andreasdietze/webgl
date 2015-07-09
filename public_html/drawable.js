@@ -298,14 +298,27 @@ TextureDrawable.prototype.initTexture = function (path) {
     image.crossOrigin = ''; // ?
     image.src = path;
     
+    var that = this;
+    
     //console.log(this.tex);
     image.onload = function () {
-        handleLoadedTexture(image);
+        console.log("aaaa");
+       /* that.gl.pixelStorei(that.gl.UNPACK_FLIP_Y_WEBGL, true);
+        that.gl.bindTexture(that.gl.TEXTURE_2D, that.tex);
+        that.gl.texImage2D(that.gl.TEXTURE_2D, 0, that.gl.RGBA, that.gl.RGBA, that.gl.UNSIGNED_BYTE, image);
+        that.gl.bindTexture(that.gl.TEXTURE_2D, null);
+
+        that.tex.width = image.width;
+        that.tex.height = image.height;
+        that.tex.ready = true;
+        that.needRender = true;*/
+        handleLoadedTexture1.call(that, image);
     };
 };
 
 // Handle texture
-function handleLoadedTexture(image) {
+function handleLoadedTexture1(image) {
+    console.log("image");
     this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
@@ -315,6 +328,7 @@ function handleLoadedTexture(image) {
     this.tex.height = image.height;
     this.tex.ready = true;
     this.needRender = true;
+    console.log("xxxxx");
 };
 
 TextureDrawable.prototype.dispose = function () {

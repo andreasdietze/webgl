@@ -245,25 +245,25 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    //boxTex2.initTexture("crazyCube.png");
+    boxTex2.initTexture("crazyCube.png");
     
     mh.setupTexturedSphere(0.4);
     sphereTexShader.initGL(gl);
     sphereTexShader.initShader(mh.vss, mh.fss);
     sphereTex.initGL(gl);
     sphereTex.initTexture("crazyCube.png");
-    while(!sphereTex.tex)
-    {
+    //while(!sphereTex.tex)
+   // {
        console.log(sphereTex.tex);
-    }
+   // }
     
-    if(sphereTex){
+   // if(sphereTex){
         sphereTex.setBufferData(mh.mesh.vertices,
                 mh.mesh.tex,
                 mh.mesh.indices,
                 mh.mesh.trans);
         
-    }
+    //}
     console.log(sphereTex.tex);
     
     // Lighting ---------------------------------------
