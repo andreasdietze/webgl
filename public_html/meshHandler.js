@@ -1308,12 +1308,12 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
             "   // Shininess\n" +
             "   float shininess = 128.0;\n" +
             
-            "   #if 1\n" +
+            "   #if 0\n" +
             "   float NdotL = max(dot(normal, view), 0.0);\n" +
             "   vec3 color = ambient + NdotL * diffuseColor + pow(NdotL, shininess) * specularColor;\n" +
             "   #endif\n" +
             
-            "   #if 0\n" +
+            "   #if 1\n" +
             "   // Diffuser Anteil \n" +
             "   float NdotL = max(dot(normal, light), 0.0);\n" +
             "   vec3 diffuse = diffuseColor * NdotL * lightColor;\n" +

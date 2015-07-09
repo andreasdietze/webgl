@@ -227,7 +227,7 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    //houseTex.initTexture("crazyCube.png");
+    houseTex.initTexture("tex2.png");
     
     mh.setupTexturedBox(0.25);
     boxShaderTex.initGL(gl);
@@ -237,7 +237,7 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    //boxTex.initTexture("crazyCube.png");
+    boxTex.initTexture("tex2.png");
     
     mh.setupTexturedBox6f();
     boxTex2.initGL(gl);
@@ -251,20 +251,11 @@ function main() {
     sphereTexShader.initGL(gl);
     sphereTexShader.initShader(mh.vss, mh.fss);
     sphereTex.initGL(gl);
-    sphereTex.initTexture("crazyCube.png");
-    //while(!sphereTex.tex)
-   // {
-       console.log(sphereTex.tex);
-   // }
-    
-   // if(sphereTex){
-        sphereTex.setBufferData(mh.mesh.vertices,
-                mh.mesh.tex,
-                mh.mesh.indices,
-                mh.mesh.trans);
-        
-    //}
-    console.log(sphereTex.tex);
+    sphereTex.initTexture("tex2.png");
+    sphereTex.setBufferData(mh.mesh.vertices,
+             mh.mesh.tex,
+             mh.mesh.indices,
+             mh.mesh.trans);
     
     // Lighting ---------------------------------------
     
@@ -328,7 +319,7 @@ function main() {
         
         // Color scenes
         sceneOne.draw(boxShader, sphereShader, viewMat, projectionMat);
-        orientationScene.draw(boxShader, viewMat, projectionMat);
+        //orientationScene.draw(boxShader, viewMat, projectionMat);
         
         // Textured
         houseTex.draw(houseShaderTex.sp, viewMat, projectionMat);
@@ -351,7 +342,7 @@ function main() {
 // Clear color, depth and set viewport
 function clearBackBuffer(canvas) {
     // Clear color to black
-    gl.clearColor(0.3, 0.5, 0.2, 0.3);
+    gl.clearColor(0.3, 0.5, 0.4, 0.6); // 0.3 0.5 0.2 0.3
     // Clear depth to max (1.0) min(0.0)
     gl.clearDepth(1.0);
     // Init viewport
@@ -365,8 +356,8 @@ function clearBackBuffer(canvas) {
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
     // Blending
-    //gl.enable(gl.BLEND);
-    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.enable(gl.BLEND);
+    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // SRC_ALPHA
 }
 
 // Update
@@ -521,7 +512,7 @@ function initTexture() {
     tex = gl.createTexture();
     tex.image = new Image();
     tex.image.crossOrigin = ''; // ?
-    tex.image.src = "tex2.png";   // tex2.png
+    tex.image.src = "tex2.png";  
     tex.image.onload = function () {
         handleLoadedTexture(tex);
     };
