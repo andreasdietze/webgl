@@ -208,7 +208,7 @@ TextureDrawable.prototype.setBufferData = function (vertices, tex, indices, tran
 
     this.md.transformMatrix = VecMath.SFMatrix4f.identity();
 
-   // this.tex = initTexture(this.path);
+    //this.tex = initTexture(this.path);
     
     // Init buffers
     this.initBuffers();
@@ -289,8 +289,8 @@ TextureDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
 };
 
 // Setup texture, example: "file.png"
-//TextureDrawable.prototype.initTexture = function (path) {
-function initTexture(path){
+TextureDrawable.prototype.initTexture = function (path) {
+//function initTexture(path){
     this.tex = this.gl.createTexture();
     this.tex.ready = false;
     

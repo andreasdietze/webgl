@@ -256,7 +256,7 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    //sphereTex.initTexture("crazyCube.png");
+    sphereTex.initTexture("crazyCube.png");
     
     // Lighting ---------------------------------------
     
