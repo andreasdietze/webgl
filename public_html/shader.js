@@ -5,7 +5,7 @@
 // ----------------------------------------------------------------------- //
 
 // Basic constructor -> set interface to GL-API
-var ColorShader = function (gl) {
+var ColorShader = function () {
     this.gl = null; // Interface to GL-API
     this.vs = null; // VertexShader
     this.fs = null; // FragmentShader
@@ -59,15 +59,13 @@ ColorShader.prototype.initShader = function (vsSourceString, fsSourceString) {
     // Attributes
     this.sp.position = this.gl.getAttribLocation(this.sp, "position");
     this.sp.color = this.gl.getAttribLocation(this.sp, "color");
+    this.sp.normal = this.gl.getAttribLocation(this.sp, "normal");
 
     // Uniforms
-    this.sp.translation = this.gl.getUniformLocation(this.sp, "translation");
-    this.sp.u_cosA = this.gl.getUniformLocation(this.sp, "u_cosA");
-    this.sp.u_sinA = this.gl.getUniformLocation(this.sp, "u_sinA");
-    // Kann wech, aba auch im shader wech machen -> dafür worldViewProjection (transformation)!!!
     this.sp.transformation = this.gl.getUniformLocation(this.sp, "transformation");
-    this.sp.viewMatrix = this.gl.getUniformLocation(this.sp, "viewMatrix"); 
-    this.sp.projectionMatrix = this.gl.getUniformLocation(this.sp, "projectionMatrix");
+    this.sp.normalMat = this.gl.getUniformLocation(this.sp, "normalMat");
+    this.sp.modelViewMat = this.gl.getUniformLocation(this.sp, "modelViewMat");
+    this.sp.viewMat = this.gl.getUniformLocation(this.sp, "viewMat");
 };
 
 // Dispose shaders and shaderProgram
@@ -90,7 +88,7 @@ ColorShader.prototype.dispose = function () {
 // ----------------------------------------------------------------------- //
 
 // Basic constructor -> set interface to GL-API
-var TextureShader = function (gl) {
+var TextureShader = function () {
     this.gl = null; // Interface to GL-API
     this.vs = null; // VertexShader
     this.fs = null; // FragmentShader
@@ -171,7 +169,7 @@ TextureShader.prototype.dispose = function () {
 // ----------------------------------------------------------------------- //
 
 // Basic constructor -> set interface to GL-API
-var DiffuseLightingShader = function (gl) {
+var DiffuseLightingShader = function () {
     this.gl = null; // Interface to GL-API
     this.vs = null; // VertexShader
     this.fs = null; // FragmentShader
@@ -257,7 +255,7 @@ DiffuseLightingShader.prototype.dispose = function () {
 // ----------------------------------------------------------------------- //
 
 // Basic constructor -> set interface to GL-API
-var LightingShader = function (gl) {
+var LightingShader = function () {
     this.gl = null; // Interface to GL-API
     this.vs = null; // VertexShader
     this.fs = null; // FragmentShader

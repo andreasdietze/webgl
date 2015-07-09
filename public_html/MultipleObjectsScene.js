@@ -45,6 +45,7 @@ function createCubeChain(gl, mh){
 
         drawable.setBufferData(mh.mesh.vertices,
                 colors,
+                mh.mesh.normals,
                 mh.mesh.indices,
                 mh.mesh.trans,
                 mh.mesh.cosA,
@@ -78,6 +79,7 @@ function createSphereChain(gl, mh){
 
         drawable.setBufferData(mh.mesh.vertices,
                 mh.mesh.col,
+                mh.mesh.normals,
                 mh.mesh.indices,
                 mh.mesh.trans,
                 mh.mesh.cosA,

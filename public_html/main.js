@@ -4,15 +4,11 @@
 "use strict";
 
 // Globals 
-var vertexShader = null, // VS -> VS und FS können zusammengefasst werden zu shader
-        fragmentShader = null, // FS
-        shaderProgram = null, // SP
-        gl = null, // GL
-        meshData = null, // Object data
-        angle = 0.0, // Rotation
-        tex = null, // Texture
-        viewMat = VecMath.SFMatrix4f.identity(), // View matrix (camera)
-        projectionMat = VecMath.SFMatrix4f.identity(); // Matrix for perspective or orthogonal projection
+var gl = null, // GL
+    angle = 0.0, // Rotation
+    tex = null, // Texture
+    viewMat = VecMath.SFMatrix4f.identity(), // View matrix (camera)
+    projectionMat = VecMath.SFMatrix4f.identity(); // Matrix for perspective or orthogonal projection
         
 var angleX = 0;
 var angleY = 0;
@@ -27,6 +23,23 @@ var moveVecNF = new VecMath.SFVec3f(0.0, 0.0, 0.0),
     moveVecLR = new VecMath.SFVec3f(0.0, 0.0, 0.0);
     
 var direction;
+
+var count = 0;
+var fps = 0;
+var lastTime;
+
+var pitch = 0;
+var pitchRate = 0;
+var yaw = 0;
+var yawRate = 0;
+var xPos = 0;
+var yPos = 0.4;
+var zPos = 0;
+var speed = 0;
+var addVec = new VecMath.SFVec3f(0.0, 0.0, -5.0);
+
+// Controls KB
+var currentlyPressedKeys = {};
 
 
 // make sure browser knows requestAnimationFrame method
@@ -47,15 +60,9 @@ var lastFrameTime = new Date().getTime();
 // Create meshHandler object
 var mh = new MeshHandler();
 
-// Create shader object
-var houseShader = new ColorShader();
-// Create drawable object
-var house = new ColorDrawable();
-
-// Create textured house
-var houseShaderTex = new TextureShader();
-var houseTex = new TextureDrawable();
-
+// ------------------------------------------------------ //
+// ----------------- Init colorDrawables ---------------- //
+// ------------------------------------------------------ //
 // Create secondPointer
 var secondPointerShader = new ColorShader();
 var secondPointer = new ColorDrawable();
@@ -72,10 +79,6 @@ var hourPointer = new ColorDrawable();
 var boxShader = new ColorShader();
 var box = new ColorDrawable();
 
-// Create textured Box
-var boxShaderTex = new TextureShader();
-var boxTex = new TextureDrawable();
-
 // Create sphere
 var sphereShader = new ColorShader();
 var sphere = new ColorDrawable();
@@ -84,6 +87,25 @@ var sphere = new ColorDrawable();
 var sphereShader1 = new ColorShader();
 var sphere1 = new ColorDrawable();
 
+// ------------------------------------------------------ //
+//  -------------------- ColorScenes -------------------- // 
+// ------------------------------------------------------ //
+var sceneOne;
+var orientationScene;
+
+
+// ------------------------------------------------------ //
+// --------------- Init texturedDrawables --------------- //
+// ------------------------------------------------------ //
+
+// Create textured house
+var houseShaderTex = new TextureShader();
+var houseTex = new TextureDrawable("crazyCube.png");
+
+// Create textured Box
+var boxShaderTex = new TextureShader();
+var boxTex = new TextureDrawable("crazyCube.png");
+
 // Textured box
 var boxTex2 = new TextureDrawable();
 
@@ -91,25 +113,22 @@ var boxTex2 = new TextureDrawable();
 var sphereTexShader = new TextureShader();
 var sphereTex = new TextureDrawable();
 
-// Orientation box
-var oBoxShader = new ColorShader();
-var oBox = new ColorDrawable();
+// ------------------------------------------------------ //
+// --------------- Init lightinhgDrawables -------------- //
+// ------------------------------------------------------ //
 
-// Scenes
-var sceneOne;
-var orientationScene;
 
 var boxDiffuseShader = new DiffuseLightingShader();
 var boxDiffuse = new LightingTextureDrawable();
 
-var objCowShader = new LightingShader();
-var objCow = new LightingDrawable();
+var objCowShader = new ColorShader();
+var objCow = new ColorDrawable();
 
-var objCowShader = new LightingShader();
-var objCow = new LightingDrawable();
+var objCowShaderSpec = new ColorShader();//LightingShader();
+var objCowSpec = new ColorDrawable(); 
 
-var objCowShaderSpec = new LightingShader();
-var objCowSpec = new LightingDrawable();
+var lightSphereShader = new ColorShader();
+var lightSphere = new ColorDrawable();
 
 
 
@@ -127,33 +146,12 @@ function main() {
     // Init projection
     initProjection();
 
-    // Init VS / FS
-    initShaders();
-
-    // Setup triangle
-    setupMeshData();
-
     initTexture();
     
     document.onkeydown = handleKeyDown;
     document.onkeyup = handleKeyUp;
 
-    // Setup meshData for house
-    mh.setupHouse();
-    // Init gl
-    houseShader.initGL(gl);
-    // Init shaders
-    houseShader.initShader(mh.vss, mh.fss);
-    // Init gl
-    house.initGL(gl);
-    // Init buffers
-    house.setBufferData(mh.mesh.vertices,
-            mh.mesh.col,
-            mh.mesh.indices,
-            mh.mesh.trans,
-            mh.mesh.cosA,
-            mh.mesh.sinA);
-
+    // Colored -------------------------------------------
     // Setup meshData for secondPointer
     mh.setupSecPointer();
     secondPointerShader.initGL(gl);
@@ -161,10 +159,9 @@ function main() {
     secondPointer.initGL(gl);
     secondPointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.normals,
             mh.mesh.indices,
-            mh.mesh.trans,
-            mh.mesh.cosA,
-            mh.mesh.sinA);
+            mh.mesh.trans);
 
     // Setup meshData for secondPointer
     mh.setupMinPointer();
@@ -173,10 +170,9 @@ function main() {
     minutePointer.initGL(gl);
     minutePointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.normals,
             mh.mesh.indices,
-            mh.mesh.trans,
-            mh.mesh.cosA,
-            mh.mesh.sinA);
+            mh.mesh.trans);
 
     // Setup meshData for hourPointer
     mh.setupHourPointer();
@@ -185,36 +181,29 @@ function main() {
     hourPointer.initGL(gl);
     hourPointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.normals,
             mh.mesh.indices,
-            mh.mesh.trans,
-            mh.mesh.cosA,
-            mh.mesh.sinA);
+            mh.mesh.trans);
 
-    // Setup meshData for box
     mh.setupBox(0.25);
     boxShader.initGL(gl);
-    // console.log(mh.vss);
     boxShader.initShader(mh.vss, mh.fss);
-    //console.log(mh.vss);
     box.initGL(gl);
     box.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.normals,
             mh.mesh.indices,
-            mh.mesh.trans,
-            mh.mesh.cosA,
-            mh.mesh.sinA);    
-           
-    // Setup meshData for sphere
+            mh.mesh.trans);    
+         
     mh.setupSphere(0.4, 2);
     sphereShader.initGL(gl);
     sphereShader.initShader(mh.vss, mh.fss);
     sphere.initGL(gl);
     sphere.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.normals,
             mh.mesh.indices,
-            mh.mesh.trans,
-            mh.mesh.cosA,
-            mh.mesh.sinA);
+            mh.mesh.trans);
 
     mh.setupSphere(0.4, 1);
     sphereShader1.initGL(gl);
@@ -222,11 +211,14 @@ function main() {
     sphere1.initGL(gl);
     sphere1.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.normals,
             mh.mesh.indices,
-            mh.mesh.trans,
-            mh.mesh.cosA,
-            mh.mesh.sinA);
+            mh.mesh.trans);
             
+    sceneOne = new MultipleObjects(gl, mh);
+    orientationScene = new OrientationScene(gl, mh);
+            
+    // Textured --------------------------------------------
     mh.setupTexturedHouse();
     houseShaderTex.initGL(gl);
     houseShaderTex.initShader(mh.vss, mh.fss);
@@ -235,7 +227,8 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    houseTex.initTexture("crazyCube.png");
+    //houseTex.initTexture("crazyCube.png");
+    console.log(houseTex.tex);
     
     mh.setupTexturedBox(0.25);
     boxShaderTex.initGL(gl);
@@ -245,7 +238,7 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    boxTex.initTexture("crazyCube.png");
+    //boxTex.initTexture("crazyCube.png");
     
     mh.setupTexturedBox6f();
     boxTex2.initGL(gl);
@@ -253,7 +246,7 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    boxTex2.initTexture("crazyCube.png");
+    //boxTex2.initTexture("crazyCube.png");
     
     mh.setupTexturedSphere(0.4);
     sphereTexShader.initGL(gl);
@@ -263,21 +256,9 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    sphereTex.initTexture("crazyCube.png");
+    //sphereTex.initTexture("crazyCube.png");
     
-    mh.setupBox6c(0.25);
-    oBoxShader.initGL(gl);
-    oBoxShader.initShader(mh.vss, mh.fss);
-    oBox.initGL(gl);
-    oBox.setBufferData(mh.mesh.vertices,
-            mh.mesh.col,
-            mh.mesh.indices,
-            mh.mesh.trans,
-            mh.mesh.cosA,
-            mh.mesh.sinA);  
-
-    sceneOne = new MultipleObjects(gl, mh);
-    orientationScene = new OrientationScene(gl, mh);
+    // Lighting ---------------------------------------
     
     mh.setupDiffusedBox();
     boxDiffuseShader.initGL(gl);
@@ -308,51 +289,50 @@ function main() {
                          mh.mesh.colors,
                          mh.mesh.normals,
                          mh.mesh.indices,
-                         mh.mesh.trans);
+                         mh.mesh.trans); 
                          
-    
-    var mat = VecMath.SFMatrix4f.identity();
-    mat = mat.mult(VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(5.0, 5.0, 0.0)));
-    
-    console.log(mat);
-    var vec = new VecMath.SFVec3f(0.0, 5.0, 0.0);
-    
-    var fooVec = mat.multMatrixPnt(vec);
-    console.log(fooVec);
-            
+    mh.loadOBJSpec("Models/sphere.obj", 0.425);
+    lightSphereShader.initGL(gl);
+    lightSphereShader.initShader(mh.vss, mh.fss);
+    lightSphere.initGL(gl);
+    lightSphere.setBufferData(mh.mesh.vertices,
+                         mh.mesh.colors,
+                         mh.mesh.normals,
+                         mh.mesh.indices,
+                         mh.mesh.trans); 
+                                 
     // Draw-loop
     (function mainLoop() {
 
         // Transformation
         animate(canvas);
 
-        // Drawing process
-        draw(canvas);
+        // Clear backBuffer
+        clearBackBuffer(canvas);
 
-        //house.draw(houseShader.sp, viewMat, projectionMat);
-        
-        // Colored and textured without lighting
+        // Colored
         secondPointer.draw(secondPointerShader.sp, viewMat, projectionMat);
         minutePointer.draw(minutePointerShader.sp, viewMat, projectionMat);
         hourPointer.draw(hourPointerShader.sp, viewMat, projectionMat);
         box.draw(boxShader.sp, viewMat, projectionMat);
         sphere.draw(sphereShader.sp, viewMat, projectionMat);
         sphere1.draw(sphereShader.sp, viewMat, projectionMat);
+        
+        // Color scenes
+        sceneOne.draw(boxShader, sphereShader, viewMat, projectionMat);
+        orientationScene.draw(boxShader, viewMat, projectionMat);
+        
+        // Textured
         houseTex.draw(houseShaderTex.sp, viewMat, projectionMat);
         boxTex.draw(boxShaderTex.sp, viewMat, projectionMat);
         boxTex2.draw(boxShaderTex.sp, viewMat, projectionMat);
         sphereTex.draw(sphereTexShader.sp, viewMat, projectionMat);
-        
-        //oBox.draw(oBoxShader.sp, viewMat, projectionMat);
-        
-        // Scenes
-        sceneOne.draw(boxShader, sphereShader, viewMat, projectionMat);
-        orientationScene.draw(boxShader, viewMat, projectionMat);
-        
+       
         // Lighting
         boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
         objCow.draw(objCowShader.sp, viewMat, projectionMat);
         objCowSpec.draw(objCowShaderSpec.sp, viewMat, projectionMat);
+        lightSphere.draw(lightSphereShader.sp, viewMat, projectionMat);
         
         // Renderloop 
         window.requestAnimationFrame(mainLoop);
@@ -381,242 +361,6 @@ function clearBackBuffer(canvas) {
     //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
 }
 
-// Init a single VS and FS
-function initShaders() {
-
-    var preamble = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
-            "  precision highp float;\n" +
-            "#else\n" +
-            "  precision mediump float;\n" +
-            "#endif\n\n";
-
-    // Vertex shader string
-    var vsSourceString =
-            "attribute vec3 position;\n" +
-            "attribute vec2 texCoord;\n" +
-            "uniform vec3 translation;\n" +
-            "uniform float u_cosA, u_sinA;\n" +
-            "uniform mat4 modelViewProjection;\n" +  // World ?_?
-            "uniform mat4 viewMatrix;\n" +
-            "uniform mat4 projectionMatrix;\n" +
-            "varying vec2 vTexCoord;\n" +
-            "void main() {\n" +
-            "   vTexCoord = texCoord;\n" +
-            //"   vec3 pos = vec3(position.x * u_cosA - position.y * u_sinA, position.x * u_sinA + position.y * u_cosA, position.z);\n" +
-            //"   gl_Position = vec4(pos + translation, 1.0);\n" +
-            "   gl_Position = modelViewProjection * vec4(position , 1.0);\n" +
-            "}\n";
-
-    // Fragment shader string
-    var vsFragmentString = preamble +
-            "uniform sampler2D tex;\n" +
-            "varying vec2 vTexCoord;\n" +
-            "void main() {\n" +
-            "   gl_FragColor = texture2D(tex, vTexCoord);\n" +
-            "}\n";
-
-    // VS				
-    vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vertexShader, vsSourceString);
-    gl.compileShader(vertexShader);
-    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-        console.warn("VertexShader: " + gl.getShaderInfoLog(vertexShader));
-    }
-
-    // FS
-    fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fragmentShader, vsFragmentString);
-    gl.compileShader(fragmentShader);
-    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-        console.warn("FragmentShader: " + gl.getShaderInfoLog(fragmentShader));
-    }
-
-    // Shader program object 
-    shaderProgram = gl.createProgram();
-
-    // Attach shaders
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-
-    // Link shaders
-    gl.linkProgram(shaderProgram);
-    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        console.warn("Could not link program: " + gl.getProgramInfoLog(shaderProgram));
-    }
-
-    // Init only once
-    initShaderVars();
-}
-
-// initialize attribute and uniform access by dynamically adding member variables
-function initShaderVars() {
-    // attributes (name from shaders)
-    shaderProgram.position = gl.getAttribLocation(shaderProgram, "position");
-    shaderProgram.texCoord = gl.getAttribLocation(shaderProgram, "texCoord");
-
-    // uniforms (name from shaders)
-    shaderProgram.translation = gl.getUniformLocation(shaderProgram, "translation");
-    shaderProgram.u_cosA = gl.getUniformLocation(shaderProgram, "u_cosA");
-    shaderProgram.u_sinA = gl.getUniformLocation(shaderProgram, "u_sinA");
-    shaderProgram.tex = gl.getUniformLocation(shaderProgram, "tex");
-    shaderProgram.modelViewProjection = gl.getUniformLocation(shaderProgram, "modelViewProjection");
-}
-
-// Draw scene
-function draw(canvas) {
-    // Clear backbuffer
-    clearBackBuffer(canvas);
-
-    // Use the shader
-    gl.useProgram(shaderProgram);
-    
-    // Set uniforms
-    // Set translation
-    gl.uniform3f(shaderProgram.translation,
-            meshData.trans.x,
-            meshData.trans.y,
-            meshData.trans.z);
-
-    // Set final transformation matrix
-    //gl.uniformMatrix4fv(shaderProgram.modelViewProjection, false, new Float32Array(meshData.transMat.toGL())); // ist worldMat !!!
-
-    // Set rotation
-    gl.uniform1f(shaderProgram.u_cosA, meshData.cosA);
-    gl.uniform1f(shaderProgram.u_sinA, meshData.sinA);
-
-    // Set world(transMat)/view/projection
-    var modelView = viewMat.mult(meshData.transMat);
-    var modelViewProjection = projectionMat.mult(modelView);
-    gl.uniformMatrix4fv(shaderProgram.modelViewProjection, false, new Float32Array(modelViewProjection.toGL()));
-
-    // Bind indexBuffer
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
-
-    // Bind vertexPositionBuffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.positionBuffer);
-    gl.vertexAttribPointer(shaderProgram.position, // indes of attribute
-            3, // three position components (x,y,z)
-            gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    gl.enableVertexAttribArray(shaderProgram.position);
-
-    // Set texture
-    gl.uniform1i(shaderProgram.tex, 0);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-
-    // Bind vertexColorBuffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.texBuffer);
-    gl.vertexAttribPointer(shaderProgram.texCoord, // index of attribute
-            2, // two components(u, v)
-            gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    gl.enableVertexAttribArray(shaderProgram.texCoord);
-
-    // Draw call
-   /* gl.drawElements(gl.TRIANGLES, // polyg type
-            meshData.indices.length, // buffer length
-            gl.UNSIGNED_SHORT, // buffer type
-            0); // start index*/
-
-    // Disable arributes
-    gl.disableVertexAttribArray(shaderProgram.position);
-    gl.disableVertexAttribArray(shaderProgram.texCoord);
-
-}
-
-function setupMeshData() {
-    // Setup triangle vertices
-    meshData = {
-        // Setup vetices
-        vertices: [
-            // tris behind
-            -0.72, 0.2, 0,
-            0.72, 0.2, 0,
-            0, 0.82, 0,
-            // quad  behind (indexed but double vertices for colors)
-            -0.72, 0.2, 0,
-            0.72, 0.2, 0,
-            -0.72, -0.72, 0,
-            0.72, -0.72, 0,
-            // tris
-            -0.7, 0.2, 0,
-            0.7, 0.2, 0,
-            0, 0.8, 0,
-            // quad
-            -0.7, 0.2, 0,
-            0.7, 0.2, 0,
-            -0.7, -0.7, 0,
-            0.7, -0.7, 0
-        ],
-        // Setup vertex colors
-        tex: [
-            // tris behind
-            0.0, 0.0,
-            1.0, 0.0,
-            0.5, 1.0,
-            // quad behind (double vertex for colors)
-            0.0, 0.0,
-            1.0, 0.0,
-            1.0, 1.0,
-            0.0, 1.0,
-            // tris 
-            0.0, 0.0,
-            1.0, 0.0,
-            0.5, 1.0,
-            // quad
-            0.0, 0.0,
-            1.0, 0.0,
-            1.0, 1.0,
-            0.0, 1.0
-        ],
-        // Setup indices
-        indices: [
-            // tris behind
-            0, 1, 2,
-            // quad behind
-            5, 4, 3,
-            5, 6, 4,
-            // tris 
-            7, 8, 9,
-            // quad
-            12, 11, 10,
-            12, 13, 11
-        ],
-        // Setup translation
-        trans: {x: 0, y: 0, z: 0},
-        // Setup scale
-        scale: {x: 0, y: 0, z: 0}
-    };
-    meshData.cosA = 1.0;
-    meshData.sinA = 0.0;
-
-    // Transformation matrix
-    meshData.matT = VecMath.SFMatrix4f.identity();
-
-    // Rotation-Z matirx
-    meshData.matR = VecMath.SFMatrix4f.identity();
-
-    // Scale matrix
-    meshData.matS = VecMath.SFMatrix4f.identity();
-
-    // Final transformMatrix
-    meshData.transMat = VecMath.SFMatrix4f.identity();
-
-    // Init Buffers for meshData
-    initBuffers();
-}
-
-var count = 0;
-var fps = 0;
-var lastTime;
-
-var foo = 0;
-var hours = 0;
 // Update
 function animate(canvas) {
     var currentTime = Date.now(); //new Date().getTime();
@@ -646,42 +390,47 @@ function animate(canvas) {
     // Handle user input
     handleKeyboard(window, dT);    // window
     handleKeys();
+    
+    // Colored ---------------------------------------------------------------------
+    // Update second pointer       
+    secondPointer.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    secondPointer.md.transformMatrix = secondPointer.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.0, 2.0, 0.0)));
+    secondPointer.md.transformMatrix = secondPointer.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(-6 * new Date().getSeconds())));
+    secondPointer.md.transformMatrix = secondPointer.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(3.25, 3.25, 3.25))); 
 
-    hours = new Date().getHours();
+    // Update minute pointer
+    minutePointer.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    minutePointer.md.transformMatrix = minutePointer.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.0, 2.0, 0.0)));
+    minutePointer.md.transformMatrix = minutePointer.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(-6 * new Date().getMinutes())));
+    minutePointer.md.transformMatrix = minutePointer.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(3.25, 3.25, 3.25))); 
+   
+    // Update hours 
+    var hours = new Date().getHours();
     if (hours > 12)
         hours -= 12;
 
-    //console.log(hours);
-
-    // Animate meshData
-    foo -= 1;
-    house.update(dT, // deltaTime
-            foo, // angle
-            0, // speedX
-            0); // speedY
-
-    secondPointer.update(dT, // deltaTime
-            -6 * new Date().getSeconds(), // angle
-            0, // speedX
-            0); // speedY
-
-    minutePointer.update(dT, // deltaTime
-            -6 * new Date().getMinutes(), // angle
-            0, // speedX
-            0); // speedY
-
-    hourPointer.update(dT, // deltaTime
-            -30 * hours, // angle
-            0, // speedX
-            0); // speedY
-
+    // Update hour pointer
+    hourPointer.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    hourPointer.md.transformMatrix = hourPointer.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.0, 2.0, 0.0)));
+    hourPointer.md.transformMatrix = hourPointer.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(-30 * hours)));
+    hourPointer.md.transformMatrix = hourPointer.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(3.25, 3.25, 3.25))); 
+   
     box.md.transformMatrix._03 = 1.5;
     box.md.transformMatrix._13 = 1.0;
     box.md.transformMatrix._23 = 0.0;
     var rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
     box.md.transformMatrix = box.md.transformMatrix.mult(rotMat);
 
-    sphere.md.transformMatrix._03 = -1.5;
+    sphere.md.transformMatrix._03 = -2.5;
     sphere.md.transformMatrix._13 = -1.0;
     sphere.md.transformMatrix._23 = 0.0;
     rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
@@ -694,6 +443,10 @@ function animate(canvas) {
     rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
     sphere1.md.transformMatrix = sphere1.md.transformMatrix.mult(rotMat);
     
+    rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
+    sceneOne.update(rotMat);
+    
+    // Textured -------------------------------------------------------------------
     sphereTex.md.transformMatrix._03 = 1.5;
     sphereTex.md.transformMatrix._13 = 0.0;
     sphereTex.md.transformMatrix._23 = 0.0;
@@ -710,7 +463,7 @@ function animate(canvas) {
     rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
     boxTex.md.transformMatrix = boxTex.md.transformMatrix.mult(rotMat);
     
-    // Nicht vergessen vorher mit Identitätsmatrix zu multiplizieren !!!
+    angle -= 1; //* dT;
     boxTex2.md.transformMatrix = VecMath.SFMatrix4f.identity();
     boxTex2.md.transformMatrix = boxTex2.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-1.5, 0.0, 0.0)));
@@ -719,7 +472,7 @@ function animate(canvas) {
     boxTex2.md.transformMatrix = boxTex2.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); 
    
-   
+    // Lighting -------------------------------------------------------------------
     boxDiffuse.md.transformMatrix = VecMath.SFMatrix4f.identity();
     boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.5, 0.0, 0.0)));
@@ -727,15 +480,7 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(angle)));
     boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); 
-   
-    oBox.md.transformMatrix = VecMath.SFMatrix4f.identity();
-    oBox.md.transformMatrix = oBox.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
-    oBox.md.transformMatrix = oBox.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(0.0)));
-    oBox.md.transformMatrix = oBox.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(30, 30, 60)));
-   
+ 
     objCow.md.transformMatrix = VecMath.SFMatrix4f.identity();
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.75, 0.0)));
@@ -752,51 +497,23 @@ function animate(canvas) {
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
    
+    lightSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-1.5, -1.0, 0.0)));
+    lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
     
-    rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
-    sceneOne.update(rotMat);
-    
-    angle -= 1; //* dT;
-    var rad = Math.PI * angle / 180.0; // convert to rads
-    meshData.cosA = Math.cos(rad);
-    meshData.sinA = Math.sin(rad);
-    meshData.trans.x = 1.0;
-    meshData.trans.y = 0.0;
-    meshData.scale.x = 1.0;
-    meshData.scale.y = 1.0;
-
-    // Note: matTrans is identity
-    meshData.matT = VecMath.SFMatrix4f.translation(meshData.trans);
-    meshData.matS = VecMath.SFMatrix4f.scale(meshData.scale);
-    meshData.matR = VecMath.SFMatrix4f.rotationZ(rad);
- 
+   
     lastFrameTime = currentTime;
 }
 
-// Setup Buffer
-function initBuffers() {
-    // VertexPositionBuffer
-    meshData.positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(meshData.vertices), gl.STATIC_DRAW);
-
-    // VertexColorBuffer
-    meshData.texBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.texBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(meshData.tex), gl.STATIC_DRAW);
-
-    // IndexBuffer
-    meshData.indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(meshData.indices), gl.STATIC_DRAW);
-}
 
 // Setup texture
 function initTexture() {
     tex = gl.createTexture();
     tex.image = new Image();
     tex.image.crossOrigin = ''; // ?
-    tex.image.src = "tex2.png";
+    tex.image.src = "tex2.png";   // tex2.png
     tex.image.onload = function () {
         handleLoadedTexture(tex);
     };
@@ -818,57 +535,51 @@ function handleLoadedTexture(texture) {
 function cleanUp() {
 
     // Free shader of drawables
-    houseShader.dispose();
-    secondPointerShader.dispose();
-    houseShaderTex.dispose();
+    // Colors - Shaders
     secondPointerShader.dispose();
     minutePointerShader.dispose();
     hourPointerShader.dispose();
     boxShader.dispose();
-    boxShaderTex.dispose();
     sphereShader.dispose();
     sphereShader1.dispose();
-
-    // Free vertexShader
-    gl.detachShader(shaderProgram, vertexShader);
-    gl.deleteShader(vertexShader);
-
-    // Free fragmentShader
-    gl.detachShader(shaderProgram, fragmentShader);
-    gl.deleteShader(fragmentShader);
-
-    // Free program
-    gl.deleteProgram(shaderProgram);
-    shaderProgram = null;
-
-    // Free buffers of drawable
-    house.dispose();
-    secondPointer.dispose();
-    houseTex.dispose();
-    secondPointer.dispose();
-    minutePointer.dispose();
-    hourPointer.dispose();
-    box.dispose();
-    boxTex.dispose();
-    sphere.dispose();
-    sphere1.dispose();
-
-    // Free all buffers
-    gl.deleteBuffer(meshData.positionBuffer);
-    gl.deleteBuffer(meshData.texBuffer);
-    gl.deleteBuffer(meshData.indexBuffer);
-
-    // Free textures
-    gl.deleteTexture(tex);
     
     // Scenes
     sceneOne.dispose();
     orientationScene.dispose();
+
+    // Textured - Shaders
+    boxShaderTex.dispose();
+    houseShaderTex.dispose();
+    sphereTexShader.dispose();
+    
+    // Lighting
+    boxDiffuseShader.dispose();
+    objCowShader.dispose();
+    objCowShaderSpec.dispose();
+    
+    // Free buffers of drawable
+    // Colors - Drawables
+    secondPointer.dispose();
+    minutePointer.dispose();
+    hourPointer.dispose();
+    box.dispose();
+    sphere.dispose();
+    sphere1.dispose();
+
+    // Textured - Drawables
+    boxTex.dispose();
+    boxTex2.dispose();
+    houseTex.dispose();
+    sphereTex.dispose();
+    
+    // Lighting
+    boxDiffuse.dispose();
+    objCow.dispose();
+    objCowSpec.dispose();
+
+    // Free textures
+    gl.deleteTexture(tex);
 }
-
-
-// Controls KB
-var currentlyPressedKeys = {};
 
 function handleKeyDown(event) {
     currentlyPressedKeys[event.keyCode] = true;
@@ -877,16 +588,6 @@ function handleKeyDown(event) {
 function handleKeyUp(event) {
     currentlyPressedKeys[event.keyCode] = false;
 }
-
-var pitch = 0;
-var pitchRate = 0;
-var yaw = 0;
-var yawRate = 0;
-var xPos = 0;
-var yPos = 0.4;
-var zPos = 0;
-var speed = 0;
-
 
 function handleKeys() {
     if (currentlyPressedKeys[33]) {
@@ -921,9 +622,6 @@ function handleKeys() {
 
 }
 
-var addVec = new VecMath.SFVec3f(0.0, 0.0, -5.0);
-
-// Unser input and controls
 function handleKeyboard(canvas, dT) {
 
     //canvas.setAttribute("tabindex", "0");
@@ -1058,7 +756,7 @@ function handleMouseMove(event){
     lastMouseY = newY;  
 }
 
-// Setup perspective projection
+// Setup perspective projection and invert viewMat
 function initProjection() {
     viewMat = VecMath.SFMatrix4f.translation(camPos).inverse();
     projectionMat = VecMath.SFMatrix4f.perspective(Math.PI / 4, 1.0, 0.1, 1000.0);

@@ -36,10 +36,9 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.normals,
                         mh.mesh.indices,
-                        mh.mesh.trans,
-                        mh.mesh.cosA,
-                        mh.mesh.sinA);
+                        mh.mesh.trans);
 
                 // Position
                 var vec = new VecMath.SFVec3f(0.0, 0.0, -60.0);  // -15
@@ -82,10 +81,9 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.normals,
                         mh.mesh.indices,
-                        mh.mesh.trans,
-                        mh.mesh.cosA,
-                        mh.mesh.sinA);
+                        mh.mesh.trans);
 
                 // Position
                 var vec = new VecMath.SFVec3f(0.0, -30.0, 0.0);  // -7.5
@@ -121,10 +119,9 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.normals,
                         mh.mesh.indices,
-                        mh.mesh.trans,
-                        mh.mesh.cosA,
-                        mh.mesh.sinA);
+                        mh.mesh.trans);
 
                 // Position
                 var vec = new VecMath.SFVec3f(-30.0, 0.0, 0.0); // -7.5
@@ -160,10 +157,9 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.normals,
                         mh.mesh.indices,
-                        mh.mesh.trans,
-                        mh.mesh.cosA,
-                        mh.mesh.sinA);
+                        mh.mesh.trans);
 
                 // Position
                 var vec = new VecMath.SFVec3f(30.0, 0.0, 0.0); // 7.5
@@ -199,10 +195,9 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.normals,
                         mh.mesh.indices,
-                        mh.mesh.trans,
-                        mh.mesh.cosA,
-                        mh.mesh.sinA);
+                        mh.mesh.trans);
 
                 // Position
                 var vec = new VecMath.SFVec3f(0.0, 30.0, 0.0); // 7.5
@@ -238,10 +233,9 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.normals,
                         mh.mesh.indices,
-                        mh.mesh.trans,
-                        mh.mesh.cosA,
-                        mh.mesh.sinA);
+                        mh.mesh.trans);
 
                 // Position
                 var vec = new VecMath.SFVec3f(0.0, 0.0, 60.0); // 15

@@ -109,18 +109,13 @@ MeshHandler.prototype.setupSecPointer = function () {
             "  precision mediump float;\n" +
             "#endif\n\n";
 
-    // x' = x cos b - y sin b
-    // y' = x sin b + y cos b
-    // z' = z
     this.vss =
             "attribute vec3 position;\n" +
             "attribute vec3 color;\n" +
-            "uniform vec3 translation;\n" +
-            "uniform float u_cosA, u_sinA;\n" +
+            "uniform mat4 transformation;\n" +
             "varying vec3 vColor;\n" +
             "void main() {\n" +
-            "   vec3 pos = vec3(position.x * u_cosA - position.y * u_sinA, position.x * u_sinA + position.y * u_cosA, position.z);\n" +
-            "   gl_Position = vec4(pos + translation, 1.0);\n" +
+            "   gl_Position = transformation * vec4(position, 1.0);\n" +
             "   vColor = color;\n" +
             "}\n";
 
@@ -162,10 +157,9 @@ MeshHandler.prototype.setupSecPointer = function () {
             5, 4, 3,
             5, 6, 4
         ],
-        trans: {x: -0.69, y: 0.651, z: 0}
+        trans: {x: 0.0, y: 0.0, z: 0.0}
     };
-    this.mesh.cosA = 1.0;
-    this.mesh.sinA = 0.0;
+    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
 };
 
 MeshHandler.prototype.setupMinPointer = function () {
@@ -178,12 +172,10 @@ MeshHandler.prototype.setupMinPointer = function () {
     this.vss =
             "attribute vec3 position;\n" +
             "attribute vec3 color;\n" +
-            "uniform vec3 translation;\n" +
-            "uniform float u_cosA, u_sinA;\n" +
+            "uniform mat4 transformation;\n" +
             "varying vec3 vColor;\n" +
             "void main() {\n" +
-            "   vec3 pos = vec3(position.x * u_cosA - position.y * u_sinA, position.x * u_sinA + position.y * u_cosA, position.z);\n" +
-            "   gl_Position = vec4(pos + translation, 1.0);\n" +
+            "   gl_Position = transformation * vec4(position, 1.0);\n" +
             "   vColor = color;\n" +
             "}\n";
 
@@ -225,10 +217,9 @@ MeshHandler.prototype.setupMinPointer = function () {
             5, 4, 3,
             5, 6, 4
         ],
-        trans: {x: -0.69, y: 0.651, z: 0}
+        trans: {x: 0.0, y: 0.0, z: 0.0}
     };
-    this.mesh.cosA = 1.0;
-    this.mesh.sinA = 0.0;
+    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
 };
 
 MeshHandler.prototype.setupHourPointer = function () {
@@ -241,12 +232,10 @@ MeshHandler.prototype.setupHourPointer = function () {
     this.vss =
             "attribute vec3 position;\n" +
             "attribute vec3 color;\n" +
-            "uniform vec3 translation;\n" +
-            "uniform float u_cosA, u_sinA;\n" +
+            "uniform mat4 transformation;\n" +
             "varying vec3 vColor;\n" +
             "void main() {\n" +
-            "   vec3 pos = vec3(position.x * u_cosA - position.y * u_sinA, position.x * u_sinA + position.y * u_cosA, position.z);\n" +
-            "   gl_Position = vec4(pos + translation, 1.0);\n" +
+            "   gl_Position = transformation * vec4(position, 1.0);\n" +
             "   vColor = color;\n" +
             "}\n";
 
@@ -1303,29 +1292,40 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
             "void main() {\n" +
             "   // colors \n" +
             "   vec3 diffuseColor = vec3(0.0, 0.0, 1.0);\n" +
-            "   vec3 specularColor = vec3(0.3, 0.3, 0.3);\n" +
+            "   vec3 specularColor = vec3(0.7, 0.7, 0.7);\n" +
             "   vec3 lightDirection = (viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz;\n" +
             
             "   vec3 light = normalize(-lightDirection);\n" +
             "   vec3 view = normalize(-vPosition);\n" +
             "   vec3 normal = normalize(vNormal);\n" +
-            
             "   vec3 halfVec = normalize(light + view);\n" +
+            
             "   vec3 lightColor = vec3(1.0, 1.0, 0.8);\n" +
             
             "   // Ambienter Anteil \n" +
             "   vec3 ambient = vec3(0.1);\n" +
             
+            "   // Shininess\n" +
+            "   float shininess = 128.0;\n" +
+            
+            "   #if 0\n" +
+            "   float NdotL = max(dot(normal, view), 0.0);\n" +
+            "   vec3 color = ambient + NdotL * diffuseColor + pow(NdotL, shininess) * specularColor;\n" +
+            "   #endif\n" +
+            
+            "   #if 1\n" +
             "   // Diffuser Anteil \n" +
             "   float NdotL = max(dot(normal, light), 0.0);\n" +
             "   vec3 diffuse = diffuseColor * NdotL * lightColor;\n" +
             
             "   // Specularer Anteil \n" + 
-            "   float powNdotH = pow(max(dot(normal, halfVec), 0.0), 128.0);\n" +
+            "   float powNdotH = pow(max(dot(normal, halfVec), 0.0), shininess);\n" +
             "   vec3 specular = specularColor * powNdotH * lightColor;\n" + 
             
             "   // Finale Farbe \n" +
-            "   vec3 color = ambient + diffuse + specular;\n" + 
+            "   vec3 color = ambient + diffuse + specular;\n" +
+            "   #endif\n" +
+            
             "   gl_FragColor = vec4(color, 1.0);\n" +
                   
             "}\n";
