@@ -75,6 +75,10 @@ var minutePointer = new ColorDrawable();
 var hourPointerShader = new ColorShader();
 var hourPointer = new ColorDrawable();
 
+// Create clockTex
+var clockTexShader = new ColorShader();
+var clockTex = new ColorDrawable();
+
 // Create box
 var boxShader = new ColorShader();
 var box = new ColorDrawable();
@@ -133,6 +137,9 @@ var lightSphere = new ColorDrawable();
 var lightTexSphereShader = new ColorShader();
 var lightTexSphere = new ColorDrawable();
 
+var asteroidShader = new ColorShader();
+var asteroid = new ColorDrawable();
+
 
 
 // MAIN
@@ -190,6 +197,19 @@ function main() {
             mh.mesh.normals,
             mh.mesh.indices,
             mh.mesh.trans);
+            
+    // Setup meshDate for clockTex  
+    mh.setupClock();
+    clockTexShader.initGL(gl);
+    clockTexShader.initShader(mh.vss, mh.fss);
+    clockTex.initGL(gl);
+    clockTex.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
+    clockTex.initTexture("Models/clock.png");
 
     mh.setupBox(0.25);
     boxShader.initGL(gl);
@@ -238,7 +258,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    houseTex.initTexture("tex2.png");
+    houseTex.initTexture("Models/tex2.png");
     
     mh.setupTexturedBox(0.25);
     boxShaderTex.initGL(gl);
@@ -250,7 +270,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    boxTex.initTexture("tex2.png");
+    boxTex.initTexture("Models/tex2.png");
     
     mh.setupTexturedBox6f();
     boxTex2.initGL(gl);
@@ -260,7 +280,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    boxTex2.initTexture("crazyCube.png");
+    boxTex2.initTexture("Models/crazyCube.png");
     
     mh.setupTexturedSphere(0.4);
     sphereTexShader.initGL(gl);
@@ -272,7 +292,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    sphereTex.initTexture("tex2.png");
+    sphereTex.initTexture("Models/tex2.png");
     
     // Lighting ---------------------------------------
     
@@ -285,10 +305,11 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    boxDiffuse.initTexture("crazyCube.png");
+    boxDiffuse.initTexture("Models/crazyCube.png");
     
+    var color = [0.7, 0.7, 0.3];
     
-    mh.loadOBJ("Models/cow.obj", 0.175);
+    mh.loadOBJ("Models/cow.obj", 0.175, color);
     objCowShader.initGL(gl);
     objCowShader.initShader(mh.vss, mh.fss);
     objCow.initGL(gl);
@@ -299,7 +320,9 @@ function main() {
                          mh.mesh.indices,
                          mh.mesh.trans);
                          
-    mh.loadOBJSpec("Models/cow.obj", 0.175);
+    color = [0.0, 0.3, 1.0];                  
+                         
+    mh.loadOBJSpec("Models/cow.obj", 0.175, color);
     objCowShaderSpec.initGL(gl);
     objCowShaderSpec.initShader(mh.vss, mh.fss);
     objCowSpec.initGL(gl);
@@ -310,7 +333,9 @@ function main() {
                          mh.mesh.indices,
                          mh.mesh.trans); 
                          
-    mh.loadOBJSpec("Models/sphere.obj", 0.425);
+    color = [0.0, 0.5, 0.3];  
+                         
+    mh.loadOBJSpec("Models/sphere.obj", 0.425, color);
     lightSphereShader.initGL(gl);
     lightSphereShader.initShader(mh.vss, mh.fss);
     lightSphere.initGL(gl);
@@ -331,7 +356,21 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    lightTexSphere.initTexture("tex2.png");
+    lightTexSphere.initTexture("Models/tex2.png");
+    
+    color = [0.7, 0.7, 0.7];
+    
+    mh.loadOBJSpec("Models/A10/A-10_Thunderbolt_II.obj", 0.2, color);
+    asteroidShader.initGL(gl);
+    asteroidShader.initShader(mh.vss, mh.fss);
+    asteroid.initGL(gl);
+    asteroid.setBufferData(mh.mesh.vertices,
+                         mh.mesh.colors,
+                         mh.mesh.tex,
+                         mh.mesh.normals,
+                         mh.mesh.indices,
+                         mh.mesh.trans); 
+    asteroid.initTexture("Models/A10/A-10_Thunderbolt_II_P01.png"); 
                                  
     // Draw-loop
     (function mainLoop() {
@@ -346,13 +385,14 @@ function main() {
         secondPointer.draw(secondPointerShader.sp, viewMat, projectionMat);
         minutePointer.draw(minutePointerShader.sp, viewMat, projectionMat);
         hourPointer.draw(hourPointerShader.sp, viewMat, projectionMat);
+        clockTex.draw(clockTexShader.sp, viewMat, projectionMat);
         box.draw(boxShader.sp, viewMat, projectionMat);
         sphere.draw(sphereShader.sp, viewMat, projectionMat);
         sphere1.draw(sphereShader.sp, viewMat, projectionMat);
         
         // Color scenes
         sceneOne.draw(boxShader, sphereShader, viewMat, projectionMat);
-        orientationScene.draw(boxShader, viewMat, projectionMat);
+        //orientationScene.draw(boxShader, viewMat, projectionMat);
         
         // Textured
         houseTex.draw(houseShaderTex.sp, viewMat, projectionMat);
@@ -366,6 +406,7 @@ function main() {
         objCowSpec.draw(objCowShaderSpec.sp, viewMat, projectionMat);
         lightSphere.draw(lightSphereShader.sp, viewMat, projectionMat);
         lightTexSphere.draw(lightTexSphereShader.sp, viewMat, projectionMat);
+        asteroid.draw(asteroidShader.sp, viewMat, projectionMat);
         
         // Renderloop 
         window.requestAnimationFrame(mainLoop);
@@ -376,13 +417,13 @@ function main() {
 // Clear color, depth and set viewport
 function clearBackBuffer(canvas) {
     // Clear color to black
-    gl.clearColor(0.3, 0.5, 0.4, 0.6); // 0.3 0.5 0.2 0.3
+    gl.clearColor(0.3, 0.5, 0.2, 0.6); // 0.3 0.5 0.2 0.3/6
+    // Clear color or depth bit
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // Clear depth to max (1.0) min(0.0)
     gl.clearDepth(1.0);
     // Init viewport
     gl.viewport(0, 0, canvas.width, canvas.height);
-    // Clear color or depth bit
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // Enable depth test
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -391,7 +432,8 @@ function clearBackBuffer(canvas) {
     gl.cullFace(gl.BACK);
     // Blending
     gl.enable(gl.BLEND);
-    //gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // SRC_ALPHA
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // gl.ONE)
+    //gl.colorMask(true, true, true, false);  ???
 }
 
 // Update
@@ -456,6 +498,15 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(-30 * hours)));
     hourPointer.md.transformMatrix = hourPointer.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2.25, 2.25, 2.25))); 
+   
+    clockTex.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    clockTex.md.transformMatrix = clockTex.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.2, 2.2, -0.01)));
+    clockTex.md.transformMatrix = clockTex.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(90)));
+    clockTex.md.transformMatrix = clockTex.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
+    
    
     box.md.transformMatrix._03 = -1.5;
     box.md.transformMatrix._13 = 1.0;
@@ -543,6 +594,14 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
+   
+    asteroid.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    asteroid.md.transformMatrix = asteroid.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(4.0, 0.5, 0.0)));
+    asteroid.md.transformMatrix = asteroid.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
+    asteroid.md.transformMatrix = asteroid.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
     
    
     lastFrameTime = currentTime;
@@ -554,7 +613,7 @@ function initTexture() {
     tex = gl.createTexture();
     tex.image = new Image();
     tex.image.crossOrigin = ''; // ?
-    tex.image.src = "tex2.png";  
+    tex.image.src = "Models/tex2.png";  
     tex.image.onload = function () {
         handleLoadedTexture(tex);
     };

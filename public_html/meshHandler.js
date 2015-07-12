@@ -283,6 +283,62 @@ MeshHandler.prototype.setupHourPointer = function () {
     this.mesh.sinA = 0.0;
 };
 
+MeshHandler.prototype.setupClock = function () {
+    this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+            "  precision highp float;\n" +
+            "#else\n" +
+            "  precision mediump float;\n" +
+            "#endif\n\n";
+
+    this.vss =
+            "attribute vec3 position;\n" +
+            "attribute vec2 texCoords;\n" +
+            "uniform vec3 translation;\n" +
+            "uniform mat4 transformation;\n" +
+            "varying vec2 vTexCoords;\n" +
+            "void main() {\n" +
+            "   vTexCoords = texCoords;\n" +
+            "   gl_Position = transformation * vec4(position, 1.0);\n" +
+            "}\n";
+
+    // Fragment shader string
+    this.fss = this.prea +
+            "uniform sampler2D tex;\n" +
+            "varying vec2 vTexCoords;\n" +
+            "void main() {\n" +
+            "   gl_FragColor = texture2D(tex, vTexCoords);\n" +
+            "}\n";
+
+    // Setup triangle vertices
+    this.mesh = {
+        // Setup vetices
+        vertices: [
+            -0.5, 0.5, 0,
+            -0.5, -0.5, 0,
+            0.5, -0.5, 0,
+            0.5, 0.5, 0
+        ],
+        // Setup texture coords
+        tex: [
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0
+        ],
+        // Setup indices
+        indices: [
+            // tris behind
+            0, 1, 2,
+            2, 3, 0
+        ],
+        // Setup translation
+        trans: {x: 0, y: 0, z: 0}
+    };
+            
+    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
+};
+
+
 
 MeshHandler.prototype.setupBox = function (size) {
     this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
@@ -1293,7 +1349,7 @@ MeshHandler.prototype.setupDiffusedBox = function () {
 };
 
 
-MeshHandler.prototype.loadOBJ = function (fileName, scaleFac) {
+MeshHandler.prototype.loadOBJ = function (fileName, scaleFac, color) {
     this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
             "  precision highp float;\n" +
             "#else\n" +
@@ -1318,7 +1374,7 @@ MeshHandler.prototype.loadOBJ = function (fileName, scaleFac) {
             //"varying vec3 vNormalCol;\n" + 
             
             "void main() {\n" +
-            "   vColor = vec3(0.7, 0.7, 0.3);\n" +
+            "   vColor =  vec3(" + color[0] + "," + color[1] + "," + color[2] + ");\n" +//vec3(0.7, 0.7, 0.3);\n +
             "   gl_Position = transformation * vec4(position, 1.0);\n" +
             
             "// set ambient color \n" +
@@ -1397,7 +1453,7 @@ function setOBJ(geo){
     return mesh;
 }
 
-MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
+MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac, color) {
     this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
             "  precision highp float;\n" +
             "#else\n" +
@@ -1434,7 +1490,7 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
             
             "void main() {\n" +
             "   // colors \n" +
-            "   vec3 diffuseColor = vec3(0.0, 0.0, 1.0);\n" +
+            "   vec3 diffuseColor = vec3(" + color[0] + "," + color[1] + "," + color[2] + ");\n" +
             "   vec3 specularColor = vec3(0.7, 0.7, 0.7);\n" +
             "   vec3 lightDirection = (viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz;\n" +
             
@@ -1478,18 +1534,23 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
     var request = new XMLHttpRequest();
         request.open('GET', fileName, false);
         request.send();  
-
-    if (fileName.toLowerCase().indexOf(".obj") > 0) {
-        var objDoc = new OBJDoc(fileName);
-
-        // parse parameters: file string, scale, reverse normals
-        if (!objDoc.parse(request.responseText, scaleFac, true)) {
-            console.error("OBJ file parsing error: " + fileName);
-            return;
-        }
         
-        geo = objDoc.getDrawingInfo();
-        this.mesh = setOBJ(geo);
-    }
+    //var that = this;
+    
+    //request.onload = function(that){
+
+        if (fileName.toLowerCase().indexOf(".obj") > 0) {
+            var objDoc = new OBJDoc(fileName);
+
+            // parse parameters: file string, scale, reverse normals
+            if (!objDoc.parse(request.responseText, scaleFac, true)) {
+                console.error("OBJ file parsing error: " + fileName);
+                return;
+            }
+
+            geo = objDoc.getDrawingInfo();
+            this.mesh = setOBJ(geo);
+        }
+    //};
 };
 
