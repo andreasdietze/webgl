@@ -7,11 +7,11 @@
 // ----------------------------------------------------------------------- //
 
 // Basic constructor -> set interface to GL-API
-var ColorDrawable = function () {
+var ColorDrawable = function (path) {
     this.gl = null;       // Access to GL-API
     this.md = null;       // MeshData
     this.angle = 0.0;     // Degrees for rotationZ
-
+    this.tex = null;
 };
 
 // Init interface to GL
@@ -34,6 +34,13 @@ ColorDrawable.prototype.initBuffers = function () {
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.col), this.gl.STATIC_DRAW);
     }
     
+    // TextureBuffer
+    if(this.md.tex){
+        this.md.texBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.texBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.tex), this.gl.STATIC_DRAW);
+    }
+    
     // NormalBuffer
     if(this.md.normals){
         this.md.normalBuffer = this.gl.createBuffer();
@@ -49,13 +56,15 @@ ColorDrawable.prototype.initBuffers = function () {
 
 // Set md, translation and rotation. 
 // Finally init buffers
-ColorDrawable.prototype.setBufferData = function (vertices, colors, normals, indices, translation) {
+ColorDrawable.prototype.setBufferData = function (vertices, colors, tex, normals, indices, translation) {
     // Set md
     this.md = {
         // Setup vetices
         vertices: vertices,
         // Setup vertex colors
         col: colors,
+        // Seupt texCoords
+        tex: tex,
         // Setup normals
         normals: normals,
         // Setup indices
@@ -75,221 +84,8 @@ ColorDrawable.prototype.update = function (transformMatrix) {
     this.md.transformMatrix = transformMatrix;
 };
 
-// Render md
-ColorDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
-
-    // Use the shader
-    this.gl.useProgram(sp);
-
-    var modelView = viewMat.mult(this.md.transformMatrix);
-    var modelViewProjection = projectionMat.mult(modelView);
-    this.gl.uniformMatrix4fv(sp.modelViewMat, false, new Float32Array(modelView.toGL()));
-    this.gl.uniformMatrix4fv(sp.transformation, false, new Float32Array(modelViewProjection.toGL()));
-    
-    var normalMat = modelView.inverse().transpose(); // soll moidelviewMat sein
-    this.gl.uniformMatrix4fv(sp.normalMat, false, new Float32Array(normalMat.toGL()));
-    
-    this.gl.uniformMatrix4fv(sp.viewMat, false, new Float32Array(viewMat.toGL()));
-
-    // Bind indexBuffer
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
-
-    // Bind vertexPositionBuffer
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
-    this.gl.vertexAttribPointer(sp.position, // index of attribute
-            3, // three position components (x,y,z)
-            this.gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    this.gl.enableVertexAttribArray(sp.position);
-
-    // Bind vertexColorBuffer
-    if(this.md.col){
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.colorBuffer);
-        this.gl.vertexAttribPointer(sp.color, // index of attribute
-                3, //three color components(r,g,b)
-                this.gl.FLOAT, // provided data type is float
-                false, // do not normalize values
-                0, // stride (in bytes)
-                0); // offset (in bytes)
-        this.gl.enableVertexAttribArray(sp.color);
-    }
-    
-    // Bind normalBuffer
-    if(this.md.normals && !this.md.col){
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
-        this.gl.vertexAttribPointer(sp.normal,//sp.normal, // index of attribute
-                3, // three position components (x,y,z)
-                this.gl.FLOAT, // provided data type is float
-                false, // do not normalize values
-                0, // stride (in bytes)
-                0); // offset (in bytes)
-        this.gl.enableVertexAttribArray(sp.normal);
-    }
-    
-    // Draw call
-    this.gl.drawElements(this.gl.TRIANGLES, // polyg type
-            this.md.indices.length, // buffer length
-            this.gl.UNSIGNED_SHORT, // buffer type
-            0); // start index
-
-    // Disable arributes
-    this.gl.disableVertexAttribArray(sp.position);
-    if(this.md.col)
-        this.gl.disableVertexAttribArray(sp.color);
-    if(this.md.normals && !this.md.col)
-        this.gl.disableVertexAttribArray(sp.normal);
-};
-
-ColorDrawable.prototype.dispose = function () {
-    // Free all buffers
-    this.gl.deleteBuffer(this.md.positionBuffer);
-    if(this.md.col)
-        this.gl.deleteBuffer(this.md.colorBuffer);
-    if(this.md.normals && !this.md.col)
-        this.gl.deleteBuffer(this.md.normalBuffer);
-    this.gl.deleteBuffer(this.md.indexBuffer);
-};
-
-// ----------------------------------------------------------------------- //
-// ---------------------------- TextureDrawable -------------------------- //
-// ----------------------------------------------------------------------- //
-
-// Basic constructor -> set interface to GL-API
-var TextureDrawable = function (path) {
-    this.gl = null;       // Access to GL-API
-    this.md = null;       // MeshData
-    this.angle = 0.0;     // Degrees for rotationZ
-    this.tex = null;
-    this.path = path;
-    this.gl = null;
-    this.needRender = true;
-};
-
-// Init interface to GL
-TextureDrawable.prototype.initGL = function (gl) {
-    this.gl = gl;
-};
-
-// Init and bind buffers
-TextureDrawable.prototype.initBuffers = function () {
-    // VertexPositionBuffer
-    this.md.positionBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.vertices), this.gl.STATIC_DRAW);
-
-    // TextureBuffer
-    this.md.texBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.texBuffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.tex), this.gl.STATIC_DRAW);
-
-    // IndexBuffer
-    this.md.indexBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.md.indices), this.gl.STATIC_DRAW);
-};
-
-// Set md, translation and rotation. 
-// Finally init buffers
-TextureDrawable.prototype.setBufferData = function (vertices, tex, indices, translation) {
-    // Set md
-    this.md = {
-        // Setup vetices
-        vertices: vertices,
-        // Setup vertex colors
-        tex: tex,
-        // Setup indices
-        indices: indices,
-        // Setup translation
-        //trans: {x: 0, y: 0, z: 0}
-        trans: translation
-    };
-
-    this.md.transformMatrix = VecMath.SFMatrix4f.identity();
-
-    //this.tex = initTexture(this.path);
-    
-    // Init buffers
-    this.initBuffers();
-};
-
-
-TextureDrawable.prototype.update = function (transformMatrix) {
-    this.md.transformMatrix = transformMatrix;
-    //this.needRender = true;
-};
-
-// Render md
-TextureDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
-//function draw(sp, viewMat, projectionMat){
-    
-    // Use the shader
-    this.gl.useProgram(sp);
-
-    // Set uniforms
-    this.gl.uniform3f(sp.translation,
-            this.md.trans.x,
-            this.md.trans.y,
-            this.md.trans.z);
-
-    // Set view/projection
-    var modelView = viewMat.mult(this.md.transformMatrix);
-    var modelViewProjection = projectionMat.mult(modelView);
-    this.gl.uniformMatrix4fv(sp.transformation, false, new Float32Array(modelViewProjection.toGL()));
-
-    // Set texture
-    if(this.tex && this.tex.ready){
-        this.gl.uniform1i(sp.tex, 0);
-        this.gl.activeTexture(this.gl.TEXTURE0);
-        this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
-
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    }
-
-    // Bind indexBuffer
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
-
-    // Bind vertexPositionBuffer
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
-    this.gl.vertexAttribPointer(sp.position, // index of attribute
-            3, // three position components (x,y,z)
-            this.gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    this.gl.enableVertexAttribArray(sp.position);
-
-    // Bind texBuffer
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.texBuffer);
-    this.gl.vertexAttribPointer(sp.texCoords, // index of attribute
-            2, // two texCoords (u, v)
-            this.gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    this.gl.enableVertexAttribArray(sp.texCoords);
-
-    // Draw call
-    this.gl.drawElements(this.gl.TRIANGLES, // polyg type
-            this.md.indices.length, // buffer length
-            this.gl.UNSIGNED_SHORT, // buffer type
-            0); // start index
-
-    // Disable arributes
-    this.gl.disableVertexAttribArray(sp.position);
-    this.gl.disableVertexAttribArray(sp.texCoords);
-
-    // Set active tex
-    this.gl.activeTexture(this.gl.TEXTURE0);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, null);
-};
-
 // Setup texture, example: "file.png"
-TextureDrawable.prototype.initTexture = function (path) {
+ColorDrawable.prototype.initTexture = function (path) {
 //function initTexture(path){
     this.tex = this.gl.createTexture();
     this.tex.ready = false;
@@ -319,17 +115,116 @@ function handleLoadedTex(image) {
     this.needRender = true;
 };
 
-TextureDrawable.prototype.dispose = function () {
+
+// Render md
+ColorDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
+
+    // Use the shader
+    this.gl.useProgram(sp);
+
+    var modelView = viewMat.mult(this.md.transformMatrix);
+    var modelViewProjection = projectionMat.mult(modelView);
+    this.gl.uniformMatrix4fv(sp.modelViewMat, false, new Float32Array(modelView.toGL()));
+    this.gl.uniformMatrix4fv(sp.transformation, false, new Float32Array(modelViewProjection.toGL()));
+    
+    var normalMat = modelView.inverse().transpose(); // soll moidelviewMat sein
+    this.gl.uniformMatrix4fv(sp.normalMat, false, new Float32Array(normalMat.toGL()));
+    
+    this.gl.uniformMatrix4fv(sp.viewMat, false, new Float32Array(viewMat.toGL()));
+
+    // Set texture
+    if(this.tex && this.tex.ready){
+        this.gl.uniform1i(sp.tex, 0);
+        this.gl.activeTexture(this.gl.TEXTURE0);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
+
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    }
+
+    // Bind indexBuffer
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
+
+    // Bind vertexPositionBuffer
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
+    this.gl.vertexAttribPointer(sp.position, // index of attribute
+            3, // three position components (x,y,z)
+            this.gl.FLOAT, // provided data type is float
+            false, // do not normalize values
+            0, // stride (in bytes)
+            0); // offset (in bytes)
+    this.gl.enableVertexAttribArray(sp.position);
+
+    // Bind vertexColorBuffer
+    if(this.md.col){
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.colorBuffer);
+        this.gl.vertexAttribPointer(sp.color, // index of attribute
+                3, //three color components(r,g,b)
+                this.gl.FLOAT, // provided data type is float
+                false, // do not normalize values
+                0, // stride (in bytes)
+                0); // offset (in bytes)
+        this.gl.enableVertexAttribArray(sp.color);
+    }
+    
+    // Bind texBuffer
+    if(this.md.tex){
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.texBuffer);
+        this.gl.vertexAttribPointer(sp.texCoords, // index of attribute
+                2, // two texCoords (u, v)
+                this.gl.FLOAT, // provided data type is float
+                false, // do not normalize values
+                0, // stride (in bytes)
+                0); // offset (in bytes)
+        this.gl.enableVertexAttribArray(sp.texCoords);
+    }
+    
+    // Bind normalBuffer
+    if(this.md.normals && !this.md.col){
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
+        this.gl.vertexAttribPointer(sp.normal,//sp.normal, // index of attribute
+                3, // three position components (x,y,z)
+                this.gl.FLOAT, // provided data type is float
+                false, // do not normalize values
+                0, // stride (in bytes)
+                0); // offset (in bytes)
+        this.gl.enableVertexAttribArray(sp.normal);
+    }
+    
+    // Draw call
+    this.gl.drawElements(this.gl.TRIANGLES, // polyg type
+            this.md.indices.length, // buffer length
+            this.gl.UNSIGNED_SHORT, // buffer type
+            0); // start index
+
+    // Disable arributes
+    this.gl.disableVertexAttribArray(sp.position);
+    if(this.md.col)
+        this.gl.disableVertexAttribArray(sp.color);
+    if(this.md.normals && !this.md.col)
+        this.gl.disableVertexAttribArray(sp.normal);
+    if(this.md.tex)
+        this.gl.disableVertexAttribArray(sp.texCoords);
+
+    // Set active tex
+    this.gl.activeTexture(this.gl.TEXTURE0);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+};
+
+ColorDrawable.prototype.dispose = function () {
     // Free all buffers
     this.gl.deleteBuffer(this.md.positionBuffer);
-    this.gl.deleteBuffer(this.md.texBuffer);
+    if(this.md.col)
+        this.gl.deleteBuffer(this.md.colorBuffer);
+    if(this.md.normals && !this.md.col)
+        this.gl.deleteBuffer(this.md.normalBuffer);
+    if(this.md.tex)
+        this.gl.deleteBuffer(this.md.texBuffer);
     this.gl.deleteBuffer(this.md.indexBuffer);
 };
 
-TextureDrawable.prototype.tick = function(sp, viewMat, projectionMat){
-    if(this.needRender)
-        draw(sp, viewMat, projectionMat);
-};
 
 // ----------------------------------------------------------------------- //
 // ------------------------ LightningTextureDrawable --------------------- //
@@ -573,146 +468,11 @@ LightingTextureDrawable.prototype.computeFaceNormals1 = function(verts, indices)
         finNorms[i * 3 + 2] = normals[i].z;
     }
     
-    
-    
    // console.log("norms: " + normals.length.toString());
    // console.log("norms: " + normals.toString());
     return finNorms;
 };
 
-
-// ----------------------------------------------------------------------- //
-// ---------------------------- LightingDrawable ------------------------- //
-// ----------------------------------------------------------------------- //
-
-// Basic constructor -> set interface to GL-API
-var LightingDrawable = function () {
-    this.gl = null;       // Access to GL-API
-    this.md = null;       // MeshData
-    this.angle = 0.0;     // Degrees for rotationZ
-
-};
-
-// Init interface to GL
-LightingDrawable.prototype.initGL = function (gl) {
-    this.gl = gl;
-};
-
-// Init and bind buffers
-LightingDrawable.prototype.initBuffers = function () {
-
-    // VertexPositionBuffer
-    this.md.positionBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.vertices), this.gl.STATIC_DRAW);
-
-    // NormalBuffer
-    this.md.normalBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.normals), this.gl.STATIC_DRAW);
-
-    // IndexBuffer
-    this.md.indexBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.md.indices), this.gl.STATIC_DRAW);
-};
-
-// Set md, translation and rotation. 
-// Finally init buffers
-LightingDrawable.prototype.setBufferData = function (vertices, colors, normals, indices, translation) {
-    // Set md
-    this.md = {
-        // Setup vetices
-        vertices: vertices,
-        // Setup vertex colors
-        colors: colors,
-        // Setup normals
-        normals: normals,
-        // Setup indices
-        indices: indices,
-        // Setup translation
-        trans: translation
-    };
-
-    this.md.transformMatrix = VecMath.SFMatrix4f.identity();
-
-    // Init buffers
-    this.initBuffers();
-};
-
-
-LightingDrawable.prototype.update = function (transformMatrix) {
-    this.md.transformMatrix = transformMatrix;
-};
-
-// Render md
-LightingDrawable.prototype.draw = function (sp, viewMat, projectionMat) {
-
-    // Use the shader
-    this.gl.useProgram(sp);
-
-    // Set uniforms
-    this.gl.uniform3f(sp.translation,
-            this.md.trans.x,
-            this.md.trans.y,
-            this.md.trans.z);
-            
-    // Set lightSource, viewMat.inverse.transpose aka normalMat
-    //this.gl.uniform3f(sp.directionalLight)
-
-
-    // Set view/projection -> transformMatrix = worldMatrix for object
-    var modelView = viewMat.mult(this.md.transformMatrix);
-    var modelViewProjection = projectionMat.mult(modelView);
-    this.gl.uniformMatrix4fv(sp.modelViewMat, false, new Float32Array(modelView.toGL()));
-    this.gl.uniformMatrix4fv(sp.transformation, false, new Float32Array(modelViewProjection.toGL()));
-    
-    var normalMat = modelView.inverse().transpose(); // soll moidelviewMat sein
-    this.gl.uniformMatrix4fv(sp.normalMat, false, new Float32Array(normalMat.toGL()));
-    
-    this.gl.uniformMatrix4fv(sp.viewMat, false, new Float32Array(viewMat.toGL()));
-
-    // Bind indexBuffer
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
-
-    // Bind vertexPositionBuffer
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
-    this.gl.vertexAttribPointer(sp.position, // index of attribute
-            3, // three position components (x,y,z)
-            this.gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    this.gl.enableVertexAttribArray(sp.position);
-    
-    // Bind normalBuffer
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
-    this.gl.vertexAttribPointer(sp.normal,//sp.normal, // index of attribute
-            3, // three position components (x,y,z)
-            this.gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    this.gl.enableVertexAttribArray(sp.normal);
-    
-
-    // Draw call
-    this.gl.drawElements(this.gl.TRIANGLES, // polyg type
-            this.md.indices.length, // buffer length
-            this.gl.UNSIGNED_SHORT, // buffer type
-            0); // start index
-
-    // Disable arributes
-    this.gl.disableVertexAttribArray(sp.position);
-    this.gl.disableVertexAttribArray(sp.normals);
-};
-
-LightingDrawable.prototype.dispose = function () {
-    // Free all buffers
-    this.gl.deleteBuffer(this.md.positionBuffer);
-    this.gl.deleteBuffer(this.md.normalBuffer);
-    this.gl.deleteBuffer(this.md.indexBuffer);
-};
 
 
 

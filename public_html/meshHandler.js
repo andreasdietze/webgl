@@ -995,6 +995,149 @@ MeshHandler.prototype.setupTexturedSphere = function (radius) {
     this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
 };
 
+MeshHandler.prototype.setupTexturedLightSphere = function (radius) {
+    this.prea = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+            "  precision highp float;\n" +
+            "#else\n" +
+            "  precision mediump float;\n" +
+            "#endif\n\n";
+
+    this.vss =
+            "// init Attributes \n" +
+            "attribute vec3 position;\n" +
+            "attribute vec2 texCoords;\n" +
+            "attribute vec3 normal;\n" +
+            
+            "// init Uniforms \n" +
+            "uniform vec3 translation;\n" +
+            "uniform mat4 transformation;\n" +
+            "uniform mat4 normalMat;\n" +
+            "uniform mat4 modelViewMat;\n" +
+            
+            
+            "// init Varyings \n" +
+            "varying vec3 vPosition;\n" +
+            "varying vec2 vTexCoords;\n" + 
+            "varying vec3 vNormal;\n" +
+            
+            "void main() {\n" +
+            "   vPosition = (modelViewMat * vec4(position, 1.0)).xyz;\n" +
+            "   vNormal   = (normalMat * vec4(normal, 0.0)).xyz;\n" +
+            "   vTexCoords = texCoords;\n" +
+            "   gl_Position = transformation * vec4(position, 1.0);\n" +
+            "}\n";  
+
+    // Fragment shader string
+    this.fss = this.prea +
+            "uniform mat4 viewMat;\n" +
+            "uniform sampler2D tex;\n" +
+            "varying vec3 vPosition;\n" +
+            "varying vec2 vTexCoords;\n " +
+            "varying vec3 vNormal;\n" +
+            
+            "void main() {\n" +
+            "   // colors \n" +
+            "   vec3 diffuseColor = vec3(1.0, 1.0, 1.0);\n" + //texture2D(tex, vTexCoords);\n
+            "   vec3 specularColor = vec3(0.9, 0.9, 0.9);\n" +
+            "   vec3 lightDirection = (viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz;\n" +
+            
+            "   vec3 light = normalize(-lightDirection);\n" +
+            "   vec3 view = normalize(-vPosition);\n" +
+            "   vec3 normal = normalize(vNormal);\n" +
+            "   vec3 halfVec = normalize(light + view);\n" +
+            
+            "   vec3 lightColor = vec3(1.0, 1.0, 0.8);\n" +
+            
+            "   // Ambienter Anteil \n" +
+            "   vec3 ambient = vec3(0.1);\n" +
+            
+            "   // Shininess\n" +
+            "   float shininess = 128.0;\n" +
+            
+            "   #if 0\n" +
+            "   float NdotL = max(dot(normal, view), 0.0);\n" +
+            "   vec3 color = ambient + NdotL * diffuseColor + pow(NdotL, shininess) * specularColor;\n" +
+            "   #endif\n" +
+            
+            "   #if 1\n" +
+            "   // Diffuser Anteil \n" +
+            "   float NdotL = max(dot(normal, light), 0.0);\n" +
+            "   vec3 diffuse = diffuseColor * NdotL * lightColor * 1.0;\n" +
+            
+            "   // Specularer Anteil \n" + 
+            "   float powNdotH = pow(max(dot(normal, halfVec), 0.0), shininess);\n" +
+            "   vec3 specular = specularColor * powNdotH * lightColor  * 1.0;\n" + 
+            
+            "   // Finale Farbe \n" +
+            "   vec3 color = ambient + diffuse + specular;\n" +
+            "   #endif\n" +
+            
+            "   gl_FragColor = texture2D(tex, vTexCoords) * vec4(color, 1.0);\n" +
+                  
+            "}\n";
+
+
+    var latitudeBands = 30;
+    var longitudeBands = 30;
+
+    var verts = [];
+    var tex = [];
+    var inds = [];
+    var normals = [];
+
+    for (var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
+        var theta = latNumber * 2 * Math.PI / longitudeBands;
+        var sinTheta = Math.sin(theta);
+        var cosTheta = Math.cos(theta);
+
+        for (var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
+            var phi = longNumber * 2 * Math.PI / longitudeBands;
+            var sinPhi = Math.sin(phi);
+            var cosPhi = Math.cos(phi);
+
+            var x = cosPhi * sinTheta;
+            var y = cosTheta;
+            var z = sinPhi * sinTheta;
+            var u = 1 - (longNumber / longitudeBands);
+            var v = 1 - (latNumber / latitudeBands);
+
+            verts.push(x * radius);
+            verts.push(y * radius);
+            verts.push(z * radius);
+            tex.push(u);
+            tex.push(v);
+            normals.push(x);
+            normals.push(y);
+            normals.push(z);
+
+        }
+    }
+
+    for (var latNumber = 0; latNumber < latitudeBands; latNumber++) {
+        for (var longNumber = 0; longNumber < longitudeBands; longNumber++) {
+            var first = (latNumber * (longitudeBands + 1)) + longNumber;
+            var second = first + longitudeBands + 1;
+            inds.push(first);
+            inds.push(second);
+            inds.push(first + 1);
+
+            inds.push(second);
+            inds.push(second + 1);
+            inds.push(first + 1);
+        }
+    }
+
+    // Setup triangle vertices
+    this.mesh = {
+        vertices: verts,
+        tex: tex,
+        normals:normals,
+        indices: inds,
+        trans: {x: 0, y: 0, z: 0}
+    };
+    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
+};
+
 
 // https://developer.mozilla.org/de/docs/Web/WebGL/Beleuchtung_in_WebGL
 MeshHandler.prototype.setupDiffusedBox = function () {

@@ -90,28 +90,28 @@ var sphere1 = new ColorDrawable();
 // ------------------------------------------------------ //
 //  -------------------- ColorScenes -------------------- // 
 // ------------------------------------------------------ //
+
 var sceneOne;
 var orientationScene;
-
 
 // ------------------------------------------------------ //
 // --------------- Init texturedDrawables --------------- //
 // ------------------------------------------------------ //
 
 // Create textured house
-var houseShaderTex = new TextureShader();
-var houseTex = new TextureDrawable("crazyCube.png");
+var houseShaderTex = new ColorShader();
+var houseTex = new ColorDrawable();
 
 // Create textured Box
-var boxShaderTex = new TextureShader();
-var boxTex = new TextureDrawable("crazyCube.png");
+var boxShaderTex = new ColorShader();
+var boxTex = new ColorDrawable();
 
 // Textured box
-var boxTex2 = new TextureDrawable();
+var boxTex2 = new ColorDrawable();
 
 // Textured sphere
-var sphereTexShader = new TextureShader();
-var sphereTex = new TextureDrawable();
+var sphereTexShader = new ColorShader();
+var sphereTex = new ColorDrawable();
 
 // ------------------------------------------------------ //
 // --------------- Init lightinhgDrawables -------------- //
@@ -129,6 +129,9 @@ var objCowSpec = new ColorDrawable();
 
 var lightSphereShader = new ColorShader();
 var lightSphere = new ColorDrawable();
+
+var lightTexSphereShader = new ColorShader();
+var lightTexSphere = new ColorDrawable();
 
 
 
@@ -159,6 +162,7 @@ function main() {
     secondPointer.initGL(gl);
     secondPointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.tex,
             mh.mesh.normals,
             mh.mesh.indices,
             mh.mesh.trans);
@@ -170,6 +174,7 @@ function main() {
     minutePointer.initGL(gl);
     minutePointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.tex,
             mh.mesh.normals,
             mh.mesh.indices,
             mh.mesh.trans);
@@ -181,6 +186,7 @@ function main() {
     hourPointer.initGL(gl);
     hourPointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.tex,
             mh.mesh.normals,
             mh.mesh.indices,
             mh.mesh.trans);
@@ -191,6 +197,7 @@ function main() {
     box.initGL(gl);
     box.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.tex,
             mh.mesh.normals,
             mh.mesh.indices,
             mh.mesh.trans);    
@@ -201,6 +208,7 @@ function main() {
     sphere.initGL(gl);
     sphere.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.tex,
             mh.mesh.normals,
             mh.mesh.indices,
             mh.mesh.trans);
@@ -211,6 +219,7 @@ function main() {
     sphere1.initGL(gl);
     sphere1.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
+            mh.mesh.tex,
             mh.mesh.normals,
             mh.mesh.indices,
             mh.mesh.trans);
@@ -224,9 +233,11 @@ function main() {
     houseShaderTex.initShader(mh.vss, mh.fss);
     houseTex.initGL(gl);
     houseTex.setBufferData(mh.mesh.vertices,
-            mh.mesh.tex,
-            mh.mesh.indices,
-            mh.mesh.trans);
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
     houseTex.initTexture("tex2.png");
     
     mh.setupTexturedBox(0.25);
@@ -234,28 +245,34 @@ function main() {
     boxShaderTex.initShader(mh.vss, mh.fss);
     boxTex.initGL(gl);
     boxTex.setBufferData(mh.mesh.vertices,
-            mh.mesh.tex,
-            mh.mesh.indices,
-            mh.mesh.trans);
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
     boxTex.initTexture("tex2.png");
     
     mh.setupTexturedBox6f();
     boxTex2.initGL(gl);
     boxTex2.setBufferData(mh.mesh.vertices,
-            mh.mesh.tex,
-            mh.mesh.indices,
-            mh.mesh.trans);
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
     boxTex2.initTexture("crazyCube.png");
     
     mh.setupTexturedSphere(0.4);
     sphereTexShader.initGL(gl);
     sphereTexShader.initShader(mh.vss, mh.fss);
     sphereTex.initGL(gl);
-    sphereTex.initTexture("tex2.png");
     sphereTex.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
              mh.mesh.tex,
+             mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
+    sphereTex.initTexture("tex2.png");
     
     // Lighting ---------------------------------------
     
@@ -264,6 +281,7 @@ function main() {
     boxDiffuseShader.initShader(mh.vss, mh.fss);
     boxDiffuse.initGL(gl);
     boxDiffuse.setBufferData(mh.mesh.vertices,
+            //mh.mesh.col, // auskommentieren
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
@@ -276,6 +294,7 @@ function main() {
     objCow.initGL(gl);
     objCow.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
+                         mh.mesh.tex,
                          mh.mesh.normals,
                          mh.mesh.indices,
                          mh.mesh.trans);
@@ -286,6 +305,7 @@ function main() {
     objCowSpec.initGL(gl);
     objCowSpec.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
+                         mh.mesh.tex,
                          mh.mesh.normals,
                          mh.mesh.indices,
                          mh.mesh.trans); 
@@ -296,9 +316,22 @@ function main() {
     lightSphere.initGL(gl);
     lightSphere.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
+                         mh.mesh.tex,
                          mh.mesh.normals,
                          mh.mesh.indices,
                          mh.mesh.trans); 
+                         
+    mh.setupTexturedLightSphere(0.4);
+    lightTexSphereShader.initGL(gl);
+    lightTexSphereShader.initShader(mh.vss, mh.fss);
+    lightTexSphere.initGL(gl);
+    lightTexSphere.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
+    lightTexSphere.initTexture("tex2.png");
                                  
     // Draw-loop
     (function mainLoop() {
@@ -319,7 +352,7 @@ function main() {
         
         // Color scenes
         sceneOne.draw(boxShader, sphereShader, viewMat, projectionMat);
-        //orientationScene.draw(boxShader, viewMat, projectionMat);
+        orientationScene.draw(boxShader, viewMat, projectionMat);
         
         // Textured
         houseTex.draw(houseShaderTex.sp, viewMat, projectionMat);
@@ -332,6 +365,7 @@ function main() {
         objCow.draw(objCowShader.sp, viewMat, projectionMat);
         objCowSpec.draw(objCowShaderSpec.sp, viewMat, projectionMat);
         lightSphere.draw(lightSphereShader.sp, viewMat, projectionMat);
+        lightTexSphere.draw(lightTexSphereShader.sp, viewMat, projectionMat);
         
         // Renderloop 
         window.requestAnimationFrame(mainLoop);
@@ -394,20 +428,20 @@ function animate(canvas) {
     // Update second pointer       
     secondPointer.md.transformMatrix = VecMath.SFMatrix4f.identity();
     secondPointer.md.transformMatrix = secondPointer.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.0, 2.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.2, 2.2, 0.0)));
     secondPointer.md.transformMatrix = secondPointer.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(-6 * new Date().getSeconds())));
     secondPointer.md.transformMatrix = secondPointer.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(3.25, 3.25, 3.25))); 
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2.25, 2.25, 2.25))); 
 
     // Update minute pointer
     minutePointer.md.transformMatrix = VecMath.SFMatrix4f.identity();
     minutePointer.md.transformMatrix = minutePointer.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.0, 2.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.2, 2.2, 0.0)));
     minutePointer.md.transformMatrix = minutePointer.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(-6 * new Date().getMinutes())));
     minutePointer.md.transformMatrix = minutePointer.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(3.25, 3.25, 3.25))); 
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2.25, 2.25, 2.25))); 
    
     // Update hours 
     var hours = new Date().getHours();
@@ -417,13 +451,13 @@ function animate(canvas) {
     // Update hour pointer
     hourPointer.md.transformMatrix = VecMath.SFMatrix4f.identity();
     hourPointer.md.transformMatrix = hourPointer.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.0, 2.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.2, 2.2, 0.0)));
     hourPointer.md.transformMatrix = hourPointer.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(-30 * hours)));
     hourPointer.md.transformMatrix = hourPointer.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(3.25, 3.25, 3.25))); 
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2.25, 2.25, 2.25))); 
    
-    box.md.transformMatrix._03 = 1.5;
+    box.md.transformMatrix._03 = -1.5;
     box.md.transformMatrix._13 = 1.0;
     box.md.transformMatrix._23 = 0.0;
     var rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
@@ -436,7 +470,7 @@ function animate(canvas) {
     sphere.md.transformMatrix = sphere.md.transformMatrix.mult(rotMat);
     //sphere.updateT(dT, sphere.md.transformMatrix); 
 
-    sphere1.md.transformMatrix._03 = 1.5;
+    sphere1.md.transformMatrix._03 = -1.5;
     sphere1.md.transformMatrix._13 = -1.0;
     sphere1.md.transformMatrix._23 = 0.0;
     rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
@@ -456,7 +490,7 @@ function animate(canvas) {
     houseTex.md.transformMatrix._13 = 2.0;
     houseTex.md.transformMatrix._23 = 0.0;
     
-    boxTex.md.transformMatrix._03 = -1.5;
+    boxTex.md.transformMatrix._03 = -2.5;
     boxTex.md.transformMatrix._13 = 1.0;
     boxTex.md.transformMatrix._23 = 0.0;
     rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
@@ -498,8 +532,16 @@ function animate(canvas) {
    
     lightSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-1.5, -1.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -1.0, 0.0)));
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
+   
+    lightTexSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, 1.0, 0.0)));
+    lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
+    lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
     
    

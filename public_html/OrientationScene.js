@@ -36,6 +36,7 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.tex,
                         mh.mesh.normals,
                         mh.mesh.indices,
                         mh.mesh.trans);
@@ -81,6 +82,7 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.tex,
                         mh.mesh.normals,
                         mh.mesh.indices,
                         mh.mesh.trans);
@@ -119,6 +121,7 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.tex,
                         mh.mesh.normals,
                         mh.mesh.indices,
                         mh.mesh.trans);
@@ -157,6 +160,7 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.tex,
                         mh.mesh.normals,
                         mh.mesh.indices,
                         mh.mesh.trans);
@@ -195,6 +199,7 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.tex,
                         mh.mesh.normals,
                         mh.mesh.indices,
                         mh.mesh.trans);
@@ -233,6 +238,7 @@ function createWallChain(gl, mh) {
 
                 drawable.setBufferData(mh.mesh.vertices,
                         colors,
+                        mh.mesh.tex,
                         mh.mesh.normals,
                         mh.mesh.indices,
                         mh.mesh.trans);
