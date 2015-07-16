@@ -5,7 +5,7 @@
             <url>public_html/main.js</url>
             <bookmark id="1">
                 <name/>
-                <line>682</line>
+                <line>685</line>
                 <key/>
             </bookmark>
         </file>
@@ -19,7 +19,9 @@
             <file>file:/F:/Program%20Files%20(x86)/NetBeans%208.0.2/projects/WebGL%20-%20Git/webgl/public_html/index.html</file>
             <file>file:/F:/Program%20Files%20(x86)/NetBeans%208.0.2/projects/WebGL%20-%20Git/webgl/public_html/meshHandler.js</file>
             <file>file:/F:/Program%20Files%20(x86)/NetBeans%208.0.2/projects/WebGL%20-%20Git/webgl/public_html/Material.js</file>
+            <file>file:/F:/Program%20Files%20(x86)/NetBeans%208.0.2/projects/WebGL%20-%20Git/webgl/public_html/mathHelper.js</file>
             <file>file:/F:/Program%20Files%20(x86)/NetBeans%208.0.2/projects/WebGL%20-%20Git/webgl/public_html/main.js</file>
+            <file>file:/F:/Program%20Files%20(x86)/NetBeans%208.0.2/projects/WebGL%20-%20Git/webgl/public_html/fields.js</file>
             <file>file:/F:/Program%20Files%20(x86)/NetBeans%208.0.2/projects/WebGL%20-%20Git/webgl/public_html/OrientationScene.js</file>
             <file>file:/F:/Program%20Files%20(x86)/NetBeans%208.0.2/projects/WebGL%20-%20Git/webgl/public_html/MultipleObjectsScene.js</file>
         </group>

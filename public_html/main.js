@@ -209,7 +209,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    clockTex.initTexture("Models/clock.png");
+    clockTex.initTexture("models/clock.png");
 
     mh.setupBox(0.25);
     boxShader.initGL(gl);
@@ -258,7 +258,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    houseTex.initTexture("Models/tex2.png");
+    houseTex.initTexture("models/tex2.png");
     
     mh.setupTexturedBox(0.25);
     boxShaderTex.initGL(gl);
@@ -270,7 +270,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    boxTex.initTexture("Models/tex2.png");
+    boxTex.initTexture("models/tex2.png");
     
     mh.setupTexturedBox6f();
     boxTex2.initGL(gl);
@@ -280,7 +280,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    boxTex2.initTexture("Models/crazyCube.png");
+    boxTex2.initTexture("models/crazyCube.png");
     
     mh.setupTexturedSphere(0.4);
     sphereTexShader.initGL(gl);
@@ -292,7 +292,7 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    sphereTex.initTexture("Models/tex2.png");
+    sphereTex.initTexture("models/tex2.png");
     
     // Lighting ---------------------------------------
     
@@ -305,11 +305,11 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    boxDiffuse.initTexture("Models/crazyCube.png");
+    boxDiffuse.initTexture("models/crazyCube.png");
     
     var color = [0.7, 0.7, 0.3];
     
-    mh.loadOBJ("Models/cow.obj", 0.175, color);
+    mh.loadOBJ("models/cow.obj", 0.175, color);
     objCowShader.initGL(gl);
     objCowShader.initShader(mh.vss, mh.fss);
     objCow.initGL(gl);
@@ -322,7 +322,7 @@ function main() {
                          
     color = [0.0, 0.3, 1.0];                  
                          
-    mh.loadOBJSpec("Models/cow.obj", 0.175, color);
+    mh.loadOBJSpec("models/cow.obj", 0.175, color);
     objCowShaderSpec.initGL(gl);
     objCowShaderSpec.initShader(mh.vss, mh.fss);
     objCowSpec.initGL(gl);
@@ -335,7 +335,7 @@ function main() {
                          
     color = [0.0, 0.5, 0.3];  
                          
-    mh.loadOBJSpec("Models/sphere.obj", 0.425, color);
+    mh.loadOBJSpec("models/sphere.obj", 0.425, color);
     lightSphereShader.initGL(gl);
     lightSphereShader.initShader(mh.vss, mh.fss);
     lightSphere.initGL(gl);
@@ -356,11 +356,11 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    lightTexSphere.initTexture("Models/tex2.png");
+    lightTexSphere.initTexture("models/tex2.png");
     
     color = [0.7, 0.7, 0.7];
     
-    mh.loadOBJSpec("Models/A10/A-10_Thunderbolt_II.obj", 0.2, color);
+    mh.loadOBJSpec("models/A10/A-10_Thunderbolt_II.obj", 0.2, color);
     asteroidShader.initGL(gl);
     asteroidShader.initShader(mh.vss, mh.fss);
     asteroid.initGL(gl);
@@ -370,7 +370,7 @@ function main() {
                          mh.mesh.normals,
                          mh.mesh.indices,
                          mh.mesh.trans); 
-    asteroid.initTexture("Models/A10/A-10_Thunderbolt_II_P01.png"); 
+    asteroid.initTexture("models/A10/A-10_Thunderbolt_II_P01.png"); 
                                  
     // Draw-loop
     (function mainLoop() {
@@ -613,7 +613,7 @@ function initTexture() {
     tex = gl.createTexture();
     tex.image = new Image();
     tex.image.crossOrigin = ''; // ?
-    tex.image.src = "Models/tex2.png";  
+    tex.image.src = "models/tex2.png";  
     tex.image.onload = function () {
         handleLoadedTexture(tex);
     };
@@ -676,6 +676,9 @@ function cleanUp() {
     boxDiffuse.dispose();
     objCow.dispose();
     objCowSpec.dispose();
+    lightSphere.dispose();
+    lightTexSphere.dispose();
+    asteroid.dispose();
 
     // Free textures
     gl.deleteTexture(tex);
