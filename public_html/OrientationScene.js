@@ -8,11 +8,11 @@ var OrientationScene = function (gl, mh) {
 };
 
 function createWallChain(gl, mh) {
-    var shader = new ColorShader();
+    var shader = new Shader();
     var drawable;
 
     for (var i = 0; i < 6; i++) {
-        drawable = new ColorDrawable();
+        drawable = new Drawable();
         mh.setupBox(1.0);//(0.25);
         shader.initGL(gl);
         shader.initShader(mh.vss, mh.fss);

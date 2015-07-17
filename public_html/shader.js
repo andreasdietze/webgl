@@ -1,11 +1,11 @@
 "use strict";
 
 // ----------------------------------------------------------------------- //
-// ----------------------------- ColorShader ----------------------------- //
+// ----------------------------- Shader ----------------------------- //
 // ----------------------------------------------------------------------- //
 
 // Basic constructor -> set interface to GL-API
-var ColorShader = function () {
+var Shader = function () {
     this.gl = null; // Interface to GL-API
     this.vs = null; // VertexShader
     this.fs = null; // FragmentShader
@@ -13,12 +13,12 @@ var ColorShader = function () {
 };
 
 // Init interface to GL
-ColorShader.prototype.initGL = function (gl) {
+Shader.prototype.initGL = function (gl) {
     this.gl = gl;
 };
 
 // Initialize vertex- and fragmentShader
-ColorShader.prototype.initShader = function (vsSourceString, fsSourceString) {
+Shader.prototype.initShader = function (vsSourceString, fsSourceString) {
     // First, create vertexShader
     this.vs = this.gl.createShader(this.gl.VERTEX_SHADER);
     // Set vs source string
@@ -62,17 +62,23 @@ ColorShader.prototype.initShader = function (vsSourceString, fsSourceString) {
     this.sp.texCoords = this.gl.getAttribLocation(this.sp, "texCoords");
     this.sp.normal = this.gl.getAttribLocation(this.sp, "normal");
 
-    // Uniforms
+    // Uniforms lighting
+    this.sp.lighting = this.gl.getUniformLocation(this.sp, "lighting");
+    this.sp.shininess = this.gl.getUniformLocation(this.sp, "shininess");
+    this.sp.lightColor = this.gl.getUniformLocation(this.sp, "lightColor");
+    
+    // Uniforms spaces
     this.sp.transformation = this.gl.getUniformLocation(this.sp, "transformation");
     this.sp.tex = this.gl.getUniformLocation(this.sp, "tex"); 
     this.sp.normalMat = this.gl.getUniformLocation(this.sp, "normalMat");
     this.sp.modelViewMat = this.gl.getUniformLocation(this.sp, "modelViewMat");
     this.sp.viewMat = this.gl.getUniformLocation(this.sp, "viewMat");
+    
       
 };
 
 // Dispose shaders and shaderProgram
-ColorShader.prototype.dispose = function () {
+Shader.prototype.dispose = function () {
     // Free vertexShader
     this.gl.detachShader(this.sp, this.vs);
     this.gl.deleteShader(this.vs);

@@ -19,11 +19,11 @@ var MultipleObjects = function(gl, mh) {
 
 //MultipleObjects.prototype.createCubeChain = function(gl, mh){
 function createCubeChain(gl, mh){
-    var shader = new ColorShader();
+    var shader = new Shader();
     var drawable;
 
     for(var i = 0; i < 8; i++){
-        drawable = new ColorDrawable();
+        drawable = new Drawable();
         mh.setupBox(0.25);
         shader.initGL(gl);
         shader.initShader(mh.vss, mh.fss);
@@ -68,11 +68,11 @@ function createCubeChain(gl, mh){
 
 //MultipleObjects.prototype.createSphereChain = function(gl, mh){
 function createSphereChain(gl, mh){
-    var shader = new ColorShader();
+    var shader = new Shader();
     var drawable;
 
     for(var i = 0; i < 8; i++){
-        drawable = new ColorDrawable();
+        drawable = new Drawable();
         mh.setupSphere(0.4, Math.floor(Math.random() * 4));
         shader.initGL(gl);
         shader.initShader(mh.vss, mh.fss);

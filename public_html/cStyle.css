@@ -3,13 +3,19 @@
     Author     : Bambi
 */
 
-#container{
+/* ----------------------------------------------------------------- 
+   ---------------------------- canvas ----------------------------- 
+   ----------------------------------------------------------------- */
+#canvasContainer{
     display:inline-block;
-    width:100px; 
-    height:100px;
+    width:1030px;  // 60%;
+    height:1030px; // 80%;
     margin: 0 auto;
     background: white; 
     position:relative; 
+    border: 4px solid;
+    border-color: #000000;//#444444;
+    background-color: #888888;
 }
 
 #glCanvas{
@@ -18,11 +24,78 @@
     z-index: 2;
     position:relative;
 }
+/* ----------------------------------------------------------------- 
+   --------------------------- controls ---------------------------- 
+   ----------------------------------------------------------------- */
+#controls{
+    position:absolute;
+    margin-left: 10px;
+    border: 4px solid;
+    background-color: #888888;
+    width: 837px;
+    height: 1030px;
+    
+}
 
+#headControls{
+    border: 2px solid;
+    border-color: #c0402a;
+    width:835px;
+    height: 66px;
+}
+/* ----------------------------------------------------------------- 
+   --------------------------- lighting ---------------------------- 
+   ----------------------------------------------------------------- */
+#lightingLabel{
+
+    
+}
+
+#lightLabel{
+    position:absolute;
+    margin-left: 25px;
+    margin-bottom: 0px;
+}
+
+#lightControls{
+    position: absolute;
+    border: 1px solid;
+    border-color: #c0402a;
+    width: 400px;
+    height: 200px;
+}
+
+#lighting{
+    margin-left: 15px;
+    margin-top: 30px;
+}
+
+#shininess{
+    position:absolute;
+    margin-top: 30px;
+}
+#shininessLabel{
+    position:absolute;
+    margin-left: 45px;
+    margin-bottom: 0px;
+}
+
+#lightColorLabel{
+    position: absolute;
+    margin-left: 200px;
+}
+
+#lightColor{
+    position: absolute;
+    margin-left: 200px;
+    margin-top: 30px;
+}
+/* ----------------------------------------------------------------- 
+   ----------------------------- test ------------------------------ 
+   ----------------------------------------------------------------- */
 #clock{
     z-index: 3;
     position: absolute;
     top: 23px;
     left: 25px;
 }
-

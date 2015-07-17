@@ -9,6 +9,8 @@ NOTE: Autoformat shift+alt+f
         <title>WebGL U1</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- jQuery 1.9.1
+        <script type="text/javascript" src="js/jquery-1.9.1.js"></script>-->
         <!-- X3DOM math lib -->
         <script type="text/javascript" src="fields.js"></script>
         <!-- Small math lib extension -->
@@ -30,10 +32,36 @@ NOTE: Autoformat shift+alt+f
         <!-- Canvas style -->
         <link rel="stylesheet" href="cStyle.css" type="text/css">
     </head>
+    
+    
     <body onload="main()" onunload="cleanUp()">
-        <div id="container">
+        <div id="head">
+            <img id="top" src="top01.jpg" alt="top" width="1890" height="166"/>
+        </div>
+        <span id="canvasContainer">
             <!--<img id="clock" src="clock.png" alt="clock" width="200" height="200"/>-->
             <canvas id="glCanvas" width="1024" height="1024"></canvas>
-        </div>
+        </span>
+        <span id="controls">
+            <div id="headControls">
+                <img id="" src="top01.jpg" alt="top" width="834" height="66"/>
+            </div>
+            <span id="lightControls">
+                <p id="lightingLabel"  style="text-align: center;"> Lighting </p>
+                <label id="lightLabel">Lightsource </label>
+                <select id="lighting">
+                    <option value="Directional light" onclick="changeLighting();">Direct light</option>
+                    <option value="Point light" onclick="changeLighting();">Point light</option>
+                    <option value="Spot light" onclick="changeLighting();">Spot light</option>
+                    <option value="Head light" onclick="changeLighting();">Head light</option>
+                </select>
+                <label id="shininessLabel">Shininess</label>
+                <input id="shininess" type="range" min="1" max="128" value="0" step="1" onchange="setShininess(this.value)" />
+                <!--<button id="picker">Show Color Picker</button>-->
+                <label id="lightColorLabel">Light color</label>
+                <input id="lightColor" onchange="getColor()" type="color" />
+            </span>
+            
+        </span>
     </body>
 </html>

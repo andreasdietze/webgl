@@ -1087,6 +1087,8 @@ MeshHandler.prototype.setupTexturedLightSphere = function (radius) {
     this.fss = this.prea +
             "uniform mat4 viewMat;\n" +
             "uniform sampler2D tex;\n" +
+            "uniform int lighting;\n" +
+            "uniform float shininess;\n" +
             "varying vec3 vPosition;\n" +
             "varying vec2 vTexCoords;\n " +
             "varying vec3 vNormal;\n" +
@@ -1108,25 +1110,29 @@ MeshHandler.prototype.setupTexturedLightSphere = function (radius) {
             "   vec3 ambient = vec3(0.1);\n" +
             
             "   // Shininess\n" +
-            "   float shininess = 128.0;\n" +
+            //"   float shininess = 128.0;\n" +
             
-            "   #if 0\n" +
+            "   vec3 color = vec3(0.0);\n" +
+            "   float NdotL = 0.0;\n" +
+            //"   #if 0\n" +
+            "   if(lighting == 0){\n" +
             "   float NdotL = max(dot(normal, view), 0.0);\n" +
-            "   vec3 color = ambient + NdotL * diffuseColor + pow(NdotL, shininess) * specularColor;\n" +
-            "   #endif\n" +
-            
-            "   #if 1\n" +
+            "   color = ambient + NdotL * diffuseColor + pow(NdotL, shininess) * specularColor;\n" +
+            "   }\n" +
+            //"   #endif\n" +
+           
+            " if(lighting == 1){\n" +
             "   // Diffuser Anteil \n" +
-            "   float NdotL = max(dot(normal, light), 0.0);\n" +
-            "   vec3 diffuse = diffuseColor * NdotL * lightColor * 1.0;\n" +
+            "   NdotL = max(dot(normal, light), 0.0);\n" +
+            "   vec3 diffuse = diffuseColor * NdotL * lightColor;\n" +
             
             "   // Specularer Anteil \n" + 
             "   float powNdotH = pow(max(dot(normal, halfVec), 0.0), shininess);\n" +
-            "   vec3 specular = specularColor * powNdotH * lightColor  * 1.0;\n" + 
+            "   vec3 specular = specularColor * powNdotH * lightColor;\n" + 
             
             "   // Finale Farbe \n" +
-            "   vec3 color = ambient + diffuse + specular;\n" +
-            "   #endif\n" +
+            "    color = ambient + diffuse + specular;\n" +
+            "   }\n" +
             
             "   gl_FragColor = texture2D(tex, vTexCoords) * vec4(color, 1.0);\n" +
                   
@@ -1471,7 +1477,6 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac, color) {
             "uniform mat4 normalMat;\n" +
             "uniform mat4 modelViewMat;\n" +
             
-            
             "// init Varyings \n" +
             "varying vec3 vPosition;\n" +
             "varying vec3 vNormal;\n" +
@@ -1485,6 +1490,9 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac, color) {
     // Fragment shader string
     this.fss = this.prea +
             "uniform mat4 viewMat;\n" +
+            "uniform int lighting;\n" +
+            "uniform float shininess;\n" +
+            "uniform vec3 lightColor;\n" +
             "varying vec3 vPosition;\n" +
             "varying vec3 vNormal;\n" +
             
@@ -1499,22 +1507,29 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac, color) {
             "   vec3 normal = normalize(vNormal);\n" +
             "   vec3 halfVec = normalize(light + view);\n" +
             
-            "   vec3 lightColor = vec3(1.0, 1.0, 0.8);\n" +
-            
+            "   // Lichfarbe \n" +
+            //"   vec3 lightColor = vec3(1.0, 1.0, 0.8);\n" +
+            //"   vec3 lightColorr = lightColor;\n" +
+                    
             "   // Ambienter Anteil \n" +
             "   vec3 ambient = vec3(0.1);\n" +
             
             "   // Shininess\n" +
-            "   float shininess = 128.0;\n" +
+            //"   float shininess = 128.0;\n" +
+    
+            "   vec3 color = vec3(0.0);\n" +
+            "   float NdotL = 0.0;\n" +
             
-            "   #if 0\n" +
+            //"   #if 0\n" +
+            "   if(lighting == 0){\n" +
             "   float NdotL = max(dot(normal, view), 0.0);\n" +
-            "   vec3 color = ambient + NdotL * diffuseColor + pow(NdotL, shininess) * specularColor;\n" +
-            "   #endif\n" +
-            
-            "   #if 1\n" +
+            "   color = ambient + NdotL * diffuseColor + pow(NdotL, shininess) * specularColor;\n" +
+            "   }\n" +
+            //"   #endif\n" +
+           
+            " if(lighting == 1){\n" +
             "   // Diffuser Anteil \n" +
-            "   float NdotL = max(dot(normal, light), 0.0);\n" +
+            "   NdotL = max(dot(normal, light), 0.0);\n" +
             "   vec3 diffuse = diffuseColor * NdotL * lightColor;\n" +
             
             "   // Specularer Anteil \n" + 
@@ -1522,8 +1537,8 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac, color) {
             "   vec3 specular = specularColor * powNdotH * lightColor;\n" + 
             
             "   // Finale Farbe \n" +
-            "   vec3 color = ambient + diffuse + specular;\n" +
-            "   #endif\n" +
+            "    color = ambient + diffuse + specular;\n" +
+            "   }\n" +
             
             "   gl_FragColor = vec4(color, 1.0);\n" +
                   
