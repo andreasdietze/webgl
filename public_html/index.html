@@ -60,17 +60,17 @@ NOTE: Autoformat shift+alt+f
                     <option value="Head light" onclick="changeLighting();">Head light</option>
                 </select>
                 <label id="lightColorLabel">I-diff</label>
-                <input id="lightColor" onchange="getColor()" type="color" />
+                <input id="lightColor" onchange="getColor()" type="color" value="#ffffff" />
                 <label id="intDiffLabel">Intensity</label>
                 <input id="intDiff" type="range" min="0" max="4" value="1" step="0.1" onchange="setIntDiff(this.value)" />
                 
                 <label id="specColorLabel">I-spec</label>
-                <input id="specColor" onchange="getSpecColor()" type="color" />
+                <input id="specColor" onchange="getSpecColor()" type="color"  value="#ffffff"/>
                 <label id="intSpecLabel">Intensity</label>
                 <input id="intSpec" type="range" min="0" max="4" value="1" step="0.1" onchange="setIntSpec(this.value)" />
                 
                 <label id="ambiColorLabel">I-ambi</label>
-                <input id="ambiColor" onchange="getAmbiColor()" type="color" />
+                <input id="ambiColor" onchange="getAmbiColor()" type="color" value="#000000" />
                 <label id="shininessLabel">Shininess</label>
                 <input id="shininess" type="range" min="1" max="128" value="128" step="1" onchange="setShininess(this.value)" />
             </span>

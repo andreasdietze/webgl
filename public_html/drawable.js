@@ -152,7 +152,8 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
     // Set lighting systel
     this.gl.uniform1i(sp.lighting, lighting);
     // Set ambientcolor
-    this.gl.uniform3fv(sp.ambiColor, this.light.ambientColor.normalize().toGL());
+    this.gl.uniform3fv(sp.ambiColor, this.light.ambientColor.toGL());
+    //console.log(this.light.ambientColor.toGL());
     // Set lightcolor (Diffuse)
     this.gl.uniform3fv(sp.lightColor, this.light.lightColor.normalize().toGL());
     // Set specularcolor

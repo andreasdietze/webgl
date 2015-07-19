@@ -945,8 +945,9 @@ function getColor(){
 
 function getAmbiColor(){
     var ambiColor = hexToRgb(document.getElementById("ambiColor").value);
+    //console.log(new VecMath.SFVec3f(ambiColor.r / 255, ambiColor.g / 255, ambiColor.b / 255));
     //console.log("Ambientcolor r:" + ambiColor.r + " g:" + ambiColor.g + " b:" + ambiColor.b);
-    return new VecMath.SFVec3f(ambiColor.r, ambiColor.g, ambiColor.b);
+    return new VecMath.SFVec3f(ambiColor.r / 255 , ambiColor.g / 255, ambiColor.b / 255);
 }
 
 function getSpecColor(){
