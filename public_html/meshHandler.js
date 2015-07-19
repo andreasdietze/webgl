@@ -171,7 +171,7 @@ var MeshHandler = function () {
             
             "   if(lighting == 1){\n" +
             "   float NdotL = max(dot(normal, view), 0.0);\n" +
-            "   color = ambientColor + diffuseColor * NdotL * lightColor + pow(NdotL, shininess) * specularColor;\n" +
+            "   color = ambientColor + (diffuseColor * NdotL * lightColor) * diffIntensity + (pow(NdotL, shininess) * specularColor) * specIntensity;\n" +
             "   }\n" +
            
             " if(lighting == 0){\n" +
@@ -181,7 +181,7 @@ var MeshHandler = function () {
             
             "   // Specularer Anteil \n" + 
             "   float powNdotH = pow(max(dot(normal, halfVec), 0.0), shininess);\n" +
-            "   vec3 specular = (specularColor * powNdotH * lightColor) * specIntensity;\n" + 
+            "   vec3 specular = (specularColor * powNdotH) * specIntensity;\n" + 
             
             "   // Finale Farbe \n" +
             "    color = ambientColor + diffuse + specular;\n" +
