@@ -55,40 +55,51 @@ Shader.prototype.initShader = function (vsSourceString, fsSourceString) {
         console.warn("Could not link program: " + this.gl.getProgramInfoLog(this.sp));
     }
 
-    // Initialize shaderVariables
     // Attributes
     this.sp.position = this.gl.getAttribLocation(this.sp, "position");
     this.sp.color = this.gl.getAttribLocation(this.sp, "color");
     this.sp.texCoords = this.gl.getAttribLocation(this.sp, "texCoords");
     this.sp.normal = this.gl.getAttribLocation(this.sp, "normal");
 
+    // Uniforms material
+    this.sp.matAmbi = this.gl.getUniformLocation(this.sp, "Ka");
+    this.sp.matDiff = this.gl.getUniformLocation(this.sp, "Kd");
+    this.sp.matSpec = this.gl.getUniformLocation(this.sp, "Ks");
+    this.sp.matEmis = this.gl.getUniformLocation(this.sp, "Ke");
+    
     // Uniforms lighting
     this.sp.lighting = this.gl.getUniformLocation(this.sp, "lighting");
     this.sp.shininess = this.gl.getUniformLocation(this.sp, "shininess");
+    this.sp.diffIntensity = this.gl.getUniformLocation(this.sp, "diffIntensity");
+    this.sp.specIntensity = this.gl.getUniformLocation(this.sp, "specIntensity");
     this.sp.lightColor = this.gl.getUniformLocation(this.sp, "lightColor");
+    this.sp.specColor = this.gl.getUniformLocation(this.sp, "specularColor");
+    this.sp.ambiColor = this.gl.getUniformLocation(this.sp, "ambientColor");
     
     // Uniforms spaces
     this.sp.transformation = this.gl.getUniformLocation(this.sp, "transformation");
-    this.sp.tex = this.gl.getUniformLocation(this.sp, "tex"); 
+    this.sp.tex = this.gl.getUniformLocation(this.sp, "tex");
+    this.sp.texTrue = this.gl.getUniformLocation(this.sp, "texTrue");
+    this.sp.viewMat = this.gl.getUniformLocation(this.sp, "viewMat"); 
     this.sp.normalMat = this.gl.getUniformLocation(this.sp, "normalMat");
     this.sp.modelViewMat = this.gl.getUniformLocation(this.sp, "modelViewMat");
-    this.sp.viewMat = this.gl.getUniformLocation(this.sp, "viewMat");
-    
-      
+   
 };
 
 // Dispose shaders and shaderProgram
 Shader.prototype.dispose = function () {
     // Free vertexShader
-    this.gl.detachShader(this.sp, this.vs);
-    this.gl.deleteShader(this.vs);
+    if(this.gl && this.sp){
+        this.gl.detachShader(this.sp, this.vs);
+        this.gl.deleteShader(this.vs);
 
-    // Free fragmentShader
-    this.gl.detachShader(this.sp, this.fs);
-    this.gl.deleteShader(this.fs);
+        // Free fragmentShader
+        this.gl.detachShader(this.sp, this.fs);
+        this.gl.deleteShader(this.fs);
 
-    // Free program
-    this.gl.deleteProgram(this.sp);
+        // Free program
+        this.gl.deleteProgram(this.sp);
+    }
     this.sp = null;
 };
 

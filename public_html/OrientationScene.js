@@ -1,5 +1,6 @@
 /* global VecMath */
 
+/*
 var wallChain = new Array(6);
 
 var OrientationScene = function (gl, mh) {
@@ -50,15 +51,15 @@ function createWallChain(gl, mh) {
                 drawable.md.transformMatrix = drawable.md.transformMatrix.mult(
                         VecMath.SFMatrix4f.scale(scale));
 
-                /*drawable.md.transformMatrix._03 = vec.x;
-                drawable.md.transformMatrix._13 = vec.y;
-                drawable.md.transformMatrix._23 = vec.z;
+                //drawable.md.transformMatrix._03 = vec.x;
+                //drawable.md.transformMatrix._13 = vec.y;
+                //drawable.md.transformMatrix._23 = vec.z;
 
                 // Scale
-                vec = new VecMath.SFVec3f(10, 10, 0.1);
-                drawable.md.transformMatrix._00 = vec.x;
-                drawable.md.transformMatrix._11 = vec.y;
-                drawable.md.transformMatrix._22 = vec.z;*/
+                //vec = new VecMath.SFVec3f(10, 10, 0.1);
+                //drawable.md.transformMatrix._00 = vec.x;
+                //drawable.md.transformMatrix._11 = vec.y;
+                //drawable.md.transformMatrix._22 = vec.z;
 
                 // Add to array
                 wallChain[i] = drawable;
@@ -281,3 +282,5 @@ OrientationScene.prototype.dispose = function () {
     for (var i = 0; i < wallChain.length; i++)
         wallChain[i].dispose();
 };
+
+*/

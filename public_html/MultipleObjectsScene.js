@@ -1,5 +1,5 @@
 /* global VecMath */
-
+/*
 // Create cube chain
 var cubeChain = new Array(); 
 
@@ -125,3 +125,5 @@ MultipleObjects.prototype.dispose = function(){
         sphereChain[i].dispose();
     
 };
+
+*/

@@ -41,8 +41,10 @@ var addVec = new VecMath.SFVec3f(0.0, 0.0, -5.0);
 // Controls KB
 var currentlyPressedKeys = {};
 
-var lighting = 1;
+var lighting = 0;
 var shininess = 128.0;
+var intDiff = 1.0;
+var intSpec = 1.0;
 
 // Scenegraph
 var drawables = new Array();
@@ -69,87 +71,71 @@ var mh = new MeshHandler();
 // ----------------- Init colorDrawables ---------------- //
 // ------------------------------------------------------ //
 // Create secondPointer
-var secondPointerShader = new Shader();
 var secondPointer = new Drawable();
 
 // Create minutePointer
-var minutePointerShader = new Shader();
 var minutePointer = new Drawable();
 
 // Create hourPointer
-var hourPointerShader = new Shader();
 var hourPointer = new Drawable();
 
 // Create clockTex
-var clockTexShader = new Shader();
 var clockTex = new Drawable();
 
 // Create box
-var boxShader = new Shader();
 var box = new Drawable();
 
 // Create sphere
-var sphereShader = new Shader();
 var sphere = new Drawable();
 
 // Another sphere
-var sphereShader1 = new Shader();
 var sphere1 = new Drawable();
 
 // ------------------------------------------------------ //
 //  -------------------- ColorScenes -------------------- // 
 // ------------------------------------------------------ //
 
-var sceneOne;
-var orientationScene;
+//var sceneOne;  // TODO Refactor shaderobject
+//var orientationScene;
 
 // ------------------------------------------------------ //
 // --------------- Init texturedDrawables --------------- //
 // ------------------------------------------------------ //
 
 // Create textured house
-var houseShaderTex = new Shader();
 var houseTex = new Drawable();
 
 // Create textured Box
-var boxShaderTex = new Shader();
 var boxTex = new Drawable();
 
 // Textured box
 var boxTex2 = new Drawable();
 
 // Textured sphere
-var sphereTexShader = new Shader();
 var sphereTex = new Drawable();
 
 // ------------------------------------------------------ //
 // --------------- Init lightinhgDrawables -------------- //
 // ------------------------------------------------------ //
 
-
+// Test
 var boxDiffuseShader = new DiffuseLightingShader();
 var boxDiffuse = new LightingTextureDrawable();
 
-var objCowShader = new Shader();
+// Diffuse-Cow
 var objCow = new Drawable("difCow", 0);
 
-var objCowShaderSpec = new Shader();//LightingShader();
+// Diffuse-Spec-Cow
 var objCowSpec = new Drawable("difSpecCow", 1); 
 
-var lightSphereShader = new Shader();
+// Diffuse-Spec-Sphere
 var lightSphere = new Drawable("lightSphere", 2);
 
-var lightTexSphereShader = new Shader();
+// Diffuse-Spec-Tex-Sphere
 var lightTexSphere = new Drawable("lightTexSphere", 3);
 
-var asteroidShader = new Shader();
-var asteroid = new Drawable("asteroid", 4);
-
-// ------------------------------------------------------ //
-// ------------------ Init TestDrawables ---------------- //
-// ------------------------------------------------------ //
-
-var testDrawable = new TestDrawable();
+// Diffuse-Spec-(Tex)-A10
+var a10 = new Drawable("asteroid", 4);
 
 
 // MAIN
@@ -163,6 +149,8 @@ function main() {
     gl = canvas.getContext("webgl", ctxAttribs) ||
             canvas.getContext("experimental-webgl", ctxAttribs);
     
+    document.getElementById("intDiffLabel").innerHTML = "Diff intensity: " + intDiff;
+    document.getElementById("intSpecLabel").innerHTML = "Spec intensity: " + intSpec;
     document.getElementById("shininessLabel").innerHTML = "Shininess: " + shininess;
 
     // Init projection
@@ -176,9 +164,7 @@ function main() {
     // Colored -------------------------------------------
     // Setup meshData for secondPointer
     mh.setupSecPointer();
-    secondPointerShader.initGL(gl);
-    secondPointerShader.initShader(mh.vss, mh.fss);
-    secondPointer.initGL(gl);
+    secondPointer.initGL(gl, mh.vss, mh.fss);
     secondPointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
             mh.mesh.tex,
@@ -188,9 +174,7 @@ function main() {
 
     // Setup meshData for secondPointer
     mh.setupMinPointer();
-    minutePointerShader.initGL(gl);
-    minutePointerShader.initShader(mh.vss, mh.fss);
-    minutePointer.initGL(gl);
+    minutePointer.initGL(gl, mh.vss, mh.fss);
     minutePointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
             mh.mesh.tex,
@@ -200,9 +184,7 @@ function main() {
 
     // Setup meshData for hourPointer
     mh.setupHourPointer();
-    hourPointerShader.initGL(gl);
-    hourPointerShader.initShader(mh.vss, mh.fss);
-    hourPointer.initGL(gl);
+    hourPointer.initGL(gl, mh.vss, mh.fss);
     hourPointer.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
             mh.mesh.tex,
@@ -212,9 +194,7 @@ function main() {
             
     // Setup meshDate for clockTex  
     mh.setupClock();
-    clockTexShader.initGL(gl);
-    clockTexShader.initShader(mh.vss, mh.fss);
-    clockTex.initGL(gl);
+    clockTex.initGL(gl, mh.vss, mh.fss);
     clockTex.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
              mh.mesh.tex,
@@ -224,9 +204,7 @@ function main() {
     clockTex.initTexture("models/clock.png");
 
     mh.setupBox(0.25);
-    boxShader.initGL(gl);
-    boxShader.initShader(mh.vss, mh.fss);
-    box.initGL(gl);
+    box.initGL(gl, mh.vss, mh.fss);
     box.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
             mh.mesh.tex,
@@ -235,9 +213,7 @@ function main() {
             mh.mesh.trans);    
          
     mh.setupSphere(0.4, 2);
-    sphereShader.initGL(gl);
-    sphereShader.initShader(mh.vss, mh.fss);
-    sphere.initGL(gl);
+    sphere.initGL(gl, mh.vss, mh.fss);
     sphere.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
             mh.mesh.tex,
@@ -246,9 +222,7 @@ function main() {
             mh.mesh.trans);
 
     mh.setupSphere(0.4, 1);
-    sphereShader1.initGL(gl);
-    sphereShader1.initShader(mh.vss, mh.fss);
-    sphere1.initGL(gl);
+    sphere1.initGL(gl, mh.vss, mh.fss);
     sphere1.setBufferData(mh.mesh.vertices,
             mh.mesh.col,
             mh.mesh.tex,
@@ -256,14 +230,12 @@ function main() {
             mh.mesh.indices,
             mh.mesh.trans);
             
-    sceneOne = new MultipleObjects(gl, mh);
-    orientationScene = new OrientationScene(gl, mh);
+   // sceneOne = new MultipleObjects(gl, mh);
+    //orientationScene = new OrientationScene(gl, mh);
             
     // Textured --------------------------------------------
     mh.setupTexturedHouse();
-    houseShaderTex.initGL(gl);
-    houseShaderTex.initShader(mh.vss, mh.fss);
-    houseTex.initGL(gl);
+    houseTex.initGL(gl, mh.vss, mh.fss);
     houseTex.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
              mh.mesh.tex,
@@ -273,9 +245,7 @@ function main() {
     houseTex.initTexture("models/tex2.png");
     
     mh.setupTexturedBox(0.25);
-    boxShaderTex.initGL(gl);
-    boxShaderTex.initShader(mh.vss, mh.fss);
-    boxTex.initGL(gl);
+    boxTex.initGL(gl, mh.vss, mh.fss);
     boxTex.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
              mh.mesh.tex,
@@ -285,7 +255,7 @@ function main() {
     boxTex.initTexture("models/tex2.png");
     
     mh.setupTexturedBox6f();
-    boxTex2.initGL(gl);
+    boxTex2.initGL(gl, mh.vss, mh.fss);
     boxTex2.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
              mh.mesh.tex,
@@ -295,9 +265,7 @@ function main() {
     boxTex2.initTexture("models/crazyCube.png");
     
     mh.setupTexturedSphere(0.4);
-    sphereTexShader.initGL(gl);
-    sphereTexShader.initShader(mh.vss, mh.fss);
-    sphereTex.initGL(gl);
+    sphereTex.initGL(gl, mh.vss, mh.fss);
     sphereTex.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
              mh.mesh.tex,
@@ -308,7 +276,7 @@ function main() {
     
     // Lighting ---------------------------------------
     
-    mh.setupDiffusedBox();
+   mh.setupDiffusedBox();
     boxDiffuseShader.initGL(gl);
     boxDiffuseShader.initShader(mh.vss, mh.fss);
     boxDiffuse.initGL(gl);
@@ -319,12 +287,8 @@ function main() {
             mh.mesh.trans);
     boxDiffuse.initTexture("models/crazyCube.png");
     
-    var color = [0.7, 0.7, 0.3];
-    
-    mh.loadOBJ("models/cow.obj", 0.175, color);
-    objCowShader.initGL(gl);
-    objCowShader.initShader(mh.vss, mh.fss);
-    objCow.initGL(gl);
+    mh.loadOBJ("models/cow.obj", 0.175);
+    objCow.initGL(gl, mh.vss, mh.fss);
     objCow.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
                          mh.mesh.tex,
@@ -334,12 +298,8 @@ function main() {
     // Add to scenegraph
     drawables.push(objCow);                     
                          
-    color = [0.0, 0.3, 1.0];                  
-                         
-    mh.loadOBJSpec("models/cow.obj", 0.175, color);
-    objCowShaderSpec.initGL(gl);
-    objCowShaderSpec.initShader(mh.vss, mh.fss);
-    objCowSpec.initGL(gl);
+    mh.loadOBJSpec("models/cow.obj", 0.175);
+    objCowSpec.initGL(gl, mh.vss, mh.fss);
     objCowSpec.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
                          mh.mesh.tex,
@@ -348,13 +308,9 @@ function main() {
                          mh.mesh.trans); 
     // Add to scenegraph
     drawables.push(objCowSpec);  
-                         
-    color = [0.0, 0.5, 0.3];  
-                         
-    mh.loadOBJSpec("models/sphere.obj", 0.425, color);
-    lightSphereShader.initGL(gl);
-    lightSphereShader.initShader(mh.vss, mh.fss);
-    lightSphere.initGL(gl);
+
+    mh.loadOBJSpec("models/sphere.obj", 0.425);
+    lightSphere.initGL(gl, mh.vss, mh.fss);
     lightSphere.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
                          mh.mesh.tex,
@@ -365,9 +321,7 @@ function main() {
     drawables.push(lightSphere); 
     
     mh.setupTexturedLightSphere(0.4);
-    lightTexSphereShader.initGL(gl);
-    lightTexSphereShader.initShader(mh.vss, mh.fss);
-    lightTexSphere.initGL(gl);
+    lightTexSphere.initGL(gl, mh.vss, mh.fss);
     lightTexSphere.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
              mh.mesh.tex,
@@ -376,34 +330,19 @@ function main() {
              mh.mesh.trans);
     lightTexSphere.initTexture("models/tex2.png");
      // Add to scenegraph
-    drawables.push(lightTexSphere);  
-    
-    color = [0.7, 0.7, 0.7];
-    
-    mh.loadOBJSpec("models/A10/A-10_Thunderbolt_II.obj", 0.2, color);
-    asteroidShader.initGL(gl);
-    asteroidShader.initShader(mh.vss, mh.fss);
-    asteroid.initGL(gl);
-    asteroid.setBufferData(mh.mesh.vertices,
+    drawables.push(lightTexSphere);   
+
+    mh.loadOBJSpec("models/A10/A-10_Thunderbolt_II.obj", 0.2);
+    a10.initGL(gl, mh.vss, mh.fss);
+    a10.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
                          mh.mesh.tex,
                          mh.mesh.normals,
                          mh.mesh.indices,
                          mh.mesh.trans); 
-    asteroid.initTexture("models/A10/A-10_Thunderbolt_II_P01.png"); 
+    //a10.initTexture("models/A10/A-10_Thunderbolt_II_P01.png"); 
      // Add to scenegraph
-    drawables.push(asteroid);
-
-    // --------------- Testdrawable ------------------
-    mh.setupTexturedLightSphere(0.4);
-    testDrawable.initGL(gl, mh.vss, mh.fss);
-    testDrawable.setBufferData(mh.mesh.vertices,
-             mh.mesh.col,
-             mh.mesh.tex,
-             mh.mesh.normals,
-             mh.mesh.indices,
-             mh.mesh.trans);
-    testDrawable.initTexture("models/tex2.png");
+    drawables.push(a10);
     
     getSceneGraphInfo();
                                  
@@ -417,23 +356,23 @@ function main() {
         clearBackBuffer(canvas);
 
         // Colored
-        secondPointer.draw(secondPointerShader.sp, viewMat, projectionMat, lighting, shininess);
-        minutePointer.draw(minutePointerShader.sp, viewMat, projectionMat, lighting, shininess);
-        hourPointer.draw(hourPointerShader.sp, viewMat, projectionMat, lighting, shininess);
-        clockTex.draw(clockTexShader.sp, viewMat, projectionMat, lighting, shininess);
-        box.draw(boxShader.sp, viewMat, projectionMat, lighting, shininess);
-        sphere.draw(sphereShader.sp, viewMat, projectionMat, lighting, shininess);
-        sphere1.draw(sphereShader.sp, viewMat, projectionMat, lighting, shininess);
+        secondPointer.draw(secondPointer.shader.sp, viewMat, projectionMat, lighting);
+        minutePointer.draw(minutePointer.shader.sp, viewMat, projectionMat, lighting);
+        hourPointer.draw(hourPointer.shader.sp, viewMat, projectionMat, lighting);
+        clockTex.draw(clockTex.shader.sp, viewMat, projectionMat, lighting);
+        box.draw(box.shader.sp, viewMat, projectionMat, lighting);
+        sphere.draw(sphere.shader.sp, viewMat, projectionMat, lighting);
+        sphere1.draw(sphere1.shader.sp, viewMat, projectionMat, lighting);
         
         // Color scenes
-        sceneOne.draw(boxShader, sphereShader, viewMat, projectionMat);
+        //sceneOne.draw(box.shader.sp, sphere.shader.sp, viewMat, projectionMat);
         //orientationScene.draw(boxShader, viewMat, projectionMat);
         
         // Textured
-        houseTex.draw(houseShaderTex.sp, viewMat, projectionMat, lighting, shininess);
-        boxTex.draw(boxShaderTex.sp, viewMat, projectionMat, lighting, shininess);
-        boxTex2.draw(boxShaderTex.sp, viewMat, projectionMat, lighting, shininess);
-        sphereTex.draw(sphereTexShader.sp, viewMat, projectionMat, lighting, shininess);
+        houseTex.draw(houseTex.shader.sp, viewMat, projectionMat, lighting);
+        boxTex.draw(boxTex.shader.sp, viewMat, projectionMat, lighting);
+        boxTex2.draw(boxTex2.shader.sp, viewMat, projectionMat, lighting);
+        sphereTex.draw(sphereTex.shader.sp, viewMat, projectionMat, lighting);
        
         // Lighting
         boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
@@ -442,16 +381,40 @@ function main() {
         //for(var i = 0; i < drawables.length; i++)
             //drawables[i].draw(objCowShaderSpec.sp, viewMat, projectionMat, lighting, shininess);
         
-        objCow.draw(objCowShader.sp, viewMat, projectionMat, lighting, shininess);
-        objCowSpec.draw(objCowShaderSpec.sp, viewMat, projectionMat, lighting, shininess);
-        lightSphere.draw(lightSphereShader.sp, viewMat, projectionMat, lighting, shininess);
-        lightTexSphere.draw(lightTexSphereShader.sp, viewMat, projectionMat, lighting, shininess);
-        asteroid.draw(asteroidShader.sp, viewMat, projectionMat, lighting, shininess);
-        objCowSpec.lightColor = getColor();//  new VecMath.SFVec3f(1.0, 1.0, 0.8);
-        //console.log(getColor());
+        objCow.draw(objCow.shader.sp, viewMat, projectionMat, lighting);
         
-        // works =) 
-        testDrawable.draw(testDrawable.shader.sp, viewMat, projectionMat, lighting, shininess);
+        objCowSpec.draw(objCowSpec.shader.sp, viewMat, projectionMat, lighting);
+        objCowSpec.light.lightColor = getColor();
+        objCowSpec.light.specularColor = getSpecColor();
+        objCowSpec.light.ambientColor = getAmbiColor();
+        objCowSpec.light.shininess = shininess;
+        objCowSpec.light.diffIntensity = intDiff;
+        objCowSpec.light.specIntensity = intSpec;
+        
+        
+        lightSphere.draw(lightSphere.shader.sp, viewMat, projectionMat, lighting);
+        lightSphere.light.lightColor = getColor();
+        lightSphere.light.specularColor = getSpecColor();
+        lightSphere.light.ambientColor = getAmbiColor();
+        lightSphere.light.shininess = shininess;
+        lightSphere.light.diffIntensity = intDiff;
+        lightSphere.light.specIntensity = intSpec;
+        
+        lightTexSphere.draw(lightTexSphere.shader.sp, viewMat, projectionMat, lighting);
+        lightTexSphere.light.lightColor = getColor();
+        lightTexSphere.light.specularColor = getSpecColor();
+        lightTexSphere.light.ambientColor = getAmbiColor();
+        lightTexSphere.light.shininess = shininess;
+        lightTexSphere.light.diffIntensity = intDiff;
+        lightTexSphere.light.specIntensity = intSpec;
+        
+        a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
+        a10.light.lightColor = getColor();
+        a10.light.specularColor = getSpecColor();
+        a10.light.ambientColor = getAmbiColor();
+        a10.light.shininess = shininess; 
+        a10.light.diffIntensity = intDiff;
+        a10.light.specIntensity = intSpec;
         
         // Renderloop 
         window.requestAnimationFrame(mainLoop);
@@ -573,7 +536,7 @@ function animate(canvas) {
     sphere1.md.transformMatrix = sphere1.md.transformMatrix.mult(rotMat);
     
     rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
-    sceneOne.update(rotMat);
+    //sceneOne.update(rotMat);
     
     // Textured -------------------------------------------------------------------
     sphereTex.md.transformMatrix._03 = 1.5;
@@ -625,7 +588,7 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
-   
+ 
     lightSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -1.0, 0.0)));
@@ -638,20 +601,18 @@ function animate(canvas) {
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1)));
    
-    asteroid.md.transformMatrix = VecMath.SFMatrix4f.identity();
-    asteroid.md.transformMatrix = asteroid.md.transformMatrix.mult(
+    a10.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    a10.md.transformMatrix = a10.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(4.0, 0.5, 0.0)));
-    asteroid.md.transformMatrix = asteroid.md.transformMatrix.mult(
+    a10.md.transformMatrix = a10.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
-    asteroid.md.transformMatrix = asteroid.md.transformMatrix.mult(
+    a10.md.transformMatrix = a10.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
     
-   
     lastFrameTime = currentTime;
 }
-
 
 // Setup texture
 function initTexture() {
@@ -681,26 +642,31 @@ function cleanUp() {
 
     // Free shader of drawables
     // Colors - Shaders
-    secondPointerShader.dispose();
-    minutePointerShader.dispose();
-    hourPointerShader.dispose();
-    boxShader.dispose();
-    sphereShader.dispose();
-    sphereShader1.dispose();
+    //secondPointerShader.dispose();
+    secondPointer.shader.dispose();
+    minutePointer.shader.dispose();
+    hourPointer.shader.dispose();
+    box.shader.dispose();
+    sphere.shader.dispose();
+    sphere1.shader.dispose();
     
     // Scenes
-    sceneOne.dispose();
-    orientationScene.dispose();
+    //sceneOne.dispose();
+    //orientationScene.dispose();
 
     // Textured - Shaders
-    boxShaderTex.dispose();
-    houseShaderTex.dispose();
-    sphereTexShader.dispose();
+    /*boxTex.shader.dispose();
+    houseTex.shader.dispose();
+    sphere.shader.dispose();
+    sphere1.shader.dispose();
     
     // Lighting
     boxDiffuseShader.dispose();
-    objCowShader.dispose();
-    objCowShaderSpec.dispose();
+    objCow.shader.dispose();
+    objCowSpec.shader.dispose();
+    lightSphere.shader.dispose();
+    lightTexSphere.shader.dispose();
+    a10.shader.dispose(); */
     
     // Free buffers of drawable
     // Colors - Drawables
@@ -723,9 +689,7 @@ function cleanUp() {
     objCowSpec.dispose();
     lightSphere.dispose();
     lightTexSphere.dispose();
-    asteroid.dispose();
-    
-    testDrawable.dispose();
+    a10.dispose();
 
     // Free textures
     gl.deleteTexture(tex);
@@ -926,28 +890,40 @@ function changeLighting(){
     var lightStyle = document.getElementById("lighting").selectedIndex;
     switch(lightStyle){
         case 0: // Directional light
-            lighting = 1;
+            lighting = 0;
             console.log("Lightsourc: Directional light");
             break;
         case 1: // Point light
-            lighting = 0;
+            lighting = 2;
             console.log("Lightsourc: Point light");
             break;
         case 2: // Spot light
-            lighting = 1;
+            lighting = 3;
             console.log("Lightsourc: Spot light");
             break;
         case 3: // Head light
-            lighting = 0;
+            lighting = 1;
             console.log("Lightsourc: Head light");
             break;
     }
 }
 
 function setShininess(newValue){
-    console.log("Shininess " + newValue);
+    //console.log("Shininess " + newValue);
     shininess = newValue;
     document.getElementById("shininessLabel").innerHTML = "Shininess: " + shininess;
+}
+
+function setIntDiff(newValue){
+    //console.log("Diff intensity " + newValue);
+    intDiff = newValue;
+    document.getElementById("intDiffLabel").innerHTML = "Inten. Diff: " + intDiff;
+}
+
+function setIntSpec(newValue){
+    //console.log("Spec intensity " + newValue);
+    intSpec = newValue;
+    document.getElementById("intSpecLabel").innerHTML = "Inten. Spec: " + intSpec;
 }
 
 // TODO: 
@@ -965,6 +941,18 @@ function getColor(){
     var color = hexToRgb(document.getElementById("lightColor").value);
     //console.log("Lightcolor r:" + color.r + " g:" + color.g + " b:" + color.b);
     return new VecMath.SFVec3f(color.r, color.g, color.b);
+}
+
+function getAmbiColor(){
+    var ambiColor = hexToRgb(document.getElementById("ambiColor").value);
+    //console.log("Ambientcolor r:" + ambiColor.r + " g:" + ambiColor.g + " b:" + ambiColor.b);
+    return new VecMath.SFVec3f(ambiColor.r, ambiColor.g, ambiColor.b);
+}
+
+function getSpecColor(){
+    var specColor = hexToRgb(document.getElementById("specColor").value);
+    //console.log("Specularcolor r:" + specColor.r + " g:" + specColor.g + " b:" + specColor.b);
+    return new VecMath.SFVec3f(specColor.r, specColor.g, specColor.b);
 }
 
 // http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb

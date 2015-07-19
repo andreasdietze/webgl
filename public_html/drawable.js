@@ -1,4 +1,4 @@
-/* global VecMath, main, MathHelper, gl */
+/* global VecMath, main, MathHelper, gl, Light, Material */
 
 "use strict";
 
@@ -14,12 +14,19 @@ var Drawable = function (tag, id) {
     this.tex = null;      // Texture object
     this.tag = tag;       // Tag (name)
     this.id = id;         // ID
-    this.lightColor = new VecMath.SFVec3f(1.0, 1.0, 0.8);
+    this.texTrue = 0;     // has tex ? 
+    this.shader = null;
+    this.light = new Light();
+    this.material = new Material();
+    //this.lightColor = new VecMath.SFVec3f(1.0, 1.0, 0.8);
 };
 
 // Init interface to GL
-Drawable.prototype.initGL = function (gl) {
+Drawable.prototype.initGL = function (gl, vss, fss) {
     this.gl = gl;
+    this.shader = new Shader();
+    this.shader.initGL(gl);
+    this.shader.initShader(vss, fss);
 };
 
 // Init and bind buffers
@@ -89,7 +96,6 @@ Drawable.prototype.update = function (transformMatrix) {
 
 // Setup texture, example: "file.png"
 Drawable.prototype.initTexture = function (path) {
-//function initTexture(path){
     this.tex = this.gl.createTexture();
     this.tex.ready = false;
     
@@ -97,16 +103,15 @@ Drawable.prototype.initTexture = function (path) {
     image.crossOrigin = ''; // ?
     image.src = path;
     
+    // Save class instance
     var that = this;
-    
-    //console.log(this.tex);
     image.onload = function () {
-        handleLoadedTex.call(that, image);
+        that.handleLoadedTex.call(that, image);
     };
 };
 
 // Handle texture
-function handleLoadedTex(image) {
+Drawable.prototype.handleLoadedTex = function(image){
     this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);  //UNPACK_FLIP_Y_WEBGL // UNPACK_PREMULTIPLY_ALPHA_WEBGL
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
@@ -116,11 +121,11 @@ function handleLoadedTex(image) {
     this.tex.height = image.height;
     this.tex.ready = true;
     this.needRender = true;
+    this.texTrue = 1; 
 };
 
-
 // Render md
-Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting, shininess) {
+Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
     // Use the shader
     this.gl.useProgram(sp);
 
@@ -129,18 +134,38 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting, shinin
     this.gl.uniformMatrix4fv(sp.modelViewMat, false, new Float32Array(modelView.toGL()));
     this.gl.uniformMatrix4fv(sp.transformation, false, new Float32Array(modelViewProjection.toGL()));
     
-    var normalMat = modelView.inverse().transpose(); // soll moidelviewMat sein
+    var normalMat = modelView.inverse().transpose();
     this.gl.uniformMatrix4fv(sp.normalMat, false, new Float32Array(normalMat.toGL()));
     this.gl.uniformMatrix4fv(sp.viewMat, false, new Float32Array(viewMat.toGL()));
     
-    // Set lighting
+    // Set material properties -------------------------------------------------
+    // Set ambient material color Ka
+    this.gl.uniform3fv(sp.matAmbi, this.material.Ka.normalize().toGL());
+    // Set diffuse material color Kd
+    this.gl.uniform3fv(sp.matDiff, this.material.Kd.normalize().toGL());
+    // Set specular material color Ks
+    this.gl.uniform3fv(sp.matSpec, this.material.Ks.normalize().toGL());
+    // Set emissive material color Ke
+    this.gl.uniform3fv(sp.matEmis, this.material.Ke.normalize().toGL());
+    
+    // Set lighting properties -------------------------------------------------
+    // Set lighting systel
     this.gl.uniform1i(sp.lighting, lighting);
-    
-    // Set lightcolor
-    this.gl.uniform3fv(sp.lightColor, this.lightColor.normalize().toGL());
-    
+    // Set ambientcolor
+    this.gl.uniform3fv(sp.ambiColor, this.light.ambientColor.normalize().toGL());
+    // Set lightcolor (Diffuse)
+    this.gl.uniform3fv(sp.lightColor, this.light.lightColor.normalize().toGL());
+    // Set specularcolor
+    this.gl.uniform3fv(sp.specColor, this.light.specularColor.normalize().toGL());
     // Set shininess
-    this.gl.uniform1f(sp.shininess, shininess);
+    this.gl.uniform1f(sp.shininess, this.light.shininess);
+    // Set diffuse lighting intensity
+    this.gl.uniform1f(sp.diffIntensity, this.light.diffIntensity);
+    // Set specular lighting intensity
+    this.gl.uniform1f(sp.specIntensity, this.light.specIntensity);
+    
+    // Set shader state for texture
+    this.gl.uniform1i(sp.texTrue, this.texTrue);
      
     // Set texture
     if(this.tex && this.tex.ready){
@@ -224,6 +249,9 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting, shinin
 };
 
 Drawable.prototype.dispose = function () {
+    // Free shaders
+    this.shader.dispose();
+    
     // Free all buffers
     this.gl.deleteBuffer(this.md.positionBuffer);
     if(this.md.col)
@@ -486,255 +514,3 @@ LightingTextureDrawable.prototype.computeFaceNormals1 = function(verts, indices)
 // ----------------------------------------------------------------------- //
 // ------------------------------ TestDrawable --------------------------- //
 // ----------------------------------------------------------------------- //
-
-// Basic constructor -> set interface to GL-API
-var TestDrawable = function (tag, id) {
-    this.gl = null;       // Access to GL-API
-    this.md = null;       // MeshData
-    this.angle = 0.0;     // Degrees for rotationZ
-    this.tex = null;      // Texture object
-    this.tag = tag;       // Tag (name)
-    this.id = id;         // ID
-    this.shader = null;   // Shader object
-    this.lightColor = new VecMath.SFVec3f(1.0, 1.0, 0.8);
-};
-
-// Init interface to GL
-TestDrawable.prototype.initGL = function (gl, vss, fss) {
-    this.gl = gl;
-    this.shader = new Shader();
-    this.shader.initGL(gl);
-    this.shader.initShader(vss, fss);
-};
-
-// Init and bind buffers
-TestDrawable.prototype.initBuffers = function () {
-    
-    // VertexPositionBuffer
-    this.md.positionBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.vertices), this.gl.STATIC_DRAW);
-
-    // VertexColorBuffer
-    if(this.md.col){
-        this.md.colorBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.colorBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.col), this.gl.STATIC_DRAW);
-    }
-    
-    // TextureBuffer
-    if(this.md.tex){
-        this.md.texBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.texBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.tex), this.gl.STATIC_DRAW);
-    }
-    
-    // NormalBuffer
-    if(this.md.normals){
-        this.md.normalBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.normals), this.gl.STATIC_DRAW);
-    }
-    
-    // IndexBuffer
-    this.md.indexBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.md.indices), this.gl.STATIC_DRAW);
-};
-
-// Set md, translation and rotation. 
-// Finally init buffers
-TestDrawable.prototype.setBufferData = function (vertices, colors, tex, normals, indices, translation) {
-    // Set md
-    this.md = {
-        // Setup vetices
-        vertices: vertices,
-        // Setup vertex colors
-        col: colors,
-        // Seupt texCoords
-        tex: tex,
-        // Setup normals
-        normals: normals,
-        // Setup indices
-        indices: indices,
-        // Setup translation
-        trans: translation
-    };
-
-    this.md.transformMatrix = VecMath.SFMatrix4f.identity();
-
-    // Init buffers
-    this.initBuffers();
-};
-
-// Geht nicht, immer die letzte function ist aktiv
-TestDrawable.prototype.update = function (transformMatrix) {
-    this.md.transformMatrix = transformMatrix;
-};
-
-// Setup texture, example: "file.png"
-TestDrawable.prototype.initTexture = function (path) {
-//function initTexture(path){
-    this.tex = this.gl.createTexture();
-    this.tex.ready = false;
-    
-    var image = new Image();
-    image.crossOrigin = ''; // ?
-    image.src = path;
-    
-    var that = this;
-    
-    //console.log(this.tex);
-    image.onload = function () {
-        handleLoadedTex.call(that, image);
-    };
-};
-
-// Handle texture
-function handleLoadedTex(image) {
-    this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);  //UNPACK_FLIP_Y_WEBGL // UNPACK_PREMULTIPLY_ALPHA_WEBGL
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, null);
-    
-    this.tex.width = image.width;
-    this.tex.height = image.height;
-    this.tex.ready = true;
-    this.needRender = true;
-};
-
-
-// Render md
-TestDrawable.prototype.draw = function (sp, viewMat, projectionMat, lighting, shininess) {
-    // Use the shader
-    this.gl.useProgram(sp);
-
-    var modelView = viewMat.mult(this.md.transformMatrix);
-    var modelViewProjection = projectionMat.mult(modelView);
-    this.gl.uniformMatrix4fv(sp.modelViewMat, false, new Float32Array(modelView.toGL()));
-    this.gl.uniformMatrix4fv(sp.transformation, false, new Float32Array(modelViewProjection.toGL()));
-    
-    var normalMat = modelView.inverse().transpose(); // soll moidelviewMat sein
-    this.gl.uniformMatrix4fv(sp.normalMat, false, new Float32Array(normalMat.toGL()));
-    this.gl.uniformMatrix4fv(sp.viewMat, false, new Float32Array(viewMat.toGL()));
-    
-    // Set lighting
-    this.gl.uniform1i(sp.lighting, lighting);
-    
-    // Set lightcolor
-    var foo = [1.0, 1.0, 0.8];
-    //this.gl.uniform3f(sp.lightColor, foo[0], foo[1], foo[2]);
-    this.gl.uniform3fv(sp.lightColor, foo);
-    //console.log(this.lightColor.toGL());
-    
-    //var lc = this.gl.getUniformLocation(sp, "lightColor");
-    //console.log(lc);
-    /*lc[0] = this.lightColor.x;
-    lc[1] = this.lightColor.y;
-    lc[2] = this.lightColor.z;
-    this.gl.uniform3fv(sp.lightColor, lc); */
-    
-    // Set shininess
-    this.gl.uniform1f(sp.shininess, shininess);
-    
-    
-    // Set texture
-    if(this.tex && this.tex.ready){
-        this.gl.uniform1i(sp.tex, 0);
-        this.gl.activeTexture(this.gl.TEXTURE0);
-        this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
-
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);  // CLAMP_TO_EDGE, REPEATE
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    }
-
-    // Bind indexBuffer
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
-
-    // Bind vertexPositionBuffer
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.positionBuffer);
-    this.gl.vertexAttribPointer(sp.position, // index of attribute
-            3, // three position components (x,y,z)
-            this.gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    this.gl.enableVertexAttribArray(sp.position);
-
-    // Bind vertexColorBuffer
-    if(this.md.col){
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.colorBuffer);
-        this.gl.vertexAttribPointer(sp.color, // index of attribute
-                3, //three color components(r,g,b)
-                this.gl.FLOAT, // provided data type is float
-                false, // do not normalize values
-                0, // stride (in bytes)
-                0); // offset (in bytes)
-        this.gl.enableVertexAttribArray(sp.color);
-    }
-    
-    // Bind texBuffer
-    if(this.md.tex){
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.texBuffer);
-        this.gl.vertexAttribPointer(sp.texCoords, // index of attribute
-                2, // two texCoords (u, v)
-                this.gl.FLOAT, // provided data type is float
-                false, // do not normalize values
-                0, // stride (in bytes)
-                0); // offset (in bytes)
-        this.gl.enableVertexAttribArray(sp.texCoords);
-    }
-    
-    // Bind normalBuffer
-    if(this.md.normals && !this.md.col){
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.normalBuffer);
-        this.gl.vertexAttribPointer(sp.normal,//sp.normal, // index of attribute
-                3, // three position components (x,y,z)
-                this.gl.FLOAT, // provided data type is float
-                false, // do not normalize values
-                0, // stride (in bytes)
-                0); // offset (in bytes)
-        this.gl.enableVertexAttribArray(sp.normal);
-    }
-    
-    // Draw call
-    this.gl.drawElements(this.gl.TRIANGLES, // polyg type
-            this.md.indices.length, // buffer length
-            this.gl.UNSIGNED_SHORT, // buffer type
-            0); // start index
-
-    // Disable arributes
-    this.gl.disableVertexAttribArray(sp.position);
-    if(this.md.col)
-        this.gl.disableVertexAttribArray(sp.color);
-    if(this.md.normals && !this.md.col)
-        this.gl.disableVertexAttribArray(sp.normal);
-    if(this.md.tex)
-        this.gl.disableVertexAttribArray(sp.texCoords);
-
-    // Set active tex
-    this.gl.activeTexture(this.gl.TEXTURE0);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, null);
-};
-
-TestDrawable.prototype.dispose = function () {
-    // Free all buffers
-    this.gl.deleteBuffer(this.md.positionBuffer);
-    if(this.md.col)
-        this.gl.deleteBuffer(this.md.colorBuffer);
-    if(this.md.normals && !this.md.col)
-        this.gl.deleteBuffer(this.md.normalBuffer);
-    if(this.md.tex)
-        this.gl.deleteBuffer(this.md.texBuffer);
-    this.gl.deleteBuffer(this.md.indexBuffer);
-};
-
-TestDrawable.prototype.setLightColor = function(){
-    
-};
-
-
-
-

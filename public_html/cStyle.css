@@ -47,8 +47,6 @@
    --------------------------- lighting ---------------------------- 
    ----------------------------------------------------------------- */
 #lightingLabel{
-
-    
 }
 
 #lightLabel{
@@ -62,7 +60,7 @@
     border: 1px solid;
     border-color: #c0402a;
     width: 400px;
-    height: 200px;
+    height: 275px;
 }
 
 #lighting{
@@ -70,25 +68,71 @@
     margin-top: 30px;
 }
 
+#intDiff{
+    position:absolute;
+    margin-left: 110px;
+    margin-top: 30px;
+}
+#intDiffLabel{
+    position:absolute;
+    margin-left: 145px;
+}
+
+#intSpec{
+    position:absolute;
+    margin-left: 110px;
+    margin-top: 105px;
+}
+#intSpecLabel{
+    position:absolute;
+    margin-left: 145px;
+    margin-top: 75px;
+}
+
 #shininess{
     position:absolute;
-    margin-top: 30px;
+    margin-left: 110px;
+    margin-top: 175px;
 }
 #shininessLabel{
     position:absolute;
-    margin-left: 45px;
-    margin-bottom: 0px;
+    margin-left: 145px;
+    margin-top: 145px;
 }
 
 #lightColorLabel{
     position: absolute;
-    margin-left: 200px;
+    margin-left: 35px;
 }
 
 #lightColor{
     position: absolute;
-    margin-left: 200px;
+    margin-left:20px;
     margin-top: 30px;
+}
+
+#ambiColorLabel{
+    position: absolute;
+    margin-left: 32px;
+    margin-top: 145px;
+}
+
+#ambiColor{
+    position: absolute;
+    margin-left: 20px;
+    margin-top: 175px;
+}
+    
+#specColorLabel{
+    position: absolute;
+    margin-left: 35px;
+    margin-top: 75px;
+}
+
+#specColor{
+    position: absolute;
+    margin-left: 20px;
+    margin-top: 105px;
 }
 /* ----------------------------------------------------------------- 
    ----------------------------- test ------------------------------ 
