@@ -12,6 +12,7 @@ var Drawable = function (tag, id) {
     this.md = null;       // MeshData
     this.angle = 0.0;     // Degrees for rotationZ
     this.tex = null;      // Texture object
+    this.bumpMap = null;  // Bumpmap
     this.tag = tag;       // Tag (name)
     this.id = id;         // ID
     this.texTrue = 0;     // has tex ? 
@@ -106,22 +107,51 @@ Drawable.prototype.initTexture = function (path) {
     // Save class instance
     var that = this;
     image.onload = function () {
-        that.handleLoadedTex.call(that, image);
+        that.handleLoadedTex.call(that, image, 0);
+    };
+};
+
+Drawable.prototype.initBumpMap = function(path){
+    this.bumpMap = this.gl.createTexture();
+    this.bumpMap.ready = false;
+    
+    var image = new Image();
+    image.crossOrigin = ''; // ?
+    image.src = path;
+    
+    // Save class instance
+    var that = this;
+    image.onload = function () {
+        that.handleLoadedTex.call(that, image, 1);
     };
 };
 
 // Handle texture
-Drawable.prototype.handleLoadedTex = function(image){
-    this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);  //UNPACK_FLIP_Y_WEBGL // UNPACK_PREMULTIPLY_ALPHA_WEBGL
-    this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+Drawable.prototype.handleLoadedTex = function(image, sampler){
     
-    this.tex.width = image.width;
-    this.tex.height = image.height;
-    this.tex.ready = true;
-    this.needRender = true;
-    this.texTrue = 1; 
+    if(sampler === 0){
+        this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);  //UNPACK_FLIP_Y_WEBGL // UNPACK_PREMULTIPLY_ALPHA_WEBGL
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+
+        this.tex.width = image.width;
+        this.tex.height = image.height;
+        this.tex.ready = true;
+        this.texTrue = 1; 
+    }
+    
+    if(sampler === 1){
+        this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);  //UNPACK_FLIP_Y_WEBGL // UNPACK_PREMULTIPLY_ALPHA_WEBGL
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.bumpMap);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+
+        this.bumpMap.width = image.width;
+        this.bumpMap.height = image.height;
+        this.bumpMap.ready = true;
+        this.texTrue = 1;     
+    }
 };
 
 // Render md
@@ -170,9 +200,21 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
      
     // Set texture
     if(this.tex && this.tex.ready){
-        this.gl.uniform1i(sp.tex, 0);
+        //this.gl.uniform1i(sp.tex, 0);
         this.gl.activeTexture(this.gl.TEXTURE0);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.tex);
+
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);  // CLAMP_TO_EDGE, REPEATE
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    }
+    
+    // Set bumpMap (but dont draw)
+    if(this.bumpMap && this.bumpMap.ready){
+        //this.gl.uniform1i(sp.bump, 1);
+        this.gl.activeTexture(this.gl.TEXTURE1);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.bumpMap);
 
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);  // CLAMP_TO_EDGE, REPEATE
         this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
@@ -245,8 +287,8 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
         this.gl.disableVertexAttribArray(sp.texCoords);
 
     // Set active tex
-    this.gl.activeTexture(this.gl.TEXTURE0);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+    //this.gl.activeTexture(this.gl.TEXTURE0);
+    //this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 };
 
 Drawable.prototype.dispose = function () {
@@ -262,6 +304,10 @@ Drawable.prototype.dispose = function () {
     if(this.md.tex)
         this.gl.deleteBuffer(this.md.texBuffer);
     this.gl.deleteBuffer(this.md.indexBuffer);
+    
+    // Free tex
+    if(this.tex)
+        this.gl.deleteTexture(this.tex);
 };
 
 

@@ -66,6 +66,9 @@ Shader.prototype.initShader = function (vsSourceString, fsSourceString) {
     this.sp.matDiff = this.gl.getUniformLocation(this.sp, "Kd");
     this.sp.matSpec = this.gl.getUniformLocation(this.sp, "Ks");
     this.sp.matEmis = this.gl.getUniformLocation(this.sp, "Ke");
+    this.sp.tex = this.gl.getUniformLocation(this.sp, "tex");
+    this.sp.bump = this.gl.getUniformLocation(this.sp, "bump");
+    this.sp.texTrue = this.gl.getUniformLocation(this.sp, "texTrue");
     
     // Uniforms lighting
     this.sp.lighting = this.gl.getUniformLocation(this.sp, "lighting");
@@ -78,8 +81,6 @@ Shader.prototype.initShader = function (vsSourceString, fsSourceString) {
     
     // Uniforms spaces
     this.sp.transformation = this.gl.getUniformLocation(this.sp, "transformation");
-    this.sp.tex = this.gl.getUniformLocation(this.sp, "tex");
-    this.sp.texTrue = this.gl.getUniformLocation(this.sp, "texTrue");
     this.sp.viewMat = this.gl.getUniformLocation(this.sp, "viewMat"); 
     this.sp.normalMat = this.gl.getUniformLocation(this.sp, "normalMat");
     this.sp.modelViewMat = this.gl.getUniformLocation(this.sp, "modelViewMat");
