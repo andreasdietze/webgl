@@ -1003,3 +1003,11 @@ function hexToRgb(hex) {
     } : null;
 }
 
+/// Helper: synchronously loads text file
+function loadStringFromFile(url) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", encodeURI(url), false);
+    xhr.send();
+    return xhr.responseText;
+}
+

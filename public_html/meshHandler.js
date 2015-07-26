@@ -1,7 +1,6 @@
-/* global VecMath */
+/* global VecMath, main */
 
 "use strict";
-
 var MeshHandler = function () {
     this.vss = "";
     this.fss = "";
@@ -14,383 +13,29 @@ var MeshHandler = function () {
             "  precision mediump float;\n" +
             "#endif\n\n";
     
-    this.colorVSS = "attribute vec3 position;\n" +
-            "attribute vec3 color;\n" +
-            "uniform mat4 transformation;\n" +
-            "varying vec3 vColor;\n" +
-            "void main() {\n" +
-            "   gl_Position = transformation * vec4(position, 1.0);\n" +
-            "   vColor = color;\n" +
-            "}\n";
-    
-    this.colorFSS = this.prea +
-            "varying vec3 vColor;\n" +
-            "void main() {\n" +
-            "   gl_FragColor = vec4(vColor, 1.0);\n" +
-            "}\n";
-    
-    this.texVSS = "attribute vec3 position;\n" +
-            "attribute vec2 texCoords;\n" +
-            "uniform vec3 translation;\n" +
-            "uniform mat4 transformation;\n" +
-            "varying vec2 vTexCoords;\n" +
-            "void main() {\n" +
-            "   vTexCoords = texCoords;\n" +
-            "   gl_Position = transformation * vec4(position, 1.0);\n" +
-            "}\n";
-    
-    this.texFSS = this.prea +
-            "uniform sampler2D tex;\n" +
-            "varying vec2 vTexCoords;\n" +
-            "void main() {\n" +
-            "   gl_FragColor = texture2D(tex, vTexCoords);\n" +
-            "}\n";
-    
-    this.colorAmbienteVSS = "attribute vec3 position;\n" +
-            "attribute vec3 color;\n" +
-            "uniform mat4 transformation;\n" +
-            "varying vec3 vColor;\n" +
-            "varying vec3 vAmbient;\n" +
-            "void main() {\n" +
-            "   vAmbient = vec3(0.8, 0.8, 0.8);\n" +
-            "   gl_Position = transformation * vec4(position, 1.0);\n" +
-            "   vColor = color;\n" +
-            "}\n";
-    
-    this.colorAmbienteFSS = this.prea +
-            "varying vec3 vColor;\n" +
-            "varying vec3 vAmbient;\n" + 
-            "void main() {\n" +
-            "   gl_FragColor = vec4(vColor * vAmbient, 1.0);\n" +
-            "}\n";
-    
-    this.diffuseLightingVSS = "// init Attributes \n" +
-            "attribute vec3 position;\n" +
-            "attribute vec3 normal;\n" +
-            "attribute vec3 color;\n" +
-            
-            "// init Uniforms \n" +
-            "uniform mat4 transformation;\n" +
-            "uniform mat4 normalMat;\n" + 
-            "uniform mat4 viewMat;\n" +
-            
-            "// init Varyings \n" +
-            "varying vec3 vColor;\n" +
-            "varying vec3 vLighting;\n" +
-            
-            "void main() {\n" +
-            "   vColor =  vec3(0.7, 0.7, 0.3);\n" +
-            "   gl_Position = transformation * vec4(position, 1.0);\n" +
-            
-            "// set ambient color \n" +
-            "   vec3 ambientLight = vec3(0.3, 0.3, 0.3);\n" +
-            
-            "// set light color \n" +
-            "   vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n" +
-            
-            "// set light direction \n" +
-            "   vec3 directionalVector = (viewMat * vec4(1.0, 0.0, 1.0, 0.0)).xyz; //vec3(0.85, 0.8, 0.75);\n" +
-            
-            "// compute normalVector via normalMat * normal \n" +
-            "   vec4 transformedNormal = normalMat * vec4(normal, 1.0);\n" +
-            
-            "// compute Lambert-Factor \n" +
-            "   float lambert = max(dot(transformedNormal.xyz, directionalVector), 0.0);\n" +
-            "   vLighting = ambientLight + directionalLightColor * lambert;\n" +
-            "}\n";
-            
-    this.diffuseLightingFSS = this.prea +
-            "varying vec3 vColor;\n" +
-            "// forwarded diffuse lighting \n" +
-            "varying vec3 vLighting;\n" +  
-            "void main() {\n" +
-            "   vec4 texelColor = vec4(vColor, 1.0);\n" +
-            "   gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);\n" +
-            "}\n";  
-            
-    this.blinnPhongVSS = // init Attributes
-            "attribute vec3 position;\n" +
-            "attribute vec2 texCoords;\n" +
-            "attribute vec3 normal;\n" +
-            
-            // init Uniforms
-            "uniform vec3 translation;\n" +
-            "uniform mat4 transformation;\n" +
-            "uniform mat4 normalMat;\n" +
-            "uniform mat4 modelViewMat;\n" +
-            
-            // init Varyings
-            "varying vec3 vPosition;\n" +
-            "varying vec2 vTexCoords;\n" +
-            "varying vec3 vNormal;\n" +
-            
-            "void main() {\n" +
-            "   vPosition = (modelViewMat * vec4(position, 1.0)).xyz;\n" +
-            "   vNormal   = (normalMat * vec4(normal, 0.0)).xyz;\n" +
-            "   vTexCoords = texCoords;\n" +
-            "   gl_Position = transformation * vec4(position, 1.0);\n" +
-            "}\n";
-    
-    this.blinnPhongFSS = this.prea +
-            "uniform mat4 viewMat;\n" +
+    // Shader for colored objects without lighting
+    this.colorVSS = loadStringFromFile("Shader/ColorVS.glsl");
+    this.colorFSS = this.prea + loadStringFromFile("Shader/ColorFS.glsl");
 
-            // Material
-            "uniform sampler2D tex;\n" +
-            "uniform int texTrue;\n" +
-            "uniform vec3 Ka;\n" +
-            "uniform vec3 Kd;\n" +
-            "uniform vec3 Ks;\n" +
-            "uniform vec3 Ke;\n" +
-            
-            // Lighting
-            "uniform int lighting;\n" +
-            "uniform vec3 ambientColor;\n" +
-            "uniform vec3 lightColor;\n" +
-            "uniform vec3 specularColor;\n" +
-            "uniform float shininess;\n" +
-            "uniform float diffIntensity;\n" +
-            "uniform float specIntensity;\n" +
-            
-            // Varyings
-            "varying vec3 vPosition;\n" +
-            "varying vec2 vTexCoords;\n " +
-            "varying vec3 vNormal;\n" +
-            
-            "void main() {\n" +
-            "   // colors \n" +
-            "   vec3 diffuseColor = vec3(1.0, 1.0, 1.0);\n" +
-            "   vec3 lightDirection = (viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz;\n" +
-            
-            "   vec3 light = normalize(-lightDirection);\n" +
-            "   vec3 view = normalize(-vPosition);\n" +
-            "   vec3 normal = normalize(vNormal);\n" +
-            "   vec3 halfVec = normalize(light + view);\n" +
+    // Shader for textured object without lighting
+    this.texVSS = loadStringFromFile("Shader/TextureVS.glsl");
+    this.texFSS = this.prea + loadStringFromFile("Shader/TextureFS.glsl");
     
-            "   vec3 color = vec3(0.0);\n" +
-            "   float NdotL = 0.0;\n" +
+    // Shader for diffuse lighting
+    this.diffuseLightingVSS = loadStringFromFile("Shader/DiffuseLightingVS.glsl");      
+    this.diffuseLightingFSS = this.prea + loadStringFromFile("Shader/DiffuseLightingFS.glsl");
             
-            "   if(lighting == 1){\n" +
-            "   float NdotL = max(dot(normal, view), 0.0);\n" +
-            "   color = ambientColor + (diffuseColor * NdotL * lightColor) * diffIntensity + (pow(NdotL, shininess) * specularColor) * specIntensity;\n" +
-            "   }\n" +
-           
-            " if(lighting == 0){\n" +
-            "   // Diffuser Anteil \n" +
-            "   NdotL = max(dot(normal, light), 0.0);\n" +
-            "   vec3 diffuse = (diffuseColor * NdotL * lightColor) * diffIntensity;\n" +
-            
-            "   // Specularer Anteil \n" + 
-            "   float powNdotH = pow(max(dot(normal, halfVec), 0.0), shininess);\n" +
-            "   vec3 specular = (specularColor * powNdotH) * specIntensity;\n" + 
-            
-            "   // Finale Farbe \n" +
-            "    color = ambientColor + diffuse + specular;\n" +
-            "   }\n" +
-            
-            "   if(texTrue == 0)\n" +
-            "       gl_FragColor = vec4(color, 1.0);\n" +
-            
-            "   if(texTrue == 1)\n" +
-            "       gl_FragColor = texture2D(tex, vTexCoords) * vec4(color, 1.0);\n" +
-                  
-            "}\n"; 
+    // Shader for (blinn)phong lighting with and without color-tex       
+    this.blinnPhongVSS = loadStringFromFile("Shader/BlinnPhongVS.glsl"); 
+    this.blinnPhongFSS = this.prea + loadStringFromFile("Shader/BlinnPhongFS.glsl");
     
-    this.bumpVSS1 = // init Attributes
-            "attribute vec3 position;\n" +
-            "attribute vec2 texCoords;\n" +
-            "attribute vec3 normal;\n" +
-            
-            // init Uniforms
-            "uniform vec3 translation;\n" +
-            "uniform mat4 transformation;\n" +
-            "uniform mat4 normalMat;\n" +
-            "uniform mat4 modelViewMat;\n" +
-            "uniform mat4 viewMat;\n" +
-            
-            // init Varyings
-            "varying vec3 vPosition;\n" +
-            "varying vec2 vTexCoords;\n" +
-            "varying vec3 vNormal;\n" +
-            "varying vec3 lightVec;\n" +
-            "varying vec3 eyeVec;\n" +
-            
-            "void main() {\n" +
-            "   vPosition = (modelViewMat * vec4(position, 1.0)).xyz;\n" +
-            "   vNormal   = (normalMat * vec4(normal, 0.0)).xyz;\n" +
-            "   vTexCoords = texCoords;\n" +
-            
-            "   vec3 n = normalize((normalMat * vec4(normal, 0.0)).xyz);\n" +
-            "   vec3 t = normalize((normalMat * vec4(1.0, 0.0, 0.0, 0.0)).xyz);\n" +
-            "   vec3 b = cross(n, t);\n" +
-            
-            //"   vec3 tmpVec = vec3(vec3(0.0, 0.0, 5.0) - vPosition);\n" +
-            "    vec3 tmpVec = normalize((viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz);\n" +
-            //"   vec3 tmpVec = normalize(vec3(-1.0, 0.0, -1.0));\n" +
-            
-            "   lightVec.x = dot(tmpVec, t);\n" +
-            "   lightVec.y = dot(tmpVec, b);\n" +
-            "   lightVec.z = dot(tmpVec, n);\n" +
-            
-            "   tmpVec = -vPosition;\n" +
-            "   eyeVec.x = dot(tmpVec, t);\n" +
-            "   eyeVec.y = dot(tmpVec, b);\n" +
-            "   eyeVec.z = dot(tmpVec, n);\n" +
-            
-            "   gl_Position = transformation * vec4(position, 1.0);\n" +
-            "}\n";
+    // Bumpmap shader test1
+    this.bumpVSS1 = loadStringFromFile("Shader/BumpVS1.glsl");
+    this.bumpFSS1 = this.prea + loadStringFromFile("Shader/BumpFS1.glsl");
     
-    this.bumpFSS1 = this.prea +
-            "uniform mat4 viewMat;\n" +
-            "uniform mat4 normalMat;\n" +
-
-            // Material
-            "uniform sampler2D tex;\n" +
-            "uniform sampler2D bumpMap;\n" +
-            "uniform int texTrue;\n" +
-            "uniform vec3 Ka;\n" +
-            "uniform vec3 Kd;\n" +
-            "uniform vec3 Ks;\n" +
-            "uniform vec3 Ke;\n" +
-            
-            // Lighting
-            "uniform int lighting;\n" +
-            "uniform vec3 ambientColor;\n" +
-            "uniform vec3 lightColor;\n" +
-            "uniform vec3 specularColor;\n" +
-            "uniform float shininess;\n" +
-            "uniform float diffIntensity;\n" +
-            "uniform float specIntensity;\n" +
-            
-            // Varyings
-            "varying vec3 vPosition;\n" +
-            "varying vec2 vTexCoords;\n " +
-            "varying vec3 vNormal;\n" +
-            "varying vec3 lightVec;\n" +
-            "varying vec3 eyeVec;\n" +
-            
-            "void main() {\n" +
-            "   // colors \n" +
-            "   vec3 diffuseColor = vec3(1.0, 1.0, 1.0);\n" +
-            "   float distSqr = dot(lightVec, lightVec);\n" +
-            "   float att = clamp(1.0 * sqrt(distSqr), 0.0, 1.0);\n" +
-            "   vec3 lVec = lightVec * inversesqrt(distSqr);\n" +
-            
-            "   vec3 vVec = normalize(eyeVec);\n" +
-            "   vec3 base = vec3(texture2D(tex, vTexCoords));\n" +
-            "   vec3 bump = normalize(texture2D(bumpMap, vTexCoords).xyz * 2.0 - 1.0);\n" +
-            "   vec3 vAmbient = ambientColor;\n" +
-            "   float diffuse = max(dot(lVec, bump), 0.0);\n" +
-            "   vec3 vDiffuse = diffuseColor * lightColor * diffuse;\n" +
-            "   float specular = pow(clamp(dot(reflect(-lVec, bump), vVec), 0.0, 1.0), shininess);\n" +
-            "   vec3 vSpecular = specularColor * specular;\n" +
-
-            "   gl_FragColor = vec4((vAmbient * base + vDiffuse * base * diffIntensity + vSpecular * specIntensity) * att, 1.0);\n" +
-                  
-            "}\n"; 
-    
-    this.bumpVSS = // init Attributes
-            "attribute vec3 position;\n" +
-            "attribute vec2 texCoords;\n" +
-            "attribute vec3 normal;\n" +
-            
-            // init Uniforms
-            "uniform vec3 translation;\n" +
-            "uniform mat4 transformation;\n" +
-            "uniform mat4 normalMat;\n" +
-            "uniform mat4 modelViewMat;\n" +
-            
-            // init Varyings
-            "varying vec3 vPosition;\n" +
-            "varying vec2 vTexCoords;\n" +
-            "varying vec3 vNormal;\n" +
-            //"varying vec3 vLightDirection;\n" +
-            "varying mat3 vTBN;\n" +
-            
-            "void main() {\n" +
-            "   vPosition = (modelViewMat * vec4(position, 1.0)).xyz;\n" +
-            "   vNormal   = (normalMat * vec4(normal, 0.0)).xyz;\n" +
-            "   vTexCoords = texCoords;\n" +
-            
-            // bump stuff
-            "   vec3 tangent = vec3(1.0, 0.0, 0.0);\n" +
-            "   vec3 binormal = cross(tangent, vNormal);\n" +
-            "   vTBN = mat3(tangent, binormal, vNormal);\n" +
-            
-            "   gl_Position = transformation * vec4(position, 1.0);\n" +
-            "}\n";
-    
-    this.bumpFSS = this.prea +
-            "uniform mat4 viewMat;\n" +
-            "uniform mat4 normalMat;\n" +
-
-            // Material
-            "uniform sampler2D tex;\n" +
-            "uniform sampler2D bumpMap;\n" +
-            "uniform int texTrue;\n" +
-            "uniform vec3 Ka;\n" +
-            "uniform vec3 Kd;\n" +
-            "uniform vec3 Ks;\n" +
-            "uniform vec3 Ke;\n" +
-            
-            // Lighting
-            "uniform int lighting;\n" +
-            "uniform vec3 ambientColor;\n" +
-            "uniform vec3 lightColor;\n" +
-            "uniform vec3 specularColor;\n" +
-            "uniform float shininess;\n" +
-            "uniform float diffIntensity;\n" +
-            "uniform float specIntensity;\n" +
-            
-            // Varyings
-            "varying vec3 vPosition;\n" +
-            "varying vec2 vTexCoords;\n " +
-            "varying vec3 vNormal;\n" +
-            "varying mat3 vTBN;\n" +
-            
-            "void main() {\n" +
-            "   // colors \n" +
-            "   vec3 diffuseColor = vec3(1.0, 1.0, 1.0);\n" +
-            //"   vec3 lightDirection = (viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz;\n" +
-            "   vec3 lightDirection= (vTBN * vec3(-1.0, 0.0, -1.0));\n" +
-            
-            "   vec3 light = normalize(-lightDirection);\n" +
-            "   vec3 view = normalize(-vPosition);\n" +
-            "   vec3 normal = normalize(vNormal);\n" +
-            "   vec3 halfVec = normalize(light + view);\n" +
-            
-            //Get the color of the texture
-            "   vec3 bumpNorm = vec3(texture2D(bumpMap, vTexCoords));\n" +
-            "   bumpNorm = (bumpNorm - 0.5) * 2.0;\n" + 
-    
-            "   vec3 color = vec3(0.0);\n" +
-            "   float NdotL = 0.0;\n" +
-            
-            "   if(lighting == 1){\n" +
-            "   float NdotL = max(dot(normal, view), 0.0);\n" +
-            "   color = ambientColor + (diffuseColor * NdotL * lightColor) * diffIntensity + (pow(NdotL, shininess) * specularColor) * specIntensity;\n" +
-            "   }\n" +
-           
-            " if(lighting == 0){\n" +
-            "   // Diffuser Anteil \n" +
-            "   NdotL = max(dot(bumpNorm, light), 0.0);\n" +
-            "   vec3 diffuse = (diffuseColor * NdotL * lightColor) * diffIntensity;\n" +
-            
-            "   // Specularer Anteil \n" + 
-            "   float powNdotH = pow(max(dot(normal, halfVec), 0.0), shininess);\n" +
-            "   vec3 specular = (specularColor * powNdotH) * specIntensity;\n" + 
-            
-            "   // Finale Farbe \n" +
-            "    color = ambientColor + diffuse + specular;\n" +
-            "   }\n" +
-            
-            "   if(texTrue == 0)\n" +
-            "       gl_FragColor = vec4(color, 1.0);\n" +
-            
-            "   if(texTrue == 1)\n" +
-            "       gl_FragColor = texture2D(tex, vTexCoords) * vec4(color, 1.0);\n" +
-                  
-            "}\n"; 
-
+    // Bumpmap shader test0
+    this.bumpVSS0 = loadStringFromFile("Shader/BumpVS0.glsl");
+    this.bumpFSS0 = this.prea + loadStringFromFile("Shader/BumpFS0.glsl");
 };
 
 MeshHandler.prototype.setupHouse = function () {
@@ -601,10 +246,10 @@ MeshHandler.prototype.setupHourPointer = function () {
 
 MeshHandler.prototype.setupQuad = function () {
     // Vertex shader string
-    this.vss = this.bumpVSS1; //this.texVSS;
+    this.vss = this.bumpVSS1;
 
     // Fragment shader string
-    this.fss = this.bumpFSS1; //this.texFSS;
+    this.fss = this.bumpFSS1;
 
     // Setup triangle vertices
     this.mesh = {
@@ -645,10 +290,10 @@ MeshHandler.prototype.setupQuad = function () {
 
 MeshHandler.prototype.setupBox = function (size) {
     // Vertex shader string
-    this.vss = this.colorAmbienteVSS;
+    this.vss = this.colorVSS;
 
     // Fragment shader string
-    this.fss = this.colorAmbienteFSS;
+    this.fss = this.colorFSS;
 
     // Setup triangle vertices
     this.mesh = {
