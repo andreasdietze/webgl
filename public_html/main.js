@@ -359,8 +359,8 @@ function main() {
              mh.mesh.normals,
              mh.mesh.indices,
              mh.mesh.trans);
-    bumpQuad.initTexture("models/BrickDiff.jpg");
-    bumpQuad.initBumpMap("models/BrickBump.jpg");
+    bumpQuad.initTexture("models/BrickDiff0.jpg");
+    bumpQuad.initBumpMap("models/BrickBump0.jpg");
     
     getSceneGraphInfo();
                                  

@@ -223,8 +223,9 @@ var MeshHandler = function () {
             "   vec3 t = normalize((normalMat * vec4(1.0, 0.0, 0.0, 0.0)).xyz);\n" +
             "   vec3 b = cross(n, t);\n" +
             
-           // "   vec3 tmpVec = vec3(vec3(-1.0, 0.0, -1.0) - vPosition);\n" +
-           "    vec3 tmpVec = normalize((viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz);\n" +
+            //"   vec3 tmpVec = vec3(vec3(0.0, 0.0, 5.0) - vPosition);\n" +
+            "    vec3 tmpVec = normalize((viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz);\n" +
+            //"   vec3 tmpVec = normalize(vec3(-1.0, 0.0, -1.0));\n" +
             
             "   lightVec.x = dot(tmpVec, t);\n" +
             "   lightVec.y = dot(tmpVec, b);\n" +
@@ -270,22 +271,20 @@ var MeshHandler = function () {
             "void main() {\n" +
             "   // colors \n" +
             "   vec3 diffuseColor = vec3(1.0, 1.0, 1.0);\n" +
-            "   float disSqr = dot(lightVec, lightVec);\n" +
-            //"   float att = clamp(0.5 * sqrt(distSqr), 0.0, 1.0);\n" +
-            "   float att = 0.9;\n" +
-            //"   vec3 lVec = lightVec * inversesqrt(distSqr);\n" +
-            "   vec3 lVec = lightVec * disSqr;\n" +
+            "   float distSqr = dot(lightVec, lightVec);\n" +
+            "   float att = clamp(1.0 * sqrt(distSqr), 0.0, 1.0);\n" +
+            "   vec3 lVec = lightVec * inversesqrt(distSqr);\n" +
             
             "   vec3 vVec = normalize(eyeVec);\n" +
             "   vec3 base = vec3(texture2D(tex, vTexCoords));\n" +
             "   vec3 bump = normalize(texture2D(bumpMap, vTexCoords).xyz * 2.0 - 1.0);\n" +
             "   vec3 vAmbient = ambientColor;\n" +
-            "   float diffuse = max(dot(-lVec, bump), 0.0);\n" +
+            "   float diffuse = max(dot(lVec, bump), 0.0);\n" +
             "   vec3 vDiffuse = diffuseColor * lightColor * diffuse;\n" +
             "   float specular = pow(clamp(dot(reflect(-lVec, bump), vVec), 0.0, 1.0), shininess);\n" +
             "   vec3 vSpecular = specularColor * specular;\n" +
 
-            "   gl_FragColor = vec4((vAmbient + vDiffuse * base * diffIntensity + vSpecular * specIntensity) * att , 1.0);\n" +// (vAmbient * base + vDiffuse * base + vSpecular) * att;\n" +
+            "   gl_FragColor = vec4((vAmbient * base + vDiffuse * base * diffIntensity + vSpecular * specIntensity) * att, 1.0);\n" +
                   
             "}\n"; 
     
