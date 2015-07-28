@@ -23,17 +23,17 @@ uniform float specIntensity;
 varying vec3 vPosition;
 varying vec2 vTexCoords;
 varying vec3 vNormal;
-varying vec3 lightVec;
-varying vec3 eyeVec;
+varying vec3 vLightVec;
+varying vec3 vEyeVec;
 
 void main() {
    // colors 
    vec3 diffuseColor = vec3(1.0, 1.0, 1.0);
-   float distSqr = dot(lightVec, lightVec);
+   float distSqr = dot(vLightVec, vLightVec);
    float att = clamp(1.0 * sqrt(distSqr), 0.0, 1.0);
-   vec3 lVec = lightVec * inversesqrt(distSqr);
+   vec3 lVec = vLightVec * inversesqrt(distSqr); // * inversesqrt(distSqr);
 
-   vec3 vVec = normalize(eyeVec);
+   vec3 vVec = normalize(vEyeVec);
    vec3 base = vec3(texture2D(tex, vTexCoords));
    vec3 bump = normalize(texture2D(bumpMap, vTexCoords).xyz * 2.0 - 1.0);
    vec3 vAmbient = ambientColor;

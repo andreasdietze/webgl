@@ -36,6 +36,10 @@ var MeshHandler = function () {
     // Bumpmap shader test0
     this.bumpVSS0 = loadStringFromFile("Shader/BumpVS0.glsl");
     this.bumpFSS0 = this.prea + loadStringFromFile("Shader/BumpFS0.glsl");
+    
+    // Deform-Shader
+    this.deformVSS = loadStringFromFile("Shader/DeformVS.glsl");
+    this.deformFSS = this.prea + loadStringFromFile("SHader/DeformFS.glsl");
 };
 
 MeshHandler.prototype.setupHouse = function () {
@@ -943,12 +947,28 @@ MeshHandler.prototype.loadOBJ = function (fileName, scaleFac) {
     }
 };
 
-MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac) {
-    // Vertex shader string
-    this.vss = this.blinnPhongVSS;
-            
-    // Fragment shader string
-    this.fss = this.blinnPhongFSS;
+MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac, shader) {
+    switch(shader){
+        case 0: 
+            // Vertex shader string
+            this.vss = this.blinnPhongVSS;
+            // Fragment shader string
+            this.fss = this.blinnPhongFSS;
+        break;
+        
+        case 1: 
+            // Vertex shader string
+            this.vss = this.deformVSS;
+            // Fragment shader string
+            this.fss = this.deformFSS;
+        break;
+        
+        default: 
+            // Vertex shader string
+            this.vss = this.blinnPhongVSS;
+            // Fragment shader string
+            this.fss = this.blinnPhongFSS;
+    }
     
     var request = new XMLHttpRequest();
         request.open('GET', fileName, false);

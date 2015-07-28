@@ -84,6 +84,12 @@ Shader.prototype.initShader = function (vsSourceString, fsSourceString) {
     this.sp.viewMat = this.gl.getUniformLocation(this.sp, "viewMat"); 
     this.sp.normalMat = this.gl.getUniformLocation(this.sp, "normalMat");
     this.sp.modelViewMat = this.gl.getUniformLocation(this.sp, "modelViewMat");
+    
+    // Time
+    this.sp.time = this.gl.getUniformLocation(this.sp, "time");
+    
+    // Deform
+    this.sp.deform = this.gl.getUniformLocation(this.sp, "deformStyle");
    
 };
 

@@ -9,6 +9,14 @@ var gl = null, // GL
     tex = null, // Texture
     viewMat = VecMath.SFMatrix4f.identity(), // View matrix (camera)
     projectionMat = VecMath.SFMatrix4f.identity(); // Matrix for perspective or orthogonal projection
+    
+// access to Renderer from inside other functions
+var that = this;
+
+// unsigned int indices GL extension
+var INDEX_UINT_EXT = null;
+var FP_TEXTURES_EXT = null;
+var FPL_TEXTURES_EXT = null;
         
 var angleX = 0;
 var angleY = 0;
@@ -140,7 +148,11 @@ var a10 = new Drawable("asteroid", 4);
 // Bumped quad
 var bumpQuad = new Drawable();
 
+// Deform-objects
+var defWaveSphere = new Drawable();
+var defWavePlane = new Drawable();
 
+var dT = null;
 
 // MAIN
 function main() {
@@ -153,6 +165,16 @@ function main() {
     gl = canvas.getContext("webgl", ctxAttribs) ||
             canvas.getContext("experimental-webgl", ctxAttribs);
     
+    // check for 32 bit indices extension (not avail. on all platforms)
+    INDEX_UINT_EXT = gl.getExtension("OES_element_index_uint");
+    console.log((INDEX_UINT_EXT ? "" : "No ") + "32 bit indices available.");
+
+    // check for floating point texture extension (not avail. on all platforms)
+    FP_TEXTURES_EXT  = gl.getExtension("OES_texture_float");
+    FPL_TEXTURES_EXT = gl.getExtension("OES_texture_float_linear");
+    console.log((FP_TEXTURES_EXT  ? "" : "No ") + "FLOAT textures available " +
+                (FPL_TEXTURES_EXT ? "with" : "without") + " linear filtering.");
+    
     document.getElementById("intDiffLabel").innerHTML = "Diff intensity: " + intDiff;
     document.getElementById("intSpecLabel").innerHTML = "Spec intensity: " + intSpec;
     document.getElementById("shininessLabel").innerHTML = "Shininess: " + shininess;
@@ -160,7 +182,7 @@ function main() {
     // Init projection
     initProjection();
 
-    initTexture();
+    //initTexture();
     
     document.onkeydown = handleKeyDown;
     document.onkeyup = handleKeyUp;
@@ -302,7 +324,7 @@ function main() {
     // Add to scenegraph
     drawables.push(objCow);                     
                          
-    mh.loadOBJSpec("models/cow.obj", 0.175);
+    mh.loadOBJSpec("models/cow.obj", 0.175, 0);
     objCowSpec.initGL(gl, mh.vss, mh.fss);
     objCowSpec.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
@@ -313,7 +335,7 @@ function main() {
     // Add to scenegraph
     drawables.push(objCowSpec);  
 
-    mh.loadOBJSpec("models/sphere.obj", 0.425);
+    mh.loadOBJSpec("models/sphere.obj", 0.425, 0);
     lightSphere.initGL(gl, mh.vss, mh.fss);
     lightSphere.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
@@ -336,7 +358,7 @@ function main() {
      // Add to scenegraph
     drawables.push(lightTexSphere);   
 
-    mh.loadOBJSpec("models/A10/A-10_Thunderbolt_II.obj", 0.2);
+    mh.loadOBJSpec("models/A10/A-10_Thunderbolt_II.obj", 0.2, 0);
     a10.initGL(gl, mh.vss, mh.fss);
     a10.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
@@ -348,6 +370,28 @@ function main() {
      // Add to scenegraph
     drawables.push(a10);
     
+    // Deform --------------------------------------- 
+    mh.loadOBJSpec("models/sphere.obj", 0.425, 1);
+    defWaveSphere.initGL(gl, mh.vss, mh.fss);
+    defWaveSphere.setBufferData(mh.mesh.vertices,
+                         mh.mesh.colors,
+                         mh.mesh.tex,
+                         mh.mesh.normals,
+                         mh.mesh.indices,
+                         mh.mesh.trans); 
+    // Add to scenegraph
+    drawables.push(defWaveSphere); 
+    
+    mh.loadOBJSpec("models/plane16x16.obj", 0.425, 1);
+    defWavePlane.initGL(gl, mh.vss, mh.fss);
+    defWavePlane.setBufferData(mh.mesh.vertices,
+                         mh.mesh.colors,
+                         mh.mesh.tex,
+                         mh.mesh.normals,
+                         mh.mesh.indices,
+                         mh.mesh.trans); 
+    // Add to scenegraph
+    drawables.push(defWavePlane); 
     
     // Bumped quad
     //mh.setupTexturedLightSphere(0.4);
@@ -434,6 +478,26 @@ function main() {
         a10.light.diffIntensity = intDiff;
         a10.light.specIntensity = intSpec;
         
+        // DEFORM
+        defWaveSphere.draw(defWaveSphere.shader.sp, viewMat, projectionMat, lighting);
+        defWaveSphere.light.lightColor = getColor();
+        defWaveSphere.light.specularColor = getSpecColor();
+        defWaveSphere.light.ambientColor = getAmbiColor();
+        defWaveSphere.light.shininess = shininess; 
+        defWaveSphere.light.diffIntensity = intDiff;
+        defWaveSphere.light.specIntensity = intSpec;
+        defWaveSphere.deformStyle = 0;
+        
+        defWavePlane.draw(defWavePlane.shader.sp, viewMat, projectionMat, lighting);
+        defWavePlane.light.lightColor = getColor();
+        defWavePlane.light.specularColor = getSpecColor();
+        defWavePlane.light.ambientColor = getAmbiColor();
+        defWavePlane.light.shininess = shininess; 
+        defWavePlane.light.diffIntensity = intDiff;
+        defWavePlane.light.specIntensity = intSpec;
+        defWavePlane.deformStyle = 0;
+        
+        // BUMP
         bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
         bumpQuad.light.lightColor = getColor();
         bumpQuad.light.specularColor = getSpecColor();
@@ -442,6 +506,10 @@ function main() {
         bumpQuad.light.diffIntensity = intDiff;
         bumpQuad.light.specIntensity = intSpec;
         
+        
+        
+        //var foo = new Date().getUTCMilliseconds();
+        //console.log(foo);
         
         // Renderloop 
         window.requestAnimationFrame(mainLoop);
@@ -474,7 +542,7 @@ function clearBackBuffer(canvas) {
 // Update
 function animate(canvas) {
     var currentTime = Date.now(); //new Date().getTime();
-    var dT = currentTime - lastFrameTime;
+    dT = currentTime - lastFrameTime;
     dT /= 1000;
     //console.log("DeltaTime: " + dT.toFixed(2));
 
@@ -632,12 +700,25 @@ function animate(canvas) {
    
     a10.md.transformMatrix = VecMath.SFMatrix4f.identity();
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(4.0, 0.5, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(5.0, 0.5, 0.0)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
    
+   // DEFORM 
+    defWaveSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    defWaveSphere.md.transformMatrix = defWaveSphere.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(2.5, -1.0, 0.0)));
+    defWaveSphere.md.transformMatrix = defWaveSphere.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
+   
+    defWavePlane.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    defWavePlane.md.transformMatrix = defWavePlane.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -2.0, 0.0)));
+    defWavePlane.md.transformMatrix = defWavePlane.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2, 1, 2))); 
+     
    // BUMP
     bumpQuad.md.transformMatrix = VecMath.SFMatrix4f.identity();
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
@@ -919,7 +1000,7 @@ function handleMouseMove(event){
 
 // Setup perspective projection and invert viewMat
 function initProjection() {
-    viewMat = VecMath.SFMatrix4f.translation(camPos).inverse();
+    viewMat = VecMath.SFMatrix4f.translation(camPos); // .inverse();
     projectionMat = VecMath.SFMatrix4f.perspective(Math.PI / 4, 1.0, 0.1, 1000.0);
 }
 

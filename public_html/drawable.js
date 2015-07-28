@@ -1,4 +1,4 @@
-/* global VecMath, main, MathHelper, gl, Light, Material */
+/* global VecMath, main, MathHelper, gl, Light, Material, dT */
 
 "use strict";
 
@@ -20,6 +20,8 @@ var Drawable = function (tag, id) {
     this.light = new Light();
     this.material = new Material();
     //this.lightColor = new VecMath.SFVec3f(1.0, 1.0, 0.8);
+    this.time = 0.0;
+    this.deformStyle = 0;
 };
 
 // Init interface to GL
@@ -197,6 +199,14 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
     
     // Set shader state for texture
     this.gl.uniform1i(sp.texTrue, this.texTrue);
+    
+    // Set time
+    this.time += 0.01; // new Date().getMilliseconds() / 1000;
+    //console.log(t);
+    this.gl.uniform1f(sp.time, this.time);
+    
+    // Set defom style
+    this.gl.uniform1i(sp.deform, this.deformStyle);
      
     // Set texture
     if(this.tex && this.tex.ready){

@@ -14,8 +14,8 @@ uniform mat4 viewMat;
 varying vec3 vPosition;
 varying vec2 vTexCoords;
 varying vec3 vNormal;
-varying vec3 lightVec;
-varying vec3 eyeVec;
+varying vec3 vLightVec;
+varying vec3 vEyeVec;
 
 void main() {
    vPosition = (modelViewMat * vec4(position, 1.0)).xyz;
@@ -26,18 +26,18 @@ void main() {
    vec3 t = normalize((normalMat * vec4(1.0, 0.0, 0.0, 0.0)).xyz);
    vec3 b = cross(n, t);
 
-//"   vec3 tmpVec = vec3(vec3(0.0, 0.0, 5.0) - vPosition);
-      vec3 tmpVec = normalize((viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz);
-//"   vec3 tmpVec = normalize(vec3(-1.0, 0.0, -1.0));
+   // vec3 tmpVec = vec3(vec3(0.0, 0.0, 5.0) - vPosition);
+    vec3 tmpVec = normalize((viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz);
+   // vec3 tmpVec = normalize(vec3(-1.0, 0.0, -1.0));
 
-   lightVec.x = dot(tmpVec, t);
-   lightVec.y = dot(tmpVec, b);
-   lightVec.z = dot(tmpVec, n);
+   vLightVec.x = dot(tmpVec, t);
+   vLightVec.y = dot(tmpVec, b);
+   vLightVec.z = dot(tmpVec, n);
 
    tmpVec = -vPosition;
-   eyeVec.x = dot(tmpVec, t);
-   eyeVec.y = dot(tmpVec, b);
-   eyeVec.z = dot(tmpVec, n);
+   vEyeVec.x = dot(tmpVec, t);
+   vEyeVec.y = dot(tmpVec, b);
+   vEyeVec.z = dot(tmpVec, n);
 
    gl_Position = transformation * vec4(position, 1.0);
 }
