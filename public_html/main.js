@@ -54,6 +54,9 @@ var shininess = 128.0;
 var intDiff = 1.0;
 var intSpec = 1.0;
 
+var intDef = 0.05;
+var amtDef = 4.0;
+
 // Scenegraph
 var drawables = new Array();
 
@@ -178,6 +181,9 @@ function main() {
     document.getElementById("intDiffLabel").innerHTML = "Diff intensity: " + intDiff;
     document.getElementById("intSpecLabel").innerHTML = "Spec intensity: " + intSpec;
     document.getElementById("shininessLabel").innerHTML = "Shininess: " + shininess;
+    
+    document.getElementById("deformIntensityLabel").innerHTML = "Intensity: " + intDef;
+    document.getElementById("deformAmountLabel").innerHTML = "Amount: " + amtDef;
 
     // Init projection
     initProjection();
@@ -487,6 +493,8 @@ function main() {
         defWaveSphere.light.diffIntensity = intDiff;
         defWaveSphere.light.specIntensity = intSpec;
         defWaveSphere.deformStyle = 0;
+        defWaveSphere.defInt = intDef;
+        defWaveSphere.defAmt = amtDef;
         
         defWavePlane.draw(defWavePlane.shader.sp, viewMat, projectionMat, lighting);
         defWavePlane.light.lightColor = getColor();
@@ -496,6 +504,8 @@ function main() {
         defWavePlane.light.diffIntensity = intDiff;
         defWavePlane.light.specIntensity = intSpec;
         defWavePlane.deformStyle = 0;
+        defWavePlane.defInt = intDef;
+        defWavePlane.defAmt = amtDef;
         
         // BUMP
         bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
@@ -1054,6 +1064,7 @@ function getSceneGraphInfo(){
         console.log("Tag: " + drawables[i].tag);
     }  
 }
+// Lighting
 
 function getColor(){
     var color = hexToRgb(document.getElementById("lightColor").value);
@@ -1082,6 +1093,17 @@ function hexToRgb(hex) {
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     } : null;
+}
+
+// Deform
+function setDefInt(newValue){
+    intDef = newValue;
+    document.getElementById("deformIntensityLabel").innerHTML = "Intensity: " + intDef;
+}
+
+function setDefAmt(newValue){
+    amtDef = newValue;
+    document.getElementById("deformAmountLabel").innerHTML = "Amount: " + amtDef;
 }
 
 /// Helper: synchronously loads text file

@@ -134,6 +134,44 @@
     margin-left: 20px;
     margin-top: 105px;
 }
+
+/* ----------------------------------------------------------------- 
+   ---------------------------- deform ----------------------------- 
+   ----------------------------------------------------------------- */
+
+#deformControls{
+    position: relative;
+    border: 1px solid;
+    border-color: #c0402a;
+    width: 400px;
+    height: 100px;
+    top: 300px;
+} 
+ 
+#deformIntensityLabel{
+    position: absolute;
+    bottom: 40px; 
+    left: 75px;
+}
+
+#defInt{
+   position: relative;
+   left: 0px; 
+   top: 15px; 
+}
+
+#deformAmountLabel{
+   position: absolute;
+    bottom: 40px; 
+    right: 90px;
+}
+
+#defAmt{
+   position: relative;
+   left: 0px; 
+   top: 15px; 
+}
+
 /* ----------------------------------------------------------------- 
    ----------------------------- test ------------------------------ 
    ----------------------------------------------------------------- */

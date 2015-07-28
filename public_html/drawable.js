@@ -22,6 +22,8 @@ var Drawable = function (tag, id) {
     //this.lightColor = new VecMath.SFVec3f(1.0, 1.0, 0.8);
     this.time = 0.0;
     this.deformStyle = 0;
+    this.defInt = 0.05;
+    this.defAmt = 4.0;
 };
 
 // Init interface to GL
@@ -207,6 +209,8 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
     
     // Set defom style
     this.gl.uniform1i(sp.deform, this.deformStyle);
+    this.gl.uniform1f(sp.defInt, this.defInt);
+    this.gl.uniform1f(sp.defAmt, this.defAmt);
      
     // Set texture
     if(this.tex && this.tex.ready){

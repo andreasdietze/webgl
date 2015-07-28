@@ -90,6 +90,8 @@ Shader.prototype.initShader = function (vsSourceString, fsSourceString) {
     
     // Deform
     this.sp.deform = this.gl.getUniformLocation(this.sp, "deformStyle");
+    this.sp.defInt = this.gl.getUniformLocation(this.sp, "defInt");
+    this.sp.defAmt = this.gl.getUniformLocation(this.sp, "defAmt");
    
 };
 

@@ -10,6 +10,8 @@ uniform mat4 normalMat;
 uniform mat4 modelViewMat;
 uniform float time;
 uniform int deformStyle;
+uniform float defInt;
+uniform float defAmt;
 
 // init Varyings
 varying vec3 vPosition;
@@ -23,9 +25,10 @@ void main() {
 	vec3 v, n;
 	if(deformStyle == 0){
 		// calculate a scale factor.
-		s = sin( (time+3.0*position.y)*4.0 );
-		c = cos( (time+5.0*position.z)*4.0 );
-		z = 0.05 * s * c;
+		s = sin((time + 3.0 * position.y) * defAmt);
+		c = cos((time + 5.0 * position.z) * defAmt);
+		z = defInt * s * c;
+		
 		// offset the position along the normal.
 		v = vec3(position) + normal * z;
 		n = vec3(normal) + position * z;
