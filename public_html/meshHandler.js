@@ -39,7 +39,11 @@ var MeshHandler = function () {
     
     // Deform-Shader
     this.deformVSS = loadStringFromFile("Shader/DeformVS.glsl");
-    this.deformFSS = this.prea + loadStringFromFile("SHader/DeformFS.glsl");
+    this.deformFSS = this.prea + loadStringFromFile("Shader/DeformFS.glsl");
+    
+    // RenderTarget
+    this.rtVSS = loadStringFromFile("Shader/RTVS.glsl");
+    this.rtFSS = this.prea + loadStringFromFile("Shader/RTFS.glsl");
 };
 
 MeshHandler.prototype.setupHouse = function () {
@@ -277,6 +281,36 @@ MeshHandler.prototype.setupQuad = function () {
           0.0, 0.0, 1.0,
           0.0, 0.0, 1.0,
           0.0, 0.0, 1.0
+        ],
+        // Setup indices
+        indices: [
+            // tris behind
+            0, 1, 2,
+            2, 3, 0
+        ],
+        // Setup translation
+        trans: {x: 0, y: 0, z: 0}
+    };
+    
+    // Model-space / world-space / object-space
+    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
+};
+
+MeshHandler.prototype.setupRenderTarget = function () {
+    // Vertex shader string
+    this.vss = this.rtVSS;
+
+    // Fragment shader string
+    this.fss = this.rtFSS;
+
+    // Setup triangle vertices
+    this.mesh = {
+        // Setup vetices
+        vertices: [
+            -1.0, 1.0, 0,
+            -1.0, -1.0, 0,
+            1.0, -1.0, 0,
+            1.0, 1.0, 0
         ],
         // Setup indices
         indices: [

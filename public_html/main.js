@@ -57,6 +57,14 @@ var intSpec = 1.0;
 var intDef = 0.05;
 var amtDef = 4.0;
 
+// RT
+var vertexShader = null,
+fragmentShader = null, 
+shaderProgram = null,
+meshData = null, 
+size = 1024,
+fbo = null, rb = null, fbTex = null;
+
 // Scenegraph
 var drawables = new Array();
 
@@ -154,6 +162,9 @@ var bumpQuad = new Drawable();
 // Deform-objects
 var defWaveSphere = new Drawable();
 var defWavePlane = new Drawable();
+
+// Rendertarget
+var rt = new Drawable();
 
 var dT = null;
 
@@ -412,6 +423,16 @@ function main() {
     bumpQuad.initTexture("models/BrickDiff0.jpg");
     bumpQuad.initBumpMap("models/BrickBump0.jpg");
     
+             
+             
+    // Init VS / FS
+    initShaders();
+
+    // Setup triangle
+    setupMeshData();         
+             
+    initRT(gl);         
+             
     getSceneGraphInfo();
                                  
     // Draw-loop
@@ -423,6 +444,19 @@ function main() {
         // Clear backBuffer
         clearBackBuffer(canvas);
 
+        drawAll();
+        
+        draw(canvas);
+        
+       
+        
+        // Renderloop 
+        window.requestAnimationFrame(mainLoop);
+    })();
+
+}
+function drawAll(){
+    
         // Colored
         secondPointer.draw(secondPointer.shader.sp, viewMat, projectionMat, lighting);
         minutePointer.draw(minutePointer.shader.sp, viewMat, projectionMat, lighting);
@@ -476,13 +510,9 @@ function main() {
         lightTexSphere.light.diffIntensity = intDiff;
         lightTexSphere.light.specIntensity = intSpec;
         
-        a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
-        a10.light.lightColor = getColor();
-        a10.light.specularColor = getSpecColor();
-        a10.light.ambientColor = getAmbiColor();
-        a10.light.shininess = shininess; 
-        a10.light.diffIntensity = intDiff;
-        a10.light.specIntensity = intSpec;
+       //a10
+        
+        
         
         // DEFORM
         defWaveSphere.draw(defWaveSphere.shader.sp, viewMat, projectionMat, lighting);
@@ -515,15 +545,6 @@ function main() {
         bumpQuad.light.shininess = shininess; 
         bumpQuad.light.diffIntensity = intDiff;
         bumpQuad.light.specIntensity = intSpec;
-        
-        
-        
-        //var foo = new Date().getUTCMilliseconds();
-        //console.log(foo);
-        
-        // Renderloop 
-        window.requestAnimationFrame(mainLoop);
-    })();
 
 }
 
@@ -710,7 +731,7 @@ function animate(canvas) {
    
     a10.md.transformMatrix = VecMath.SFMatrix4f.identity();
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(5.0, 0.5, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
@@ -1112,5 +1133,182 @@ function loadStringFromFile(url) {
     xhr.open("GET", encodeURI(url), false);
     xhr.send();
     return xhr.responseText;
+}
+
+
+// ------------------- Rendertarget ----------------
+
+// Init a single VS and FS
+function initShaders() {
+
+    var preamble = "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+            "  precision highp float;\n" +
+            "#else\n" +
+            "  precision mediump float;\n" +
+            "#endif\n\n";
+
+    // Vertex shader string
+    var vsSourceString = loadStringFromFile("Shader/RTVS.glsl");
+
+    // Fragment shader string
+    var vsFragmentString = preamble + loadStringFromFile("Shader/RTFS.glsl");
+
+    // VS				
+    vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vsSourceString);
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+        console.warn("VertexShader: " + gl.getShaderInfoLog(vertexShader));
+    }
+
+    // FS
+    fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, vsFragmentString);
+    gl.compileShader(fragmentShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+        console.warn("FragmentShader: " + gl.getShaderInfoLog(fragmentShader));
+    }
+
+    // Shader program object 
+    shaderProgram = gl.createProgram();
+
+    // Attach shaders
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+
+    // Link shaders
+    gl.linkProgram(shaderProgram);
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        console.warn("Could not link program: " + gl.getProgramInfoLog(shaderProgram));
+    }
+
+    // Init only once
+    initShaderVars();
+}
+
+// initialize attribute and uniform access by dynamically adding member variables
+function initShaderVars() {
+    // attributes (name from shaders)
+    shaderProgram.position = gl.getAttribLocation(shaderProgram, "position");
+    shaderProgram.resolution = gl.getUniformLocation(shaderProgram, "resolution");
+}
+
+function draw(canvas) {
+    // Clear backbuffer
+    //clearBackBuffer(canvas);
+
+    // Use the shader
+    gl.useProgram(shaderProgram);
+    
+    // Set res
+    gl.uniform2f(shaderProgram.resolution, canvas.width, canvas.height);  
+
+    // Bind indexBuffer
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
+
+    // Bind vertexPositionBuffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.positionBuffer);
+    gl.vertexAttribPointer(shaderProgram.position, // indes of attribute
+            2, // three position components (x,y,z)
+            gl.FLOAT, // provided data type is float
+            false, // do not normalize values
+            0, // stride (in bytes)
+            0); // offset (in bytes)
+    gl.enableVertexAttribArray(shaderProgram.position);
+   
+    // deactivate offscreen target
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    
+    gl.viewport(0, 0, 512, 512);
+    
+    gl.clearColor(0, 0, 0, 0);
+    gl.clearColor(0.2, 0.4, 0.5, 1.0);
+    gl.clearDepth(1.0);
+
+    //a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
+    
+    
+    
+    
+    // Draw call
+    gl.drawElements(gl.TRIANGLES, // polyg type
+            meshData.indices.length, // buffer length
+            gl.UNSIGNED_SHORT, // buffer type
+            0); // start index
+    //send result to bloomX framebuffer
+    gl.bindTexture(gl.TEXTURE_2D, fbTex);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    // Disable arributes
+    gl.disableVertexAttribArray(shaderProgram.position);
+    
+   
+}
+
+function setupMeshData() {
+    // Setup triangle vertices
+    meshData = {
+         // Setup vetices
+        vertices: [
+            0, 0,
+            0, size,
+            size, size,
+            size, 0
+        ],
+        // Setup indices
+        indices: [
+            // tris behind
+            0, 1, 2,
+            2, 3, 0
+        ],
+        // Setup translation
+        trans: {x: 0, y: 0, z: 0}
+    };
+
+    // World-Space
+    meshData.transformMatrix = VecMath.SFMatrix4f.identity();
+    
+    // Init Buffers for meshData
+    initBuffers();
+}
+
+// Setup Buffer
+function initBuffers() {
+    // VertexPositionBuffer
+    meshData.positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(meshData.vertices), gl.STATIC_DRAW);
+    
+    // IndexBuffer
+    meshData.indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(meshData.indices), gl.STATIC_DRAW);
+}
+
+function initRT(gl){
+    fbTex = gl.createTexture();
+    fbTex.width  =  size;
+    fbTex.height =  size;
+    fbTex.ready  = true;
+
+    gl.bindTexture(gl.TEXTURE_2D, fbTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, fbTex.width, fbTex.height, 0, gl.RGBA, gl.FLOAT, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+     fbo = gl.createFramebuffer();
+    rb  = gl.createRenderbuffer();
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER, rb);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, fbTex.width, fbTex.height);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fbTex, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rb);
+
+    var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status != gl.FRAMEBUFFER_COMPLETE) {
+        console.warn("FBO status: " + status);
+    }
+ 
 }
 
