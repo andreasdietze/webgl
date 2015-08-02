@@ -61,6 +61,7 @@
     border-color: #c0402a;
     width: 400px;
     height: 275px;
+    background-color: #BBBBBB;
 }
 
 #lighting{
@@ -146,6 +147,7 @@
     width: 400px;
     height: 100px;
     top: 300px;
+    background-color: #BBBBBB;
 } 
  
 #deformIntensityLabel{
@@ -173,6 +175,44 @@
 }
 
 /* ----------------------------------------------------------------- 
+   ----------------------------- blur - ---------------------------- 
+   ----------------------------------------------------------------- */
+
+#blurControls{
+    position: relative;
+    border: 1px solid;
+    border-color: #c0402a;
+    width: 400px;
+    height: 100px;
+    top: 320px;
+    background-color: #BBBBBB;
+} 
+
+#blurTechLabel{
+    position:absolute;
+    top: 40px;
+    margin-left: 25px;
+}
+
+#blurTechnique{
+    margin-left: 15px;
+    margin-top: 15px;
+}
+
+#blurIterationsLabel{
+    position: absolute;
+    bottom: 40px; 
+    right: 160px;
+}
+
+#blurIterations{
+   position: relative;
+   left: 0px; 
+   top: 10px;
+}
+
+
+/* ----------------------------------------------------------------- 
    ----------------------------- test ------------------------------ 
    ----------------------------------------------------------------- */
 #clock{
@@ -180,4 +220,5 @@
     position: absolute;
     top: 23px;
     left: 25px;
+    
 }

@@ -81,6 +81,20 @@ NOTE: Autoformat shift+alt+f
                 <label id="deformAmountLabel">Amount</label>
                 <input id="defAmt" type="range" min="0" max="10" value="4" step="0.25" onchange="setDefAmt(this.value)" />
             </div>
+            <div id="blurControls">
+                <p id="blurLabel"  style="text-align: center;"> Blur </p>
+                <label id="blurTechLabel">Technique </label>
+                <select id="blurTechnique">
+                    <option value="Horizontal" onclick="changeBlurTechnique();">Horizontal</option>
+                    <option value="Vertical" onclick="changeBlurTechnique();">Vertical</option>
+                    <option value="HV1" onclick="changeBlurTechnique();">HV1</option>
+                    <option value="HV2" onclick="changeBlurTechnique();">HV2</option>
+                    <option value="Radial" onclick="changeBlurTechnique();">Radial</option>
+                </select>
+                <label id="blurIterationsLabel">Iterations</label>
+                <input id="blurIterations" type="range" min="1" max="15" value="5" step="1" onchange="setBlurIterations(this.value)" />
+            
+            </div>
             
         </span>
     </body>

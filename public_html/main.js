@@ -49,13 +49,19 @@ var addVec = new VecMath.SFVec3f(0.0, 0.0, -5.0);
 // Controls KB
 var currentlyPressedKeys = {};
 
+// Lighting
 var lighting = 0;
 var shininess = 128.0;
 var intDiff = 1.0;
 var intSpec = 1.0;
 
+// Deform
 var intDef = 0.05;
 var amtDef = 4.0;
+
+// Blur
+var blurTechnique = 0,
+    blurIterations = 5;
 
 // RT
 var vertexShader = null,
@@ -195,6 +201,8 @@ function main() {
     
     document.getElementById("deformIntensityLabel").innerHTML = "Intensity: " + intDef;
     document.getElementById("deformAmountLabel").innerHTML = "Amount: " + amtDef;
+    
+    document.getElementById("blurIterationsLabel").innerHTML = "Iterations: " + blurIterations;
 
     // Init projection
     initProjection();
@@ -731,7 +739,7 @@ function animate(canvas) {
    
     a10.md.transformMatrix = VecMath.SFMatrix4f.identity();
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 5.0)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
@@ -1035,6 +1043,9 @@ function initProjection() {
     projectionMat = VecMath.SFMatrix4f.perspective(Math.PI / 4, 1.0, 0.1, 1000.0);
 }
 
+// ----------------------------------------------------------------- 
+// ------------------------- Lighting-Menue ------------------------ 
+// -----------------------------------------------------------------
 function changeLighting(){
     var lightStyle = document.getElementById("lighting").selectedIndex;
     switch(lightStyle){
@@ -1054,6 +1065,7 @@ function changeLighting(){
             lighting = 1;
             console.log("Lightsourc: Head light");
             break;
+        default: lighting = 0;
     }
 }
 
@@ -1074,18 +1086,6 @@ function setIntSpec(newValue){
     intSpec = newValue;
     document.getElementById("intSpecLabel").innerHTML = "Inten. Spec: " + intSpec;
 }
-
-// TODO: 
-// - implement shaderobject into drawable
-// - html element to choose object
-function getSceneGraphInfo(){
-    console.log("Objects in scene: " + drawables.length);
-    for(var i = 0; i < drawables.length; i++){
-        console.log("ID: " + drawables[i].id);
-        console.log("Tag: " + drawables[i].tag);
-    }  
-}
-// Lighting
 
 function getColor(){
     var color = hexToRgb(document.getElementById("lightColor").value);
@@ -1116,7 +1116,9 @@ function hexToRgb(hex) {
     } : null;
 }
 
-// Deform
+// ----------------------------------------------------------------- 
+// -------------------------- Deform-Menue ------------------------- 
+// -----------------------------------------------------------------
 function setDefInt(newValue){
     intDef = newValue;
     document.getElementById("deformIntensityLabel").innerHTML = "Intensity: " + intDef;
@@ -1125,6 +1127,54 @@ function setDefInt(newValue){
 function setDefAmt(newValue){
     amtDef = newValue;
     document.getElementById("deformAmountLabel").innerHTML = "Amount: " + amtDef;
+}
+
+// ----------------------------------------------------------------- 
+// --------------------------- Blur-Menue -------------------------- 
+// -----------------------------------------------------------------
+
+function changeBlurTechnique(){
+    var style = document.getElementById("blurTechnique").selectedIndex;
+    switch(style){
+        case 0: // Horizontal blur
+            blurTechnique = 0;
+            console.log("BlurTechnique: Horizontal blur");
+            break;
+        case 1: // Vertical blur
+            blurTechnique = 1;
+            console.log("BlurTechnique: Vertical blur");
+            break;
+        case 2: // Horizontal and vertical blur
+            blurTechnique = 2;
+            console.log("BlurTechnique: H/V blur1");
+            break;
+        case 3: // HV2 blur
+            blurTechnique = 3;
+            console.log("BlurTechnique: H/V blur2");
+            break;
+        case 4: // Radial blur
+            blurTechnique = 4;
+            console.log("BlurTechnique: Radial blur");
+            break;
+        default:blurTechnique = 0;
+    }
+}
+
+function setBlurIterations(newValue){
+    blurIterations = newValue;
+    document.getElementById("blurIterationsLabel").innerHTML = "Iterations: " + blurIterations;
+}
+
+
+// TODO: 
+// - implement shaderobject into drawable - done
+// - html element to choose object - Menue and seperate object properties
+function getSceneGraphInfo(){
+    console.log("Objects in scene: " + drawables.length);
+    for(var i = 0; i < drawables.length; i++){
+        console.log("ID: " + drawables[i].id);
+        console.log("Tag: " + drawables[i].tag);
+    }  
 }
 
 /// Helper: synchronously loads text file
@@ -1136,7 +1186,7 @@ function loadStringFromFile(url) {
 }
 
 
-// ------------------- Rendertarget ----------------
+// ------------------- Rendertarget -------------------
 
 // Init a single VS and FS
 function initShaders() {
@@ -1182,15 +1232,11 @@ function initShaders() {
         console.warn("Could not link program: " + gl.getProgramInfoLog(shaderProgram));
     }
 
-    // Init only once
-    initShaderVars();
-}
-
-// initialize attribute and uniform access by dynamically adding member variables
-function initShaderVars() {
-    // attributes (name from shaders)
     shaderProgram.position = gl.getAttribLocation(shaderProgram, "position");
     shaderProgram.resolution = gl.getUniformLocation(shaderProgram, "resolution");
+    shaderProgram.blurTechnique = gl.getUniformLocation(shaderProgram, "blurTech");
+    shaderProgram.iterations = gl.getUniformLocation(shaderProgram, "it");
+    shaderProgram.numIt = gl.getUniformLocation(shaderProgram, "numIt");
 }
 
 function draw(canvas) {
@@ -1201,7 +1247,14 @@ function draw(canvas) {
     gl.useProgram(shaderProgram);
     
     // Set res
-    gl.uniform2f(shaderProgram.resolution, canvas.width, canvas.height);  
+    gl.uniform2f(shaderProgram.resolution, canvas.width, canvas.height);
+    
+    // Set blur technique
+    gl.uniform1i(shaderProgram.blurTechnique, blurTechnique);
+    
+    // Set blur iterations
+    gl.uniform1i(shaderProgram.iterations, blurIterations);
+    gl.uniform1f(shaderProgram.numIt, blurIterations * 2.0);
 
     // Bind indexBuffer
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
@@ -1217,11 +1270,9 @@ function draw(canvas) {
     gl.enableVertexAttribArray(shaderProgram.position);
    
     // deactivate offscreen target
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); // fbo 
     
     gl.viewport(0, 0, 512, 512);
-    
-    gl.clearColor(0, 0, 0, 0);
     gl.clearColor(0.2, 0.4, 0.5, 1.0);
     gl.clearDepth(1.0);
 
@@ -1238,6 +1289,8 @@ function draw(canvas) {
     //send result to bloomX framebuffer
     gl.bindTexture(gl.TEXTURE_2D, fbTex);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    
+    
     // Disable arributes
     gl.disableVertexAttribArray(shaderProgram.position);
     
