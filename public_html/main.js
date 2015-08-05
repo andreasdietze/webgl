@@ -46,6 +46,13 @@ var zPos = 0;
 var speed = 0;
 var addVec = new VecMath.SFVec3f(0.0, 0.0, -5.0);
 
+
+
+
+var c_camX = 0.0, c_camY = 0.0, c_camZ = 0.0;
+var c_camYaw = 0.0,     // rot y
+    c_camPitch = 0.0;   // rot x
+
 // Controls KB
 var currentlyPressedKeys = {};
 
@@ -921,18 +928,24 @@ function handleKeyboard(canvas, dT) {
                 // Rotate
             case 65: /* a */
                 //angleY += -0.01 * dT;
+                moveCamera(0.0001, 90.0);
                 break;
             case 87: /* w */
                 //angleX += 0.01 * dT;
                 //addVec.z -= 0.1 *dT;
+                moveCamera(0.0001, c_camPitch);
+                moveCameraUp(0.0001, c_camYaw);
                 break;
             case 68: /* d */
                 //angleY += 0.01 * dT;
+                moveCamera(0.0001, 270.0);
                 break;
             case 83: /* s */
                 //addVec.z += 0.1 *dT;
                // angleX += -0.01 * dT;
                //camPos.z += 0.1 *dT;
+               moveCamera(0.0001, 180.0);
+               moveCameraUp(0.0001, 180.0);
                 break;
 
         } 
@@ -957,10 +970,23 @@ function handleKeyboard(canvas, dT) {
     camPos.z = -zPos;
 
 
-    viewMat = VecMath.SFMatrix4f.identity();
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(0.0, 0.0, -3))));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
+   // viewMat = VecMath.SFMatrix4f.identity();
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(0.0, 0.0, -3))));
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
+    
+    
+    
+    //viewMat = VecMath.SFMatrix4f.lookAt(camPos, new VecMath.SFVec3f(0.0, 0.0, 0.0), new VecMath.SFVec3f(0.0, 1.0, 0.0));
+  // viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
+    
+    viewMat = VecMath.SFMatrix4f.identity(); 
+       viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(c_camPitch));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(c_camYaw));
+    
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-c_camX, -c_camY, -c_camZ))));
+
     //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));
     
    
@@ -990,6 +1016,36 @@ function handleKeyboard(canvas, dT) {
     //console.log(viewMat);
 }
 
+function lockCamera()
+{
+        //set campitch between -90 and 90 and set camyaw between 0 and 360 degrees
+        if(c_camPitch>90)
+                c_camPitch=90;
+        if(c_camPitch<-90)
+                c_camPitch=-90;
+        if(c_camYaw<0.0)
+                c_camYaw+=360.0;
+        if(c_camYaw>360.0)
+                c_camYaw-=360;
+}
+ 
+function moveCamera(dist, dir)
+{
+        var rad=(c_camYaw+dir)*Math.PI/180.0;      //convert the degrees into radians
+        c_camX-=Math.sin(rad)*dist;    //calculate the new coorinate, if you don't understand, draw a right triangle with the datas, you have
+        c_camZ-=Math.cos(rad)*dist;    //and try to calculate the new coorinate with trigonometric functions, that should help
+}
+ 
+function moveCameraUp(dist, dir)
+{
+        //the the same, only this time we calculate the y coorinate
+        var rad=(c_camPitch+dir)*Math.PI/180.0;
+        c_camY+=Math.sin(rad)*dist;   
+}
+
+
+
+
 function handleMouseDown(event){
     mouseDown = true;
     lastMouseX = event.layerX;
@@ -1000,7 +1056,6 @@ function handleMouseUp(){
     mouseDown = false;
 }
 
-// http://learningwebgl.com/blog/?p=1253
 function handleMouseMove(event){
     if(!mouseDown){
         yawRate = 0.0;
@@ -1017,11 +1072,59 @@ function handleMouseMove(event){
     //console.log(isCanvas);
     
     if(isCanvas === "glCanvas"){
-        var turnSpeed = 0.9;
+        var turnSpeed = 0.1;
 
-        var deltaX = (newX - lastMouseX) * turnSpeed;
-        var deltaY = (newY - lastMouseY) * turnSpeed;
-        //console.log(deltaX + " " + deltaY);
+        var deltaX; 
+        var deltaY;
+        deltaX = (newX - lastMouseX) * turnSpeed;
+        deltaY = (newY - lastMouseY) * turnSpeed;
+       // console.log(deltaX + " " + deltaY);
+
+        mouseX = deltaX; mouseY = deltaY;
+        
+        c_camYaw += deltaX * 0.1;
+        c_camPitch += deltaY * 0.1;
+
+        lockCamera(0.1, c_camX);
+        
+
+        yawRate = -mouseX; 
+        pitchRate = -mouseY;
+        
+
+        // viewMat = viewMat.transpose();
+        //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(deltaX))); 
+        //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(deltaY)));
+    }
+    
+    lastMouseX = newX;
+    lastMouseY = newY;  
+}
+
+
+// http://learningwebgl.com/blog/?p=1253
+/*function handleMouseMove(event){
+    if(!mouseDown){
+        yawRate = 0.0;
+        pitchRate = 0.0;
+        return;
+    }
+    
+    
+    var newX = event.clientX - 16;
+    var newY = event.clientY - 185;
+    //console.log(newX + " " + newY);
+    
+    // check mouse is inside canvas
+    var isCanvas = document.elementFromPoint(newX, newY).id;
+    //console.log(isCanvas);
+    
+    if(isCanvas === "glCanvas"){
+        var turnSpeed = 1.0;
+
+        var deltaX = (newX - 512) * turnSpeed;  // lastMouseX
+        var deltaY = (newY - 512) * turnSpeed;
+        console.log(deltaX + " " + deltaY);
 
         mouseX = deltaX; mouseY = deltaY;
 
@@ -1035,11 +1138,12 @@ function handleMouseMove(event){
     
     lastMouseX = newX;
     lastMouseY = newY;  
-}
+}*/
 
 // Setup perspective projection and invert viewMat
 function initProjection() {
-    viewMat = VecMath.SFMatrix4f.translation(camPos); // .inverse();
+    //viewMat = VecMath.SFMatrix4f.translation(camPos); // .inverse();
+    viewMat = VecMath.SFMatrix4f.lookAt(camPos, new VecMath.SFVec3f(0.0, 0.0, 0.0), new VecMath.SFVec3f(0.0, 1.0, 0.0));
     projectionMat = VecMath.SFMatrix4f.perspective(Math.PI / 4, 1.0, 0.1, 1000.0);
 }
 

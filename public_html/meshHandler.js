@@ -29,6 +29,10 @@ var MeshHandler = function () {
     this.blinnPhongVSS = loadStringFromFile("Shader/BlinnPhongVS.glsl"); 
     this.blinnPhongFSS = this.prea + loadStringFromFile("Shader/BlinnPhongFS.glsl");
     
+    // Bumpmap shader test2
+    this.bumpVSS2 = loadStringFromFile("Shader/BumpVS2.glsl");
+    this.bumpFSS2 = this.prea + loadStringFromFile("Shader/BumpFS2.glsl");
+    
     // Bumpmap shader test1
     this.bumpVSS1 = loadStringFromFile("Shader/BumpVS1.glsl");
     this.bumpFSS1 = this.prea + loadStringFromFile("Shader/BumpFS1.glsl");
