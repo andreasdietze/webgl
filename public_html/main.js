@@ -49,7 +49,7 @@ var addVec = new VecMath.SFVec3f(0.0, 0.0, -5.0);
 
 
 
-var c_camX = 0.0, c_camY = 0.0, c_camZ = 0.0;
+var c_camX = 0.0, c_camY = 0.0, c_camZ = 5.0;
 var c_camYaw = 0.0,     // rot y
     c_camPitch = 0.0;   // rot x
 
@@ -151,8 +151,8 @@ var sphereTex = new Drawable();
 // ------------------------------------------------------ //
 
 // Test
-var boxDiffuseShader = new DiffuseLightingShader();
-var boxDiffuse = new LightingTextureDrawable();
+//var boxDiffuseShader = new DiffuseLightingShader();
+//var boxDiffuse = new LightingTextureDrawable();
 
 // Diffuse-Cow
 var objCow = new Drawable("difCow", 0);
@@ -177,7 +177,7 @@ var defWaveSphere = new Drawable();
 var defWavePlane = new Drawable();
 
 // Rendertarget
-var rt = new Drawable();
+//var rt = new Drawable();
 
 var dT = null;
 
@@ -334,7 +334,7 @@ function main() {
     
     // Lighting ---------------------------------------
     
-   mh.setupDiffusedBox();
+  /* mh.setupDiffusedBox();
     boxDiffuseShader.initGL(gl);
     boxDiffuseShader.initShader(mh.vss, mh.fss);
     boxDiffuse.initGL(gl);
@@ -343,7 +343,7 @@ function main() {
             mh.mesh.tex,
             mh.mesh.indices,
             mh.mesh.trans);
-    boxDiffuse.initTexture("models/crazyCube.png");
+    boxDiffuse.initTexture("models/crazyCube.png");*/
     
     mh.loadOBJ("models/cow.obj", 0.175);
     objCow.initGL(gl, mh.vss, mh.fss);
@@ -463,103 +463,12 @@ function main() {
         
         draw(canvas);
         
+        
        
         
         // Renderloop 
         window.requestAnimationFrame(mainLoop);
     })();
-
-}
-function drawAll(){
-    
-        // Colored
-        secondPointer.draw(secondPointer.shader.sp, viewMat, projectionMat, lighting);
-        minutePointer.draw(minutePointer.shader.sp, viewMat, projectionMat, lighting);
-        hourPointer.draw(hourPointer.shader.sp, viewMat, projectionMat, lighting);
-        clockTex.draw(clockTex.shader.sp, viewMat, projectionMat, lighting);
-        box.draw(box.shader.sp, viewMat, projectionMat, lighting);
-        sphere.draw(sphere.shader.sp, viewMat, projectionMat, lighting);
-        sphere1.draw(sphere1.shader.sp, viewMat, projectionMat, lighting);
-        
-        // Color scenes
-        //sceneOne.draw(box.shader.sp, sphere.shader.sp, viewMat, projectionMat);
-        //orientationScene.draw(boxShader, viewMat, projectionMat);
-        
-        // Textured
-        houseTex.draw(houseTex.shader.sp, viewMat, projectionMat, lighting);
-        boxTex.draw(boxTex.shader.sp, viewMat, projectionMat, lighting);
-        boxTex2.draw(boxTex2.shader.sp, viewMat, projectionMat, lighting);
-        sphereTex.draw(sphereTex.shader.sp, viewMat, projectionMat, lighting);
-       
-        // Lighting
-        boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
-        
-        // TODO: implement shaderobject into drawable
-        //for(var i = 0; i < drawables.length; i++)
-            //drawables[i].draw(objCowShaderSpec.sp, viewMat, projectionMat, lighting, shininess);
-        
-        objCow.draw(objCow.shader.sp, viewMat, projectionMat, lighting);
-        
-        objCowSpec.draw(objCowSpec.shader.sp, viewMat, projectionMat, lighting);
-        objCowSpec.light.lightColor = getColor();
-        objCowSpec.light.specularColor = getSpecColor();
-        objCowSpec.light.ambientColor = getAmbiColor();
-        objCowSpec.light.shininess = shininess;
-        objCowSpec.light.diffIntensity = intDiff;
-        objCowSpec.light.specIntensity = intSpec;
-        
-        
-        lightSphere.draw(lightSphere.shader.sp, viewMat, projectionMat, lighting);
-        lightSphere.light.lightColor = getColor();
-        lightSphere.light.specularColor = getSpecColor();
-        lightSphere.light.ambientColor = getAmbiColor();
-        lightSphere.light.shininess = shininess;
-        lightSphere.light.diffIntensity = intDiff;
-        lightSphere.light.specIntensity = intSpec;
-        
-        lightTexSphere.draw(lightTexSphere.shader.sp, viewMat, projectionMat, lighting);
-        lightTexSphere.light.lightColor = getColor();
-        lightTexSphere.light.specularColor = getSpecColor();
-        lightTexSphere.light.ambientColor = getAmbiColor();
-        lightTexSphere.light.shininess = shininess;
-        lightTexSphere.light.diffIntensity = intDiff;
-        lightTexSphere.light.specIntensity = intSpec;
-        
-       //a10
-        
-        
-        
-        // DEFORM
-        defWaveSphere.draw(defWaveSphere.shader.sp, viewMat, projectionMat, lighting);
-        defWaveSphere.light.lightColor = getColor();
-        defWaveSphere.light.specularColor = getSpecColor();
-        defWaveSphere.light.ambientColor = getAmbiColor();
-        defWaveSphere.light.shininess = shininess; 
-        defWaveSphere.light.diffIntensity = intDiff;
-        defWaveSphere.light.specIntensity = intSpec;
-        defWaveSphere.deformStyle = 0;
-        defWaveSphere.defInt = intDef;
-        defWaveSphere.defAmt = amtDef;
-        
-        defWavePlane.draw(defWavePlane.shader.sp, viewMat, projectionMat, lighting);
-        defWavePlane.light.lightColor = getColor();
-        defWavePlane.light.specularColor = getSpecColor();
-        defWavePlane.light.ambientColor = getAmbiColor();
-        defWavePlane.light.shininess = shininess; 
-        defWavePlane.light.diffIntensity = intDiff;
-        defWavePlane.light.specIntensity = intSpec;
-        defWavePlane.deformStyle = 0;
-        defWavePlane.defInt = intDef;
-        defWavePlane.defAmt = amtDef;
-        
-        // BUMP
-        bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
-        bumpQuad.light.lightColor = getColor();
-        bumpQuad.light.specularColor = getSpecColor();
-        bumpQuad.light.ambientColor = getAmbiColor();
-        bumpQuad.light.shininess = shininess; 
-        bumpQuad.light.diffIntensity = intDiff;
-        bumpQuad.light.specIntensity = intSpec;
 
 }
 
@@ -706,13 +615,13 @@ function animate(canvas) {
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); 
    
     // Lighting -------------------------------------------------------------------
-    boxDiffuse.md.transformMatrix = VecMath.SFMatrix4f.identity();
+  /*  boxDiffuse.md.transformMatrix = VecMath.SFMatrix4f.identity();
     boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-4.5, 0.0, 0.0)));
     boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(angle)));
     boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); 
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); */
  
     objCow.md.transformMatrix = VecMath.SFMatrix4f.identity();
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
@@ -746,7 +655,7 @@ function animate(canvas) {
    
     a10.md.transformMatrix = VecMath.SFMatrix4f.identity();
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 5.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
@@ -778,7 +687,7 @@ function animate(canvas) {
 }
 
 // Setup texture
-function initTexture() {
+/*function initTexture() {
     tex = gl.createTexture();
     tex.image = new Image();
     tex.image.crossOrigin = ''; // ?
@@ -792,13 +701,13 @@ function initTexture() {
 function handleLoadedTexture(texture) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tex.image);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.bindTexture(gl.TEXTURE_2D, null);
-}
+}*/
 
 // Dispose all buffers and shaderProgram
 function cleanUp() {
@@ -847,7 +756,7 @@ function cleanUp() {
     sphereTex.dispose();
     
     // Lighting
-    boxDiffuse.dispose();
+   // boxDiffuse.dispose();
     objCow.dispose();
     objCowSpec.dispose();
     lightSphere.dispose();
@@ -982,9 +891,8 @@ function handleKeyboard(canvas, dT) {
     //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
     
     viewMat = VecMath.SFMatrix4f.identity(); 
-       viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(c_camPitch));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(c_camPitch));
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(c_camYaw));
-    
     viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-c_camX, -c_camY, -c_camZ))));
 
     //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));
@@ -1042,8 +950,6 @@ function moveCameraUp(dist, dir)
         var rad=(c_camPitch+dir)*Math.PI/180.0;
         c_camY+=Math.sin(rad)*dist;   
 }
-
-
 
 
 function handleMouseDown(event){
@@ -1341,7 +1247,179 @@ function initShaders() {
     shaderProgram.blurTechnique = gl.getUniformLocation(shaderProgram, "blurTech");
     shaderProgram.iterations = gl.getUniformLocation(shaderProgram, "it");
     shaderProgram.numIt = gl.getUniformLocation(shaderProgram, "numIt");
+    shaderProgram.tex = gl.getUniformLocation(shaderProgram, "tex");
 }
+
+/*
+function draw() {
+    gl.viewport(0, 0, 512, 512);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
+    
+    gl.bindTexture(gl.TEXTURE_2D, fbTex);
+    //gl.bindTexture(gl.TEXTURE_2D, null);
+    
+}*/
+
+function drawAll(){
+    
+       // gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // fbo 
+       // draw();
+        //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        //gl.bindTexture(gl.TEXTURE_2D, null);
+    
+        gl.viewport(0, 0, 1024, 1024);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        
+        // Colored
+        secondPointer.draw(secondPointer.shader.sp, viewMat, projectionMat, lighting);
+        minutePointer.draw(minutePointer.shader.sp, viewMat, projectionMat, lighting);
+        hourPointer.draw(hourPointer.shader.sp, viewMat, projectionMat, lighting);
+        clockTex.draw(clockTex.shader.sp, viewMat, projectionMat, lighting);
+        box.draw(box.shader.sp, viewMat, projectionMat, lighting);
+        sphere.draw(sphere.shader.sp, viewMat, projectionMat, lighting);
+        sphere1.draw(sphere1.shader.sp, viewMat, projectionMat, lighting);
+        
+        // Color scenes
+        //sceneOne.draw(box.shader.sp, sphere.shader.sp, viewMat, projectionMat);
+        //orientationScene.draw(boxShader, viewMat, projectionMat);
+        
+        // Textured
+        houseTex.draw(houseTex.shader.sp, viewMat, projectionMat, lighting);
+        boxTex.draw(boxTex.shader.sp, viewMat, projectionMat, lighting);
+        boxTex2.draw(boxTex2.shader.sp, viewMat, projectionMat, lighting);
+        sphereTex.draw(sphereTex.shader.sp, viewMat, projectionMat, lighting);
+       
+        // Lighting
+        //boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
+        
+        // TODO: implement shaderobject into drawable
+        //for(var i = 0; i < drawables.length; i++)
+            //drawables[i].draw(objCowShaderSpec.sp, viewMat, projectionMat, lighting, shininess);
+        
+        objCow.draw(objCow.shader.sp, viewMat, projectionMat, lighting);
+        
+        objCowSpec.draw(objCowSpec.shader.sp, viewMat, projectionMat, lighting);
+        objCowSpec.light.lightColor = getColor();
+        objCowSpec.light.specularColor = getSpecColor();
+        objCowSpec.light.ambientColor = getAmbiColor();
+        objCowSpec.light.shininess = shininess;
+        objCowSpec.light.diffIntensity = intDiff;
+        objCowSpec.light.specIntensity = intSpec;
+        
+        
+        lightSphere.draw(lightSphere.shader.sp, viewMat, projectionMat, lighting);
+        lightSphere.light.lightColor = getColor();
+        lightSphere.light.specularColor = getSpecColor();
+        lightSphere.light.ambientColor = getAmbiColor();
+        lightSphere.light.shininess = shininess;
+        lightSphere.light.diffIntensity = intDiff;
+        lightSphere.light.specIntensity = intSpec;
+        
+        lightTexSphere.draw(lightTexSphere.shader.sp, viewMat, projectionMat, lighting);
+        lightTexSphere.light.lightColor = getColor();
+        lightTexSphere.light.specularColor = getSpecColor();
+        lightTexSphere.light.ambientColor = getAmbiColor();
+        lightTexSphere.light.shininess = shininess;
+        lightTexSphere.light.diffIntensity = intDiff;
+        lightTexSphere.light.specIntensity = intSpec;
+        
+       //a10
+        
+        
+        
+        // DEFORM
+        defWaveSphere.draw(defWaveSphere.shader.sp, viewMat, projectionMat, lighting);
+        defWaveSphere.light.lightColor = getColor();
+        defWaveSphere.light.specularColor = getSpecColor();
+        defWaveSphere.light.ambientColor = getAmbiColor();
+        defWaveSphere.light.shininess = shininess; 
+        defWaveSphere.light.diffIntensity = intDiff;
+        defWaveSphere.light.specIntensity = intSpec;
+        defWaveSphere.deformStyle = 0;
+        defWaveSphere.defInt = intDef;
+        defWaveSphere.defAmt = amtDef;
+        
+        defWavePlane.draw(defWavePlane.shader.sp, viewMat, projectionMat, lighting);
+        defWavePlane.light.lightColor = getColor();
+        defWavePlane.light.specularColor = getSpecColor();
+        defWavePlane.light.ambientColor = getAmbiColor();
+        defWavePlane.light.shininess = shininess; 
+        defWavePlane.light.diffIntensity = intDiff;
+        defWavePlane.light.specIntensity = intSpec;
+        defWavePlane.deformStyle = 0;
+        defWavePlane.defInt = intDef;
+        defWavePlane.defAmt = amtDef;
+        
+        // BUMP
+        bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
+        bumpQuad.light.lightColor = getColor();
+        bumpQuad.light.specularColor = getSpecColor();
+        bumpQuad.light.ambientColor = getAmbiColor();
+        bumpQuad.light.shininess = shininess; 
+        bumpQuad.light.diffIntensity = intDiff;
+        bumpQuad.light.specIntensity = intSpec;
+
+
+   /* // Use the shader
+    gl.useProgram(shaderProgram);
+    
+    // Set res
+    gl.uniform2f(shaderProgram.resolution, 512, 512);
+    
+    // Set blur technique
+    gl.uniform1i(shaderProgram.blurTechnique, blurTechnique);
+    
+    // Set blur iterations
+    gl.uniform1i(shaderProgram.iterations, blurIterations);
+    gl.uniform1f(shaderProgram.numIt, blurIterations * 2.0);
+    
+    if(fbTex && fbTex.ready){
+        gl.uniform1i(shaderProgram.tex, 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, fbTex);
+        
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);  // CLAMP_TO_EDGE, REPEATE
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+        
+    
+    // Bind indexBuffer
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
+
+    // Bind vertexPositionBuffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.positionBuffer);
+    gl.vertexAttribPointer(shaderProgram.position, // indes of attribute
+            2, // three position components (x,y,z)
+            gl.FLOAT, // provided data type is float
+            false, // do not normalize values
+            0, // stride (in bytes)
+            0); // offset (in bytes)
+    gl.enableVertexAttribArray(shaderProgram.position);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.texBuffer);
+    gl.vertexAttribPointer(shaderProgram.texCoords, // index of attribute
+            2, // two texCoords (u, v)
+            gl.FLOAT, // provided data type is float
+            false, // do not normalize values
+            0, // stride (in bytes)
+            0); // offset (in bytes)
+    gl.enableVertexAttribArray(shaderProgram.texCoords);
+    
+     // Draw call
+    gl.drawElements(gl.TRIANGLES, // polyg type
+            meshData.indices.length, // buffer length
+            gl.UNSIGNED_SHORT, // buffer type
+            0); // start index
+    
+    // Disable arributes
+    gl.disableVertexAttribArray(shaderProgram.position); 
+    gl.disableVertexAttribArray(shaderProgram.texCoords);*/
+}
+
 
 function draw(canvas) {
     // Clear backbuffer
@@ -1351,7 +1429,7 @@ function draw(canvas) {
     gl.useProgram(shaderProgram);
     
     // Set res
-    gl.uniform2f(shaderProgram.resolution, canvas.width, canvas.height);
+    gl.uniform2f(shaderProgram.resolution, 1024, 1024); // canvas.height
     
     // Set blur technique
     gl.uniform1i(shaderProgram.blurTechnique, blurTechnique);
@@ -1359,6 +1437,18 @@ function draw(canvas) {
     // Set blur iterations
     gl.uniform1i(shaderProgram.iterations, blurIterations);
     gl.uniform1f(shaderProgram.numIt, blurIterations * 2.0);
+    
+    if(fbTex && fbTex.ready){
+        gl.uniform1i(shaderProgram.tex, 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, fbTex);
+        
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);  // CLAMP_TO_EDGE, REPEATE
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+        
 
     // Bind indexBuffer
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
@@ -1372,15 +1462,24 @@ function draw(canvas) {
             0, // stride (in bytes)
             0); // offset (in bytes)
     gl.enableVertexAttribArray(shaderProgram.position);
+    
+    /*gl.bindBuffer(gl.ARRAY_BUFFER, meshData.texBuffer);
+    gl.vertexAttribPointer(shaderProgram.texCoords, // index of attribute
+            2, // two texCoords (u, v)
+            gl.FLOAT, // provided data type is float
+            false, // do not normalize values
+            0, // stride (in bytes)
+            0); // offset (in bytes)
+    gl.enableVertexAttribArray(shaderProgram.texCoords);*/
    
     // deactivate offscreen target
     gl.bindFramebuffer(gl.FRAMEBUFFER, null); // fbo 
-    
     gl.viewport(0, 0, 512, 512);
-    gl.clearColor(0.2, 0.4, 0.5, 1.0);
+    gl.clearColor(0.0, 0.0, 0.5, 1.0);
     gl.clearDepth(1.0);
+    //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    //a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
+   // a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
     
     
     
@@ -1396,9 +1495,8 @@ function draw(canvas) {
     
     
     // Disable arributes
-    gl.disableVertexAttribArray(shaderProgram.position);
-    
-   
+    gl.disableVertexAttribArray(shaderProgram.position); 
+    gl.disableVertexAttribArray(shaderProgram.texCoords);
 }
 
 function setupMeshData() {
@@ -1410,6 +1508,13 @@ function setupMeshData() {
             0, size,
             size, size,
             size, 0
+        ],
+        // Setup texCoords
+        tex: [
+        1.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        0.0, 0.0
         ],
         // Setup indices
         indices: [
@@ -1435,6 +1540,12 @@ function initBuffers() {
     gl.bindBuffer(gl.ARRAY_BUFFER, meshData.positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(meshData.vertices), gl.STATIC_DRAW);
     
+    // Texcoords
+    meshData.texBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.texBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(meshData.tex), gl.STATIC_DRAW);
+    
+    
     // IndexBuffer
     meshData.indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
@@ -1451,7 +1562,7 @@ function initRT(gl){
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, fbTex.width, fbTex.height, 0, gl.RGBA, gl.FLOAT, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
 
-     fbo = gl.createFramebuffer();
+    fbo = gl.createFramebuffer();
     rb  = gl.createRenderbuffer();
 
     gl.bindRenderbuffer(gl.RENDERBUFFER, rb);

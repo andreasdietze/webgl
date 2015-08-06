@@ -1,25 +1,4 @@
-uniform sampler2D tex;
-uniform int blurTech;
-uniform int it;
-uniform float numIt;
-uniform vec2 resolution;
-varying vec2 vTexCoords;
-
-void main() {
-    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-	//const int it = 5;
-	if(blurTech == 0 || blurTech == 2){
-		// i legt anzahl der umliegenden Pixel fest die betrachtet werden sollen 
-		for(int i = -it; i < it; i++)
-		{
-			// Vertikal
-			color += texture2D(tex, vTexCoords + vec2(i, 0.0) / (resolution.x / 2.0));
-		}
-		// Durch die Gesamtanzahl der Pixel teilen um Mittelwert zu erhalten
-		color /= numIt;
-	}
-	
-	if(blurTech == 1 || blurTech == 2){
+if(blurTech == 1 || blurTech == 2){
 		for(int i = -it; i < it; i++)
 		{
 			// Horizontal 
@@ -80,4 +59,3 @@ void main() {
 	if(blurTech != 4){
 		gl_FragColor = color;
 	}
-}
