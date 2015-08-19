@@ -780,20 +780,20 @@ function handleKeyUp(event) {
 function handleKeys() {
     if (currentlyPressedKeys[33]) {
         // Page Up
-        pitchRate = 0.1;
+        pitchRate = 0.5;
     } else if (currentlyPressedKeys[34]) {
         // Page Down
-        pitchRate = -0.1;
+        pitchRate = -0.5;
     } else {
         pitchRate = 0;
     }
 
     if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
         // Left cursor key or A
-        yawRate = -0.5;
+        yawRate = 0.5;
     } else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
         // Right cursor key or D
-        yawRate = 0.5;
+        yawRate = -0.5;
     } else {
         yawRate = 0;
     }
@@ -810,6 +810,8 @@ function handleKeys() {
 
 }
 
+
+var jog = 0;
 function handleKeyboard(canvas, dT) {
 
     //canvas.setAttribute("tabindex", "0");
@@ -837,24 +839,24 @@ function handleKeyboard(canvas, dT) {
                 // Rotate
             case 65: /* a */
                 //angleY += -0.01 * dT;
-                moveCamera(0.0001, 90.0);
+                //moveCamera(0.0001, 90.0);
                 break;
             case 87: /* w */
                 //angleX += 0.01 * dT;
                 //addVec.z -= 0.1 *dT;
-                moveCamera(0.0001, c_camPitch);
-                moveCameraUp(0.0001, c_camYaw);
+               // moveCamera(0.0001, c_camPitch);
+               // moveCameraUp(0.0001, c_camYaw);
                 break;
             case 68: /* d */
                 //angleY += 0.01 * dT;
-                moveCamera(0.0001, 270.0);
+                //moveCamera(0.0001, 270.0);
                 break;
             case 83: /* s */
                 //addVec.z += 0.1 *dT;
                // angleX += -0.01 * dT;
                //camPos.z += 0.1 *dT;
-               moveCamera(0.0001, 180.0);
-               moveCameraUp(0.0001, 180.0);
+               //moveCamera(0.0001, 180.0);
+              // moveCameraUp(0.0001, 180.0);
                 break;
 
         } 
@@ -865,24 +867,28 @@ function handleKeyboard(canvas, dT) {
     canvas.addEventListener('mousemove', handleMouseMove, true);
     
     
-    //if (speed !== 0) {
+   // if (speed !== 0) {
         xPos -= Math.sin(MathHelper.DTR(yaw)) * speed * dT;
-        zPos -= Math.cos(MathHelper.DTR(yaw)) * speed * dT;
+        zPos -= Math.cos(MathHelper.DTR(pitch)) * speed * dT;
+        
+        jog += dT * 0.6; // 0.6 "fiddle factor" - makes it feel more realistic :-)
+        yPos = 0.0; // Math.sin(MathHelper.DTR(jog)) / 20 + 0.4;
     //}
-    yPos = 0.0;
-    
     yaw += yawRate * dT;
     pitch += pitchRate * dT;
+
 
     camPos.x = -xPos;
     camPos.y = -yPos;
     camPos.z = -zPos;
 
+    //console.log("xPos: " + (-xPos) + " yPos: " + (-yPos) + " zPos: " + (-zPos));
+    viewMat = VecMath.SFMatrix4f.identity();
+   
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-xPos * 100, -yPos, -zPos)));
 
-   // viewMat = VecMath.SFMatrix4f.identity();
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(0.0, 0.0, -3))));
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
     
     
     
@@ -890,10 +896,10 @@ function handleKeyboard(canvas, dT) {
   // viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
     //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
     
-    viewMat = VecMath.SFMatrix4f.identity(); 
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(c_camPitch));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(c_camYaw));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-c_camX, -c_camY, -c_camZ))));
+    //viewMat = VecMath.SFMatrix4f.identity(); 
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(c_camPitch));
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(c_camYaw));
+    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-c_camX, -c_camY, -c_camZ))));
 
     //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));
     
@@ -1479,7 +1485,7 @@ function draw(canvas) {
     gl.clearDepth(1.0);
     //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-   // a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
+    //a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
     
     
     
