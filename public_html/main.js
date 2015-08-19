@@ -37,8 +37,14 @@ var // Framecount
     // Delta time
     dT = null;
 
-// Camera position
-var camPos = new VecMath.SFVec3f(0.0, 0.0, 0.0);
+// Camera
+var // Camera position
+    camPos = new VecMath.SFVec3f(0.0, 0.0, 0.0),
+    // Camera mode:
+    // - 0: First person view
+    // - 1: Orbit camera
+    cameraMode = 0;
+    
 
 // Controls Mouse
 var // Mouse pressed ?
@@ -817,6 +823,10 @@ function handleKeyUp(event) {
     currentlyPressedKeys[event.keyCode] = false;
 }
 
+var forward = false;
+var strafe = false;
+var zoom = 1.0;
+
 function handleKeys() {
     if (currentlyPressedKeys[33]) {
         // Page Up
@@ -837,16 +847,46 @@ function handleKeys() {
     } else {
         yawRate = 0;
     }
+    
+    if (currentlyPressedKeys[69]) {
+        // E
+        if(cameraMode === 0){
+            speed = -5.0;
+            strafe = true;
+        }
+    } else if (currentlyPressedKeys[81]) {
+        // Q
+        if(cameraMode === 0){
+            speed = 5.0;
+            strafe = true;
+        }
+    } else {
+        speed = 0;
+        strafe = false;
+    }
 
     if (currentlyPressedKeys[38] || currentlyPressedKeys[87]) {
         // Up cursor key or W
-        speed = 5.0;
+        if(cameraMode === 0){
+            speed = 5.0;
+            forward = true;
+        }
+        if(cameraMode === 1)
+            zoom += 2.5 * dT;
     } else if (currentlyPressedKeys[40] || currentlyPressedKeys[83]) {
         // Down cursor key
-        speed = -5.0;
+        if(cameraMode === 0){
+            speed = -5.0;
+            forward = true;
+        }
+        if(cameraMode === 1)
+            zoom -= 2.5 * dT;
     } else {
-        speed = 0;
+       // speed = 0;
+        forward = false;
     }
+    //console.log("forward: " + forward);
+    //console.log("strafe : " + strafe);
 }
 
 function handleKeyboard(canvas, dT) {
@@ -887,14 +927,27 @@ function handleKeyboard(canvas, dT) {
     canvas.addEventListener('mousedown', handleMouseDown, true);
     canvas.addEventListener('mouseup', handleMouseUp, true);
     canvas.addEventListener('mousemove', handleMouseMove, true);
-    
-    if (speed !== 0) {
-        // rotate x-axis
-        xPos -= Math.sin(MathHelper.DTR(yaw)) * speed * dT;
-        // rotate z-axis
-        zPos -= Math.cos(MathHelper.DTR(yaw)) * speed * dT;
-        // dont need y-axis for now -> height
-        yPos = 0.0;
+   
+    if(cameraMode === 0){
+        if(forward && speed !== 0){
+            // rotate x-axis
+            xPos -= Math.sin(MathHelper.DTR(yaw)) * speed * dT;
+            // rotate z-axis
+            zPos -= Math.cos(MathHelper.DTR(yaw)) * speed * dT;
+            // dont need y-axis for now -> height
+            yPos = 0.0;
+            //console.log("Fordward");
+        }
+
+        if(strafe && speed !== 0 && cameraMode === 0){
+            // rotate x-axis
+            xPos -= Math.sin(MathHelper.DTR(yaw + 90)) * speed * dT;
+            // rotate z-axis
+            zPos -= Math.cos(MathHelper.DTR(yaw + 90)) * speed * dT;
+            // dont need y-axis for now -> height
+            yPos = 0.0;
+           // console.log("Strafe");
+        }
     }
     
     // increase pitch/yaw
@@ -907,52 +960,23 @@ function handleKeyboard(canvas, dT) {
     camPos.z = -zPos - 5;
     //console.log("xPos: " + (-xPos) + " yPos: " + (-yPos) + " zPos: " + (-zPos));
     
-    
+    // Reset view matrix
     viewMat = VecMath.SFMatrix4f.identity();
-    // switch rotation matrix order for FPV or Orbit view
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(-pitch)));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-yaw)));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos));
-
     
-    
-    
-    //viewMat = VecMath.SFMatrix4f.lookAt(camPos, new VecMath.SFVec3f(0.0, 0.0, 0.0), new VecMath.SFVec3f(0.0, 1.0, 0.0));
-  // viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
-    
-    //viewMat = VecMath.SFMatrix4f.identity(); 
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(c_camPitch));
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(c_camYaw));
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-c_camX, -c_camY, -c_camZ))));
-
-    //viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(new VecMath.SFVec3f(-xPos, 0.0, -7))));
-    
-   
-    /*viewMat = VecMath.SFMatrix4f.identity();
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos).inverse());
-    
-    var rotMat = viewMat; 
-    rotMat = rotMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
-    rotMat = rotMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
-    
-    direction = rotMat.multMatrixPnt(camPos);
-    var normalizedDirection = direction.normalize();
-    camPos.add(normalizedDirection);
-    console.log("CamPos: " + camPos);
-    
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));*/
-    
-    
-    // addvec auf campos -> translate mit campos
-    
-    //console.log(pitch + " " + yaw + " " + camPos);
-    //console.log(viewMat._03 + " " + viewMat._13 + " " +  viewMat._23);
-
-    //console.log(moveVec);
-    //console.log(viewMat);
+    switch(cameraMode){
+        case 0:
+            // First person view
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(-pitch)));
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-yaw)));
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos));
+            break;
+        case 1:
+            // Orbit view
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, -5.0 + zoom)));
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(-pitch)));
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-yaw)));
+            break;
+    }
 }
 
 function handleMouseDown(event){
@@ -1128,6 +1152,14 @@ function setBlurIterations(newValue){
     blurIterations = newValue;
     document.getElementById("blurIterationsLabel").innerHTML = "Iterations: " + blurIterations;
 }
+
+
+// ----------------------------------------------------------------- 
+// -------------------------- Camera-Menue ------------------------- 
+// -----------------------------------------------------------------
+
+
+
 
 
 // TODO: 
