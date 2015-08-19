@@ -790,20 +790,20 @@ function handleKeys() {
 
     if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
         // Left cursor key or A
-        yawRate = 0.5;
+        yawRate = 10.0;
     } else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
         // Right cursor key or D
-        yawRate = -0.5;
+        yawRate = -10.0;
     } else {
         yawRate = 0;
     }
 
     if (currentlyPressedKeys[38] || currentlyPressedKeys[87]) {
         // Up cursor key or W
-        speed = 3.3;
+        speed = 0.5;
     } else if (currentlyPressedKeys[40] || currentlyPressedKeys[83]) {
         // Down cursor key
-        speed = -3.3;
+        speed = -0.5;
     } else {
         speed = 0;
     }
@@ -864,18 +864,18 @@ function handleKeyboard(canvas, dT) {
    
     canvas.addEventListener('mousedown', handleMouseDown, true);
     canvas.addEventListener('mouseup', handleMouseUp, true);
-    canvas.addEventListener('mousemove', handleMouseMove, true);
+    //canvas.addEventListener('mousemove', handleMouseMove, true);
     
     
-   // if (speed !== 0) {
+    if (speed !== 0) {
         xPos -= Math.sin(MathHelper.DTR(yaw)) * speed * dT;
-        zPos -= Math.cos(MathHelper.DTR(pitch)) * speed * dT;
+        zPos -= Math.cos(MathHelper.DTR(yaw)) * speed * dT;
         
         jog += dT * 0.6; // 0.6 "fiddle factor" - makes it feel more realistic :-)
         yPos = 0.0; // Math.sin(MathHelper.DTR(jog)) / 20 + 0.4;
-    //}
-    yaw += yawRate * dT;
-    pitch += pitchRate * dT;
+    }
+    yaw += yawRate  * dT;
+    pitch += pitchRate  * dT;
 
 
     camPos.x = -xPos;
@@ -885,9 +885,9 @@ function handleKeyboard(canvas, dT) {
     //console.log("xPos: " + (-xPos) + " yPos: " + (-yPos) + " zPos: " + (-zPos));
     viewMat = VecMath.SFMatrix4f.identity();
    
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(-pitch));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(-yaw));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-xPos * 100, -yPos, -zPos)));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(-pitch)));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-yaw)));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-xPos, -yPos, -zPos)));
 
     
     
