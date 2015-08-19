@@ -976,6 +976,7 @@ function handleKeyboard(canvas, dT) {
             viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(-pitch)));
             viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-yaw)));
             break;
+        default: cameraMode = 0;
     }
 }
 
@@ -1158,7 +1159,20 @@ function setBlurIterations(newValue){
 // -------------------------- Camera-Menue ------------------------- 
 // -----------------------------------------------------------------
 
-
+function changeCamStyle(){
+    var style = document.getElementById("camTechnique").selectedIndex;
+    switch(style){
+        case 0: // Horizontal blur
+            cameraMode = 0;
+            console.log("Camera: First Person View");
+            break;
+        case 1: // Vertical blur
+            cameraMode = 1;
+            console.log("Camera: Orbit");
+            break;
+        default:cameraMode = 0;
+    }
+}
 
 
 

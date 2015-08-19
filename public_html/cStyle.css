@@ -60,7 +60,7 @@
     border: 1px solid;
     border-color: #c0402a;
     width: 400px;
-    height: 275px;
+    height: 280px;
     background-color: #BBBBBB;
 }
 
@@ -175,7 +175,7 @@
 }
 
 /* ----------------------------------------------------------------- 
-   ----------------------------- blur - ---------------------------- 
+   ----------------------------- blur ------------------------------ 
    ----------------------------------------------------------------- */
 
 #blurControls{
@@ -209,6 +209,31 @@
    position: relative;
    left: 0px; 
    top: 10px;
+}
+
+/* ----------------------------------------------------------------- 
+   ----------------------------- camera ---------------------------- 
+   ----------------------------------------------------------------- */
+
+#camControls{
+    position: relative;
+    border: 1px solid;
+    border-color: #c0402a;
+    width: 400px;
+    height: 100px;
+    top: 340px;
+    background-color: #BBBBBB;
+} 
+
+#camStyleLabel{
+    position:absolute;
+    bottom: 45px;
+    margin-left: 25px;
+}
+
+#camTechnique{
+    margin-left:15px;
+    margin-top: 10px;
 }
 
 
