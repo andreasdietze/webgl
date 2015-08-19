@@ -4,79 +4,109 @@
 "use strict";
 
 // Globals 
-var gl = null, // GL
-    angle = 0.0, // Rotation
-    tex = null, // Texture
-    viewMat = VecMath.SFMatrix4f.identity(), // View matrix (camera)
-    projectionMat = VecMath.SFMatrix4f.identity(); // Matrix for perspective or orthogonal projection
+var // GL
+    gl = null, 
+    // Rotation for world objects
+    angle = 0.0,
+    // Texture
+    tex = null, 
+    // Instance: access to Renderer from inside other functions
+    that = this, 
+    // View matrix (camera)
+    viewMat = VecMath.SFMatrix4f.identity(),
+    // Matrix for perspective or orthogonal projection
+    projectionMat = VecMath.SFMatrix4f.identity(); 
     
-// access to Renderer from inside other functions
-var that = this;
 
-// unsigned int indices GL extension
-var INDEX_UINT_EXT = null;
-var FP_TEXTURES_EXT = null;
-var FPL_TEXTURES_EXT = null;
-        
-var angleX = 0;
-var angleY = 0;
-var radY = 0;
-var radX = 0;
-var camPos = new VecMath.SFVec3f(0.0, 0.0, 7.5);
-var mouseDown = false;
-var lastMouseX = null;
-var lastMouseY = null;
-var mouseX = null, mouseY = null;
-var moveVecNF = new VecMath.SFVec3f(0.0, 0.0, 0.0),
-    moveVecLR = new VecMath.SFVec3f(0.0, 0.0, 0.0);
+// GL Extensions
+var // unsigned int indices GL extension
+    INDEX_UINT_EXT = null,
+    // Floating point GL extension
+    FP_TEXTURES_EXT = null,
+    FPL_TEXTURES_EXT = null;
+
+// Gametime
+var // Framecount
+    count = 0,
+    // Frames per second
+    fps = 0,
+    // Time since last update for fps (seperate)
+    lastTime,
+    // Time since last update
+    lastFrameTime = new Date().getTime(),
+    // Delta time
+    dT = null;
+
+// Camera position
+var camPos = new VecMath.SFVec3f(0.0, 0.0, 0.0);
+
+// Controls Mouse
+var // Mouse pressed ?
+    mouseDown = false,
+    // Last mouse position
+    lastMouseX = null, lastMouseY = null,
+    // mouse position
+    mouseX = null, mouseY = null;
     
-var direction;
-
-var count = 0;
-var fps = 0;
-var lastTime;
-
-var pitch = 0;
-var pitchRate = 0;
-var yaw = 0;
-var yawRate = 0;
-var xPos = 0;
-var yPos = 0.4;
-var zPos = 0;
-var speed = 0;
-var addVec = new VecMath.SFVec3f(0.0, 0.0, -5.0);
-
-
-
-
-var c_camX = 0.0, c_camY = 0.0, c_camZ = 5.0;
-var c_camYaw = 0.0,     // rot y
-    c_camPitch = 0.0;   // rot x
-
 // Controls KB
-var currentlyPressedKeys = {};
+var // Array for multiple key press
+    currentlyPressedKeys = {},
+    // Pitch (up/down)
+    pitch = 0, pitchRate = 0,
+    // Yaw (left/right)
+    yaw = 0, yawRate = 0,
+    // Move direction 
+    xPos = 0, yPos = 0.4, zPos = 0,
+    // Move speed
+    speed = 0;
 
-// Lighting
-var lighting = 0;
-var shininess = 128.0;
-var intDiff = 1.0;
-var intSpec = 1.0;
+// Lighting properties
+var // lightindex:
+    // - 0: Directional light
+    // - 1: Point light
+    // - 2: Spot light
+    // - 3: Head light
+    lighting = 0,
+    // Shininess -> Refelection power
+    shininess = 128.0,
+    // Diffuse light color intensity
+    intDiff = 1.0,
+    // Specular light color intensity
+    intSpec = 1.0;
 
-// Deform
-var intDef = 0.05;
-var amtDef = 4.0;
+// Deform properties
+var // Deform intensity
+    intDef = 0.05,
+    // Deform amount
+    amtDef = 4.0;
 
-// Blur
-var blurTechnique = 0,
+// Blur properties
+var // Blur technique:
+    // - 0: Horizontal blur
+    // - 1: Vertical blur
+    // - 2: H/V combined passes blur
+    // - 3: H/V single pass 
+    // - 4: Radial blur
+    blurTechnique = 0,
     blurIterations = 5;
 
-// RT
-var vertexShader = null,
-fragmentShader = null, 
-shaderProgram = null,
-meshData = null, 
-size = 1024,
-fbo = null, rb = null, fbTex = null;
+// Render target program
+var // VS 
+    vertexShader = null,
+    // FS
+    fragmentShader = null,
+    // SP
+    shaderProgram = null,
+    // MD
+    meshData = null,
+    // Size of the render target
+    size = 1024,
+    // Frame buffer
+    fbo = null,
+    // Render buffer
+    rb = null,
+    // Frame buffer texture 
+    fbTex = null;
 
 // Scenegraph
 var drawables = new Array();
@@ -95,7 +125,6 @@ if (!window.requestAnimationFrame) {
     })();
 }
 
-var lastFrameTime = new Date().getTime();
 // Create meshHandler object
 var mh = new MeshHandler();
 
@@ -179,11 +208,9 @@ var defWavePlane = new Drawable();
 // Rendertarget
 //var rt = new Drawable();
 
-var dT = null;
-
 // MAIN
 function main() {
-    console.log("Init program");
+    console.log("Init program - main call");
     // Get canvas
     var canvas = document.getElementById("glCanvas");
     // Set context attributes
@@ -202,24 +229,56 @@ function main() {
     console.log((FP_TEXTURES_EXT  ? "" : "No ") + "FLOAT textures available " +
                 (FPL_TEXTURES_EXT ? "with" : "without") + " linear filtering.");
     
-    document.getElementById("intDiffLabel").innerHTML = "Diff intensity: " + intDiff;
-    document.getElementById("intSpecLabel").innerHTML = "Spec intensity: " + intSpec;
-    document.getElementById("shininessLabel").innerHTML = "Shininess: " + shininess;
+    // Key events for multiple key array
+    document.onkeydown = handleKeyDown;
+    document.onkeyup = handleKeyUp;
     
-    document.getElementById("deformIntensityLabel").innerHTML = "Intensity: " + intDef;
-    document.getElementById("deformAmountLabel").innerHTML = "Amount: " + amtDef;
+    // Set values for gui properties
+    setGUIValues();
     
-    document.getElementById("blurIterationsLabel").innerHTML = "Iterations: " + blurIterations;
-
     // Init projection
     initProjection();
 
+    // Initialize texture
     //initTexture();
     
-    document.onkeydown = handleKeyDown;
-    document.onkeyup = handleKeyUp;
+    // Initialize all drawables
+    initializeObjects();
+             
+    // Init VS / FS
+    initShaders();
 
-    // Colored -------------------------------------------
+    // Setup qaud for render target
+    setupMeshData();         
+    
+    // Initialize the render target
+    initRT(gl);         
+          
+    // Show info about the objects in the scene
+    getSceneGraphInfo();
+                                 
+    // Draw-loop
+    (function mainLoop() {
+
+        // Transformation and controls (like update)
+        animate(canvas);
+
+        // Clear backBuffer
+        clearBackBuffer(canvas);
+        
+        // Draw all objects
+        drawAll();
+        
+        // Draw inside the render target
+        draw(canvas);
+        
+        // Renderloop 
+        window.requestAnimationFrame(mainLoop);
+    })();
+}
+
+function initializeObjects(){
+        // Colored -------------------------------------------
     // Setup meshData for secondPointer
     mh.setupSecPointer();
     secondPointer.initGL(gl, mh.vss, mh.fss);
@@ -437,39 +496,20 @@ function main() {
              mh.mesh.trans);
     bumpQuad.initTexture("models/BrickDiff0.jpg");
     bumpQuad.initBumpMap("models/BrickBump0.jpg");
+}
+
+function setGUIValues(){
+    // Lighting
+    document.getElementById("intDiffLabel").innerHTML = "Diff intensity: " + intDiff;
+    document.getElementById("intSpecLabel").innerHTML = "Spec intensity: " + intSpec;
+    document.getElementById("shininessLabel").innerHTML = "Shininess: " + shininess;
     
-             
-             
-    // Init VS / FS
-    initShaders();
-
-    // Setup triangle
-    setupMeshData();         
-             
-    initRT(gl);         
-             
-    getSceneGraphInfo();
-                                 
-    // Draw-loop
-    (function mainLoop() {
-
-        // Transformation
-        animate(canvas);
-
-        // Clear backBuffer
-        clearBackBuffer(canvas);
-
-        drawAll();
-        
-        draw(canvas);
-        
-        
-       
-        
-        // Renderloop 
-        window.requestAnimationFrame(mainLoop);
-    })();
-
+    // Deform
+    document.getElementById("deformIntensityLabel").innerHTML = "Intensity: " + intDef;
+    document.getElementById("deformAmountLabel").innerHTML = "Amount: " + amtDef;
+    
+    // Blur
+    document.getElementById("blurIterationsLabel").innerHTML = "Iterations: " + blurIterations;
 }
 
 // Clear color, depth and set viewport
@@ -520,7 +560,7 @@ function animate(canvas) {
         }
     }
     
-    // Handle user input
+    // Handle kb user input
     handleKeyboard(window, dT);    // window
     handleKeys();
     
@@ -780,38 +820,35 @@ function handleKeyUp(event) {
 function handleKeys() {
     if (currentlyPressedKeys[33]) {
         // Page Up
-        pitchRate = 0.5;
+        pitchRate = 30.0;
     } else if (currentlyPressedKeys[34]) {
         // Page Down
-        pitchRate = -0.5;
+        pitchRate = -30.0;
     } else {
         pitchRate = 0;
     }
 
     if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
         // Left cursor key or A
-        yawRate = 10.0;
+        yawRate = 30.0;
     } else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
         // Right cursor key or D
-        yawRate = -10.0;
+        yawRate = -30.0;
     } else {
         yawRate = 0;
     }
 
     if (currentlyPressedKeys[38] || currentlyPressedKeys[87]) {
         // Up cursor key or W
-        speed = 0.5;
+        speed = 5.0;
     } else if (currentlyPressedKeys[40] || currentlyPressedKeys[83]) {
         // Down cursor key
-        speed = -0.5;
+        speed = -5.0;
     } else {
         speed = 0;
     }
-
 }
 
-
-var jog = 0;
 function handleKeyboard(canvas, dT) {
 
     //canvas.setAttribute("tabindex", "0");
@@ -833,61 +870,49 @@ function handleKeyboard(canvas, dT) {
             case 39: /* right */
                 break;
             case 40: /* down */
-
                 break;
 
                 // Rotate
             case 65: /* a */
-                //angleY += -0.01 * dT;
-                //moveCamera(0.0001, 90.0);
                 break;
             case 87: /* w */
-                //angleX += 0.01 * dT;
-                //addVec.z -= 0.1 *dT;
-               // moveCamera(0.0001, c_camPitch);
-               // moveCameraUp(0.0001, c_camYaw);
                 break;
             case 68: /* d */
-                //angleY += 0.01 * dT;
-                //moveCamera(0.0001, 270.0);
                 break;
             case 83: /* s */
-                //addVec.z += 0.1 *dT;
-               // angleX += -0.01 * dT;
-               //camPos.z += 0.1 *dT;
-               //moveCamera(0.0001, 180.0);
-              // moveCameraUp(0.0001, 180.0);
                 break;
-
         } 
     }, true);
    
     canvas.addEventListener('mousedown', handleMouseDown, true);
     canvas.addEventListener('mouseup', handleMouseUp, true);
-    //canvas.addEventListener('mousemove', handleMouseMove, true);
-    
+    canvas.addEventListener('mousemove', handleMouseMove, true);
     
     if (speed !== 0) {
+        // rotate x-axis
         xPos -= Math.sin(MathHelper.DTR(yaw)) * speed * dT;
+        // rotate z-axis
         zPos -= Math.cos(MathHelper.DTR(yaw)) * speed * dT;
-        
-        jog += dT * 0.6; // 0.6 "fiddle factor" - makes it feel more realistic :-)
-        yPos = 0.0; // Math.sin(MathHelper.DTR(jog)) / 20 + 0.4;
+        // dont need y-axis for now -> height
+        yPos = 0.0;
     }
-    yaw += yawRate  * dT;
-    pitch += pitchRate  * dT;
+    
+    // increase pitch/yaw
+    yaw += yawRate * dT;
+    pitch += pitchRate * dT;
 
-
+    // set new camera position
     camPos.x = -xPos;
     camPos.y = -yPos;
-    camPos.z = -zPos;
-
+    camPos.z = -zPos - 5;
     //console.log("xPos: " + (-xPos) + " yPos: " + (-yPos) + " zPos: " + (-zPos));
+    
+    
     viewMat = VecMath.SFMatrix4f.identity();
-   
+    // switch rotation matrix order for FPV or Orbit view
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(-pitch)));
     viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-yaw)));
-    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-xPos, -yPos, -zPos)));
+    viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos));
 
     
     
@@ -930,34 +955,6 @@ function handleKeyboard(canvas, dT) {
     //console.log(viewMat);
 }
 
-function lockCamera()
-{
-        //set campitch between -90 and 90 and set camyaw between 0 and 360 degrees
-        if(c_camPitch>90)
-                c_camPitch=90;
-        if(c_camPitch<-90)
-                c_camPitch=-90;
-        if(c_camYaw<0.0)
-                c_camYaw+=360.0;
-        if(c_camYaw>360.0)
-                c_camYaw-=360;
-}
- 
-function moveCamera(dist, dir)
-{
-        var rad=(c_camYaw+dir)*Math.PI/180.0;      //convert the degrees into radians
-        c_camX-=Math.sin(rad)*dist;    //calculate the new coorinate, if you don't understand, draw a right triangle with the datas, you have
-        c_camZ-=Math.cos(rad)*dist;    //and try to calculate the new coorinate with trigonometric functions, that should help
-}
- 
-function moveCameraUp(dist, dir)
-{
-        //the the same, only this time we calculate the y coorinate
-        var rad=(c_camPitch+dir)*Math.PI/180.0;
-        c_camY+=Math.sin(rad)*dist;   
-}
-
-
 function handleMouseDown(event){
     mouseDown = true;
     lastMouseX = event.layerX;
@@ -968,14 +965,14 @@ function handleMouseUp(){
     mouseDown = false;
 }
 
+// http://learningwebgl.com/blog/?p=1253
 function handleMouseMove(event){
     if(!mouseDown){
         yawRate = 0.0;
         pitchRate = 0.0;
         return;
     }
-    
-    
+     
     var newX = event.clientX;
     var newY = event.clientY;
     
@@ -984,7 +981,7 @@ function handleMouseMove(event){
     //console.log(isCanvas);
     
     if(isCanvas === "glCanvas"){
-        var turnSpeed = 0.1;
+        var turnSpeed = 30.0;
 
         var deltaX; 
         var deltaY;
@@ -994,63 +991,14 @@ function handleMouseMove(event){
 
         mouseX = deltaX; mouseY = deltaY;
         
-        c_camYaw += deltaX * 0.1;
-        c_camPitch += deltaY * 0.1;
-
-        lockCamera(0.1, c_camX);
-        
-
         yawRate = -mouseX; 
         pitchRate = -mouseY;
-        
-
-        // viewMat = viewMat.transpose();
-        //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(deltaX))); 
-        //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(deltaY)));
     }
     
     lastMouseX = newX;
     lastMouseY = newY;  
 }
 
-
-// http://learningwebgl.com/blog/?p=1253
-/*function handleMouseMove(event){
-    if(!mouseDown){
-        yawRate = 0.0;
-        pitchRate = 0.0;
-        return;
-    }
-    
-    
-    var newX = event.clientX - 16;
-    var newY = event.clientY - 185;
-    //console.log(newX + " " + newY);
-    
-    // check mouse is inside canvas
-    var isCanvas = document.elementFromPoint(newX, newY).id;
-    //console.log(isCanvas);
-    
-    if(isCanvas === "glCanvas"){
-        var turnSpeed = 1.0;
-
-        var deltaX = (newX - 512) * turnSpeed;  // lastMouseX
-        var deltaY = (newY - 512) * turnSpeed;
-        console.log(deltaX + " " + deltaY);
-
-        mouseX = deltaX; mouseY = deltaY;
-
-        yawRate = -mouseX; 
-        pitchRate = -mouseY;
-
-        // viewMat = viewMat.transpose();
-        //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(deltaX))); 
-        //viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(deltaY)));
-    }
-    
-    lastMouseX = newX;
-    lastMouseY = newY;  
-}*/
 
 // Setup perspective projection and invert viewMat
 function initProjection() {
