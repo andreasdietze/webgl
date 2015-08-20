@@ -94,6 +94,7 @@ var // Blur technique:
     // - 3: H/V single pass 
     // - 4: Radial blur
     blurTechnique = 0,
+    // Amount of iterations
     blurIterations = 5;
 
 // Render target program
@@ -250,7 +251,8 @@ function main() {
     
     // Initialize all drawables
     initializeObjects();
-             
+           
+    // --------- Rendertarget ---------
     // Init VS / FS
     initShaders();
 
@@ -259,7 +261,8 @@ function main() {
     
     // Initialize the render target
     initRT(gl);         
-          
+    // --------- Rendertarget ---------
+    
     // Show info about the objects in the scene
     getSceneGraphInfo();
                                  
@@ -479,14 +482,14 @@ function initializeObjects(){
     // Add to scenegraph
     drawables.push(defWaveSphere); 
     
-    mh.loadOBJSpec("models/plane16x16.obj", 0.425, 1);
+    mh.loadOBJSpec("models/plane16x16.obj", 0.425, 0);
     defWavePlane.initGL(gl, mh.vss, mh.fss);
     defWavePlane.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
                          mh.mesh.tex,
                          mh.mesh.normals,
                          mh.mesh.indices,
-                         mh.mesh.trans); 
+                         mh.mesh.trans);
     // Add to scenegraph
     drawables.push(defWavePlane); 
     
@@ -1173,8 +1176,6 @@ function changeCamStyle(){
         default:cameraMode = 0;
     }
 }
-
-
 
 // TODO: 
 // - implement shaderobject into drawable - done
