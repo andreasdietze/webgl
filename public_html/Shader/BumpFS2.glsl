@@ -12,11 +12,11 @@ void main() {
 
 	vec3 view = normalize(-vPosition);
 	
-	vec3 lightVec = vec3(0.0, 0.0, -1.5);
+	vec3 lightVec = vec3(0.0, 0.0, 1.5);
 	
 	// Determine where the light is positioned (this can be set however you like)
-	vec3 light = (normalMat * vec4(-lightVec, 0.0)).xyz;
-    light = normalize(light);
+	vec3 light = (normalMat * vec4(-lightVec, 0.0)).xyz;  // normalMat
+    light = normalize(-light);
 	
 	vec3 halfVec = (view + light);
 	
@@ -27,7 +27,7 @@ void main() {
     vec3 ambiente = vec3(0.1, 0.1, 0.1);
      
 	// Calculate the lighting diffuse value
-	float NdotL = max(dot(normal, light), 0.0);
+	float NdotL = max(dot(normalize(vNormal), light), 0.0);
 	vec3 diffuse = vec3(1.0, 1.0, 1.0) * texture2D(tex, vTexCoords).rgb * NdotL * vec3(0.9, 0.9, 0.9);
 	
 	float sNdotL = pow(max(dot(normal, halfVec), 0.0), 128.0);

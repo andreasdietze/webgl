@@ -25,6 +25,7 @@ varying vec2 vTexCoords;
 varying vec3 vNormal;
 varying vec3 vLightVec;
 varying vec3 vEyeVec;
+varying vec3 vHalfVec;
 
 void main() {
    // colors 
@@ -36,12 +37,16 @@ void main() {
    vec3 vVec = normalize(vEyeVec);
    vec3 base = vec3(texture2D(tex, vTexCoords));
    vec3 bump = normalize(texture2D(bumpMap, vTexCoords).xyz * 2.0 - 1.0);
+   //vec3 half = normalize(vHalfVec);
+   bump = normalize(bump);
    vec3 vAmbient = ambientColor;
-   float diffuse = max(dot(lVec, bump), 0.0);
-   vec3 vDiffuse = diffuseColor * lightColor * diffuse;
+   float diffuse = max(dot(lVec, bump), 0.0);  // lVec
+   vec3 vDiffuse = base * lightColor * diffuse;  // diffuseColor
    float specular = pow(clamp(dot(reflect(-lVec, bump), vVec), 0.0, 1.0), shininess);
+   //float specular = pow(max(dot(vHalfVec, bump), 0.0), shininess);
    vec3 vSpecular = specularColor * specular;
 
-   gl_FragColor = vec4((vAmbient * base + vDiffuse * base * diffIntensity + vSpecular * specIntensity) * att, 1.0);
+   //gl_FragColor = vec4((vAmbient * base + vDiffuse * base * diffIntensity + vSpecular * specIntensity) * att, 1.0);
+   gl_FragColor = vec4((vAmbient + vDiffuse * diffIntensity + vSpecular * specIntensity) * att, 1.0);
 	  
 }

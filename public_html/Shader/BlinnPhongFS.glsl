@@ -43,7 +43,7 @@ void main() {
 	if(lighting == 1)
 	{
 		lightDirection = (viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz;
-		light = normalize(-lightDirection);
+		//light = normalize(-lightDirection);
 		view = normalize(-vPosition);  
 	}
 
@@ -91,10 +91,10 @@ void main() {
 	if(lighting == 2)
 	{
 		dist = length(pointLightPos - lightDirection);
-		attenuation = 1.0;// / (0.0 + (0.0 * dist) + (0.02 * dist * dist));
+		attenuation = 0.4 + (3.0 * dist) + (20.0 * dist * dist); //1.0;// /  clamp(0.4 * sqrt(dist), 3.0, 20.0);
 		NdotL = max(dot(normal, view), 0.0);	
 		color = ambientColor + (diffuseColor * NdotL * lightColor) * diffIntensity + 
-				((pow(NdotL, shininess) * specularColor) * specIntensity) * attenuation;		
+				((pow(NdotL, shininess) * specularColor) * specIntensity);// * attenuation;		
 	}
 	
 	// Spot light TODO
