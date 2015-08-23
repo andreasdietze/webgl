@@ -60,7 +60,7 @@ void main() {
 		lightDirection = (viewMat * vec4(0.0, -1.0, 0.0, 0.0)).xyz;
 		//light = normalize(-lightDirection);
 		pointLightPos = (viewMat * vec4(0.0, 3.0, 0.0, 1.0)).xyz;
-		view = normalize(pointLightPos - lightDirection);
+		view = normalize(pointLightPos - vPosition);
 	}
 	
 	normal = normalize(vNormal);
@@ -97,11 +97,17 @@ void main() {
 				((pow(NdotL, shininess) * specularColor) * specIntensity);// * attenuation;		
 	}
 	
+	
+	float sdl, intensity;
+	
 	// Spot light TODO
 	if(lighting == 3)
 	{
+		sdl = dot(view, pointLightPos);
+		// clamp((slCosCutoff[i] - SdL) / (slCosCutoff[i] - slCosCutoffInner[i]), 0.0, 1.0);
+		intensity = clamp((10.5 - sdl) / (10.5 - 0.2), 0.0, 1.0);
 		NdotL = max(dot(normal, view), 0.0);	
-		color = ambientColor + (diffuseColor * NdotL * lightColor) * diffIntensity + 
+		color = ambientColor + (diffuseColor * NdotL * (lightColor * intensity)) * diffIntensity + 
 				(pow(NdotL, shininess) * specularColor) * specIntensity;
 	}
 

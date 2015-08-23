@@ -958,6 +958,85 @@ MeshHandler.prototype.setupTexturedLightSphere = function (radius) {
     this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
 };
 
+MeshHandler.prototype.setupTexturedTangentLightSphere = function (radius) {
+    // Vertex shader string
+    //this.vss = this.blinnPhongVSS;
+
+    // Fragment shader string
+    //this.fss = this.blinnPhongFSS;
+    
+    // Vertex shader string
+    this.vss = this.bumpVSS1;
+
+    // Fragment shader string
+    this.fss = this.bumpFSS1;
+    
+    var latitudeBands = 30;
+    var longitudeBands = 30;
+
+    var verts = [];
+    var tex = [];
+    var inds = [];
+    var normals = [];
+    var tangents = [];
+
+    for (var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
+        var theta = latNumber * 2 * Math.PI / longitudeBands;
+        var sinTheta = Math.sin(theta);
+        var cosTheta = Math.cos(theta);
+
+        for (var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
+            var phi = longNumber * 2 * Math.PI / longitudeBands;
+            var sinPhi = Math.sin(phi);
+            var cosPhi = Math.cos(phi);
+
+            var x = cosPhi * sinTheta;
+            var y = cosTheta;
+            var z = sinPhi * sinTheta;
+            var u = 1 - (longNumber / longitudeBands);
+            var v = 1 - (latNumber / latitudeBands);
+
+            verts.push(x * radius);
+            verts.push(y * radius);
+            verts.push(z * radius);
+            tex.push(u);
+            tex.push(v);
+            normals.push(x);
+            normals.push(y);
+            normals.push(z);
+            tangents.push(u - x);
+            tangents.push(y);
+            tangents.push(z); 
+        }
+    }
+
+    for (var latNumber = 0; latNumber < latitudeBands; latNumber++) {
+        for (var longNumber = 0; longNumber < longitudeBands; longNumber++) {
+            var first = (latNumber * (longitudeBands + 1)) + longNumber;
+            var second = first + longitudeBands + 1;
+            inds.push(first);
+            inds.push(second);
+            inds.push(first + 1);
+
+            inds.push(second);
+            inds.push(second + 1);
+            inds.push(first + 1);
+        }
+    }
+
+    // Setup triangle vertices
+    this.mesh = {
+        vertices: verts,
+        tex: tex,
+        normals:normals,
+        indices: inds,
+        trans: {x: 0, y: 0, z: 0}
+    };
+    
+    // Model-space / world-space / object-space
+    this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
+};
+
 // OBJ -------------------------------------------------------------------------------
 
 MeshHandler.prototype.loadOBJ = function (fileName, scaleFac) {
