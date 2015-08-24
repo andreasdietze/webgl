@@ -2,11 +2,21 @@
 
 /* Setup light object:
  * - Object can be set as a directional, point, spot or headlight */
-var Light = function (direction, position, lightColor, lightStyle){
+var Light = function (direction, position, spotDirection, spotPosition,
+                      lightColor, lightStyle){
     
     // Properties
-    this.direction = direction;
-    this.position = position;
+    this.direction = direction ? direction : 
+            new VecMath.SFVec4f(-1.0, 0.0 -1.0, 1.0);
+    
+    this.position = position ? position : 
+            new VecMath.SFVec4f(0.0, 0.0, 1.0, 1.0);
+    
+    this.spotDirection = spotDirection ? spotDirection : 
+            new VecMath.SFVec4f(0.0, -1.0, 0.0, 1.0);
+    
+    this.spotPosition = spotPosition ? spotPosition : 
+            new VecMath.SFVec4f(0.0, 3.0, 0.0, 1.0);
     
     // Default color or user spec
     this.ambientColor = new VecMath.SFVec3f(0.1, 0.1, 0.1);
@@ -60,7 +70,7 @@ Light.prototype.getAmbientColor = function(){
 
 // Lightposition
 Light.prototype.setPosition = function(position){
-    return this.poition = position;
+    return this.position = position;
 };
 
 Light.prototype.getPosition = function(){

@@ -1004,9 +1004,9 @@ MeshHandler.prototype.setupTexturedTangentLightSphere = function (radius) {
             normals.push(x);
             normals.push(y);
             normals.push(z);
-            tangents.push(u - x);
-            tangents.push(y);
-            tangents.push(z); 
+            //tangents.push(u - x);
+            //tangents.push(y);
+            //tangents.push(z); 
         }
     }
 

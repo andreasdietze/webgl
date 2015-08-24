@@ -207,6 +207,8 @@ var a10 = new Drawable("asteroid", 4);
 
 // Bumped quad
 var bumpQuad = new Drawable();
+var bumpSphere = new Drawable();
+
 
 // Deform-objects
 var defWaveSphere = new Drawable();
@@ -446,6 +448,10 @@ function initializeObjects(){
     // Add to scenegraph
     drawables.push(lightSphere); 
     
+    var light0 = new Light(),
+        light1 = new Light();
+    
+    
     mh.setupTexturedLightSphere(0.4);
     lightTexSphere.initGL(gl, mh.vss, mh.fss);
     lightTexSphere.setBufferData(mh.mesh.vertices,
@@ -455,6 +461,9 @@ function initializeObjects(){
              mh.mesh.indices,
              mh.mesh.trans);
     lightTexSphere.initTexture("models/tex2.png");
+    lightTexSphere.lights.push(light0);
+    lightTexSphere.lights.push(light1);
+    
      // Add to scenegraph
     drawables.push(lightTexSphere);   
 
@@ -505,6 +514,17 @@ function initializeObjects(){
              mh.mesh.trans);
     bumpQuad.initTexture("models/BrickDiff0.jpg");
     bumpQuad.initBumpMap("models/BrickBump0.jpg");
+    
+    mh.setupTexturedTangentLightSphere(0.4);//setupTexturedTangentLightSphere();
+    bumpSphere.initGL(gl, mh.vss, mh.fss);
+    bumpSphere.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
+    bumpSphere.initTexture("models/BrickDiff0.jpg");
+    bumpSphere.initBumpMap("models/BrickBump0.jpg");
 }
 
 function setGUIValues(){
@@ -688,11 +708,19 @@ function animate(canvas) {
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
  
+    //lightSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    //lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
+     //       VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -1.0, 0.0)));
+   // lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
+          // VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
+   
     lightSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -1.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
+    lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
    
     lightTexSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
@@ -701,6 +729,8 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1)));
+   
+
    
     a10.md.transformMatrix = VecMath.SFMatrix4f.identity();
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
@@ -731,6 +761,14 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(90.0)));
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2, 2, 2))); 
+   
+    bumpSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
+    bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
+    bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
     
     lastFrameTime = currentTime;
 }
@@ -813,6 +851,7 @@ function cleanUp() {
     a10.dispose();
     
     bumpQuad.dispose();
+    bumpSphere.dispose();
 
     // Free textures
     gl.deleteTexture(tex);
@@ -1308,6 +1347,8 @@ function drawAll(){
         objCowSpec.light.shininess = shininess;
         objCowSpec.light.diffIntensity = intDiff;
         objCowSpec.light.specIntensity = intSpec;
+        objCowSpec.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
+        objCowSpec.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
         
         
         lightSphere.draw(lightSphere.shader.sp, viewMat, projectionMat, lighting);
@@ -1317,6 +1358,19 @@ function drawAll(){
         lightSphere.light.shininess = shininess;
         lightSphere.light.diffIntensity = intDiff;
         lightSphere.light.specIntensity = intSpec;
+        lightSphere.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
+        lightSphere.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+        
+        lightSphere.light0.lightColor = getColor();
+        lightSphere.light0.specularColor = getSpecColor();
+        lightSphere.light0.ambientColor = getAmbiColor();
+        lightSphere.light0.shininess = shininess;
+        lightSphere.light0.diffIntensity = intDiff;
+        lightSphere.light0.specIntensity = intSpec;
+        lightSphere.light0.position = new VecMath.SFVec4f(1.0, 0.0, 0.0, 1.0);
+        lightSphere.light0.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+        
+        
         
         lightTexSphere.draw(lightTexSphere.shader.sp, viewMat, projectionMat, lighting);
         lightTexSphere.light.lightColor = getColor();
@@ -1325,7 +1379,27 @@ function drawAll(){
         lightTexSphere.light.shininess = shininess;
         lightTexSphere.light.diffIntensity = intDiff;
         lightTexSphere.light.specIntensity = intSpec;
+        lightTexSphere.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 1.0);
+        lightTexSphere.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
         
+
+       /* lightTexSphere.lights[0].lightColor = getColor();
+        lightTexSphere.lights[0].specularColor = getSpecColor();
+        lightTexSphere.lights[0].ambientColor = getAmbiColor();
+        lightTexSphere.lights[0].shininess = shininess;
+        lightTexSphere.lights[0].diffIntensity = intDiff;
+        lightTexSphere.lights[0].specIntensity = intSpec;
+        lightTexSphere.lights[0].position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
+        lightTexSphere.lights[0].direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+        
+        lightTexSphere.lights[1].lightColor = getColor();
+        lightTexSphere.lights[1].specularColor = getSpecColor();
+        lightTexSphere.lights[1].ambientColor = getAmbiColor();
+        lightTexSphere.lights[1].shininess = shininess;
+        lightTexSphere.lights[1].diffIntensity = intDiff;
+        lightTexSphere.lights[1].specIntensity = intSpec;
+        lightTexSphere.lights[1].position = new VecMath.SFVec4f(0.0, 1.0, 1.0, 0.0);
+        lightTexSphere.lights[1].direction = new VecMath.SFVec4f(1.0, 0.0, -1.0, 0.0);*/
        //a10
         
         
@@ -1354,7 +1428,7 @@ function drawAll(){
         defWavePlane.defAmt = amtDef;
         
         // BUMP
-        bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
+        //bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
         bumpQuad.light.lightColor = getColor();
         bumpQuad.light.specularColor = getSpecColor();
         bumpQuad.light.ambientColor = getAmbiColor();
@@ -1362,6 +1436,15 @@ function drawAll(){
         bumpQuad.light.diffIntensity = intDiff;
         bumpQuad.light.specIntensity = intSpec;
 
+        //bumpSphere.draw(bumpSphere.shader.sp, viewMat, projectionMat, lighting);
+        bumpSphere.light.lightColor = getColor();
+        bumpSphere.light.specularColor = getSpecColor();
+        bumpSphere.light.ambientColor = getAmbiColor();
+        bumpSphere.light.shininess = shininess; 
+        bumpSphere.light.diffIntensity = intDiff;
+        bumpSphere.light.specIntensity = intSpec;
+        
+        
 
    /* // Use the shader
     gl.useProgram(shaderProgram);

@@ -18,12 +18,16 @@ var Drawable = function (tag, id) {
     this.texTrue = 0;     // has tex ? 
     this.shader = null;
     this.light = new Light();
+    this.light0 = new Light();
     this.material = new Material();
     //this.lightColor = new VecMath.SFVec3f(1.0, 1.0, 0.8);
     this.time = 0.0;
     this.deformStyle = 0;
     this.defInt = 0.05;
     this.defAmt = 4.0;
+    
+    this.lights = [];
+    
 };
 
 // Init interface to GL
@@ -198,20 +202,30 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
     this.gl.uniform1f(sp.diffIntensity, this.light.diffIntensity);
     // Set specular lighting intensity
     this.gl.uniform1f(sp.specIntensity, this.light.specIntensity);
+    // Set light position (point light)
+    this.gl.uniform4fv(sp.lightPos, this.light.position.toGL());
+    // Set light direction (directional light)
+    this.gl.uniform4fv(sp.lightDir, this.light.direction.toGL());
+    // Set spot light position 
+    this.gl.uniform4fv(sp.spotLightPos, this.light.spotPosition.toGL());
+    // Set spot light direction 
+    this.gl.uniform4fv(sp.spotLightDir, this.light.spotDirection.toGL());
+    this.gl.uniform4fv(sp.lightPos0, this.light0.position.toGL());
     
-    // Set shader state for texture
-    this.gl.uniform1i(sp.texTrue, this.texTrue);
+    // Set deform properties -------------------------------------------------
+    // Set defom style
+    this.gl.uniform1i(sp.deform, this.deformStyle);
+    this.gl.uniform1f(sp.defInt, this.defInt);
+    this.gl.uniform1f(sp.defAmt, this.defAmt);
     
     // Set time
     this.time += 0.01; // new Date().getMilliseconds() / 1000;
     //console.log(t);
     this.gl.uniform1f(sp.time, this.time);
-    
-    // Set defom style
-    this.gl.uniform1i(sp.deform, this.deformStyle);
-    this.gl.uniform1f(sp.defInt, this.defInt);
-    this.gl.uniform1f(sp.defAmt, this.defAmt);
      
+    // Set texture properties -------------------------------------------------
+    // Set shader state for texture
+    this.gl.uniform1i(sp.texTrue, this.texTrue);
     // Set texture
     if(this.tex && this.tex.ready){
         //this.gl.uniform1i(sp.tex, 0);

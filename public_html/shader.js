@@ -78,6 +78,11 @@ Shader.prototype.initShader = function (vsSourceString, fsSourceString) {
     this.sp.lightColor = this.gl.getUniformLocation(this.sp, "lightColor");
     this.sp.specColor = this.gl.getUniformLocation(this.sp, "specularColor");
     this.sp.ambiColor = this.gl.getUniformLocation(this.sp, "ambientColor");
+    this.sp.lightPos = this.gl.getUniformLocation(this.sp, "lightPos");
+    this.sp.lightDir = this.gl.getUniformLocation(this.sp, "lightDir");
+    this.sp.spotLightPos = this.gl.getUniformLocation(this.sp, "spotLightPos");
+    this.sp.spotLightDir = this.gl.getUniformLocation(this.sp, "spotLightDir");
+    this.sp.lightPos0 = this.gl.getUniformLocation(this.sp, "lightPos0");
     
     // Uniforms spaces
     this.sp.transformation = this.gl.getUniformLocation(this.sp, "transformation");
