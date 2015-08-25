@@ -1,5 +1,5 @@
 /* global VecMath */
-/*
+
 // Create cube chain
 var cubeChain = new Array(); 
 
@@ -19,15 +19,12 @@ var MultipleObjects = function(gl, mh) {
 
 //MultipleObjects.prototype.createCubeChain = function(gl, mh){
 function createCubeChain(gl, mh){
-    var shader = new Shader();
     var drawable;
 
-    for(var i = 0; i < 8; i++){
+    for(var i = 0; i < 7; i++){
         drawable = new Drawable();
         mh.setupBox(0.25);
-        shader.initGL(gl);
-        shader.initShader(mh.vss, mh.fss);
-        drawable.initGL(gl);
+        drawable.initGL(gl, mh.vss, mh.fss);
 
         // Set random colors
         var colors = new Array(
@@ -44,15 +41,13 @@ function createCubeChain(gl, mh){
         );
 
         drawable.setBufferData(mh.mesh.vertices,
-                colors,
-                mh.mesh.tex,
-                mh.mesh.normals,
-                mh.mesh.indices,
-                mh.mesh.trans,
-                mh.mesh.cosA,
-                mh.mesh.sinA);
+            colors,
+            mh.mesh.tex,
+            mh.mesh.normals,
+            mh.mesh.indices,
+            mh.mesh.trans);
 
-        var vec = new VecMath.SFVec3f(-3.5 + i, -2, 0);
+        var vec = new VecMath.SFVec3f(-19 + i, -1, 0);
 
         drawable.md.transformMatrix._03 = vec.x;
         drawable.md.transformMatrix._13 = vec.y;
@@ -68,26 +63,21 @@ function createCubeChain(gl, mh){
 
 //MultipleObjects.prototype.createSphereChain = function(gl, mh){
 function createSphereChain(gl, mh){
-    var shader = new Shader();
     var drawable;
 
-    for(var i = 0; i < 8; i++){
+    for(var i = 0; i < 7; i++){
         drawable = new Drawable();
         mh.setupSphere(0.4, Math.floor(Math.random() * 4));
-        shader.initGL(gl);
-        shader.initShader(mh.vss, mh.fss);
-        drawable.initGL(gl);
-
+        drawable.initGL(gl, mh.vss, mh.fss);
+        
         drawable.setBufferData(mh.mesh.vertices,
-                mh.mesh.col,
-                mh.mesh.tex,
-                mh.mesh.normals,
-                mh.mesh.indices,
-                mh.mesh.trans,
-                mh.mesh.cosA,
-                mh.mesh.sinA);
+            mh.mesh.col,
+            mh.mesh.tex,
+            mh.mesh.normals,
+            mh.mesh.indices,
+            mh.mesh.trans);
 
-        var vec = new VecMath.SFVec3f(-3.5 + i, -3, 0);
+        var vec = new VecMath.SFVec3f(-19 + i, -2, 0);
 
         drawable.md.transformMatrix._03 = vec.x;
         drawable.md.transformMatrix._13 = vec.y;
@@ -101,12 +91,12 @@ function createSphereChain(gl, mh){
     }
 }
 
-MultipleObjects.prototype.draw = function(boxShader, sphereShader, viewMat, projectionMat){
+MultipleObjects.prototype.draw = function(viewMat, projectionMat){
     for(var i = 0; i < cubeChain.length; i++)
-    cubeChain[i].draw(boxShader.sp, viewMat, projectionMat);
+    cubeChain[i].draw(cubeChain[i].shader.sp, viewMat, projectionMat, 0); //cubeChain.sp
 
     for(var i = 0; i < sphereChain.length; i++)
-    sphereChain[i].draw(sphereShader.sp, viewMat, projectionMat);   
+    sphereChain[i].draw(sphereChain[i].shader.sp, viewMat, projectionMat, 0);    // sphereShader.sp
 };
 
 MultipleObjects.prototype.update = function(rotMat){
@@ -126,4 +116,3 @@ MultipleObjects.prototype.dispose = function(){
     
 };
 
-*/

@@ -154,17 +154,11 @@ var clockTex = new Drawable();
 // Create box
 var box = new Drawable();
 
-// Create sphere
-var sphere = new Drawable();
-
-// Another sphere
-var sphere1 = new Drawable();
-
 // ------------------------------------------------------ //
 //  -------------------- ColorScenes -------------------- // 
 // ------------------------------------------------------ //
 
-//var sceneOne;  // TODO Refactor shaderobject
+var sceneOne;  // TODO Refactor shaderobject
 //var orientationScene;
 
 // ------------------------------------------------------ //
@@ -182,6 +176,9 @@ var boxTex2 = new Drawable();
 
 // Textured sphere
 var sphereTex = new Drawable();
+
+// Textured sphere
+var sphereTex2 = new Drawable();
 
 // ------------------------------------------------------ //
 // --------------- Init lightinhgDrawables -------------- //
@@ -336,26 +333,8 @@ function initializeObjects(){
             mh.mesh.normals,
             mh.mesh.indices,
             mh.mesh.trans);    
-         
-    mh.setupSphere(0.4, 2);
-    sphere.initGL(gl, mh.vss, mh.fss);
-    sphere.setBufferData(mh.mesh.vertices,
-            mh.mesh.col,
-            mh.mesh.tex,
-            mh.mesh.normals,
-            mh.mesh.indices,
-            mh.mesh.trans);
-
-    mh.setupSphere(0.4, 1);
-    sphere1.initGL(gl, mh.vss, mh.fss);
-    sphere1.setBufferData(mh.mesh.vertices,
-            mh.mesh.col,
-            mh.mesh.tex,
-            mh.mesh.normals,
-            mh.mesh.indices,
-            mh.mesh.trans);
             
-   // sceneOne = new MultipleObjects(gl, mh);
+    sceneOne = new MultipleObjects(gl, mh);
     //orientationScene = new OrientationScene(gl, mh);
             
     // Textured --------------------------------------------
@@ -369,7 +348,7 @@ function initializeObjects(){
              mh.mesh.trans);
     houseTex.initTexture("models/tex2.png");
     
-    mh.setupTexturedBox(0.25);
+    mh.setupTexturedBox6f(0.25);
     boxTex.initGL(gl, mh.vss, mh.fss);
     boxTex.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -379,7 +358,7 @@ function initializeObjects(){
              mh.mesh.trans);
     boxTex.initTexture("models/tex2.png");
     
-    mh.setupTexturedBox6f();
+    mh.setupTexturedBox6f(0.25);
     boxTex2.initGL(gl, mh.vss, mh.fss);
     boxTex2.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -398,6 +377,16 @@ function initializeObjects(){
              mh.mesh.indices,
              mh.mesh.trans);
     sphereTex.initTexture("models/tex2.png");
+    
+    mh.setupTexturedSphere(0.4);
+    sphereTex2.initGL(gl, mh.vss, mh.fss);
+    sphereTex2.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
+    sphereTex2.initTexture("models/crazyCube.png");
     
     // Lighting ---------------------------------------
     
@@ -590,7 +579,16 @@ function animate(canvas) {
     handleKeyboard(window, dT);    // window
     handleKeys();
     
-    // Colored ---------------------------------------------------------------------
+    updateClock();
+    updateColorScene();
+    updateLightScene();
+    updateDeformScene();
+    updateBumpScene();
+
+    lastFrameTime = currentTime;
+}
+
+function updateClock(){
     // Update second pointer       
     secondPointer.md.transformMatrix = VecMath.SFMatrix4f.identity();
     secondPointer.md.transformMatrix = secondPointer.md.transformMatrix.mult(
@@ -622,7 +620,8 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(-30 * hours)));
     hourPointer.md.transformMatrix = hourPointer.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2.25, 2.25, 2.25))); 
-   
+    
+    // Update clock texture
     clockTex.md.transformMatrix = VecMath.SFMatrix4f.identity();
     clockTex.md.transformMatrix = clockTex.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.2, 2.2, -0.01)));
@@ -631,56 +630,56 @@ function animate(canvas) {
     clockTex.md.transformMatrix = clockTex.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
     
-   
-    box.md.transformMatrix._03 = -3.5;
-    box.md.transformMatrix._13 = 1.0;
+}
+
+function updateColorScene(){
+    box.md.transformMatrix._03 = -16;
+    box.md.transformMatrix._13 = 2.0;
     box.md.transformMatrix._23 = 0.0;
     var rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
     box.md.transformMatrix = box.md.transformMatrix.mult(rotMat);
-
-    sphere.md.transformMatrix._03 = -4.5;
-    sphere.md.transformMatrix._13 = -1.0;
-    sphere.md.transformMatrix._23 = 0.0;
-    rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
-    sphere.md.transformMatrix = sphere.md.transformMatrix.mult(rotMat);
-    //sphere.updateT(dT, sphere.md.transformMatrix); 
-
-    sphere1.md.transformMatrix._03 = -3.5;
-    sphere1.md.transformMatrix._13 = -1.0;
-    sphere1.md.transformMatrix._23 = 0.0;
-    rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
-    sphere1.md.transformMatrix = sphere1.md.transformMatrix.mult(rotMat);
     
     rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
-    //sceneOne.update(rotMat);
+    sceneOne.update(rotMat);
     
     // Textured -------------------------------------------------------------------
-    sphereTex.md.transformMatrix._03 = 1.5;
+    angle -= 1; //* dT;
+    sphereTex.md.transformMatrix._03 = -19;
     sphereTex.md.transformMatrix._13 = 0.0;
     sphereTex.md.transformMatrix._23 = 0.0;
     rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
     sphereTex.md.transformMatrix = sphereTex.md.transformMatrix.mult(rotMat);
     
-    houseTex.md.transformMatrix._03 = 0.0;
-    houseTex.md.transformMatrix._13 = 2.0;
+    sphereTex2.md.transformMatrix._03 = -18;
+    sphereTex2.md.transformMatrix._13 = 0.0;
+    sphereTex2.md.transformMatrix._23 = 0.0;
+    rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
+    sphereTex2.md.transformMatrix = sphereTex2.md.transformMatrix.mult(rotMat);
+    
+    houseTex.md.transformMatrix._03 = -16.0;
+    houseTex.md.transformMatrix._13 = 0.5;
     houseTex.md.transformMatrix._23 = 0.0;
     
-    boxTex.md.transformMatrix._03 = -4.5;
-    boxTex.md.transformMatrix._13 = 1.0;
-    boxTex.md.transformMatrix._23 = 0.0;
-    rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
-    boxTex.md.transformMatrix = boxTex.md.transformMatrix.mult(rotMat);
     
-    angle -= 1; //* dT;
+    boxTex.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    boxTex.md.transformMatrix = boxTex.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-13, 0.0, 0.0)));
+    boxTex.md.transformMatrix = boxTex.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationX(MathHelper.DTR(angle)));
+    boxTex.md.transformMatrix = boxTex.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); 
+    
+    
     boxTex2.md.transformMatrix = VecMath.SFMatrix4f.identity();
     boxTex2.md.transformMatrix = boxTex2.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-3.5, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-14, 0.0, 0.0)));
     boxTex2.md.transformMatrix = boxTex2.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(angle)));
     boxTex2.md.transformMatrix = boxTex2.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); 
-   
-    // Lighting -------------------------------------------------------------------
+}
+
+function updateLightScene(){
   /*  boxDiffuse.md.transformMatrix = VecMath.SFMatrix4f.identity();
     boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-4.5, 0.0, 0.0)));
@@ -704,16 +703,10 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
- 
-    //lightSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
-    //lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
-     //       VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -1.0, 0.0)));
-   // lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
-          // VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
    
     lightSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -1.0, 0.0)));
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
@@ -734,8 +727,10 @@ function animate(canvas) {
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
-   
-   // DEFORM 
+}
+
+// DEFORM 
+function updateDeformScene(){
     defWaveSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     defWaveSphere.md.transformMatrix = defWaveSphere.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(2.5, -1.0, 0.0)));
@@ -747,8 +742,11 @@ function animate(canvas) {
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -2.0, 0.0)));
     defWavePlane.md.transformMatrix = defWavePlane.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2, 1, 2))); 
-     
-   // BUMP
+    
+}
+
+// BUMP
+function updateBumpScene(){
     bumpQuad.md.transformMatrix = VecMath.SFMatrix4f.identity();
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
             VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
@@ -765,7 +763,6 @@ function animate(canvas) {
     bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
     
-    lastFrameTime = currentTime;
 }
 
 // Draw main scene
@@ -779,11 +776,9 @@ function drawAll(){
     hourPointer.draw(hourPointer.shader.sp, viewMat, projectionMat, lighting);
     clockTex.draw(clockTex.shader.sp, viewMat, projectionMat, lighting);
     box.draw(box.shader.sp, viewMat, projectionMat, lighting);
-    sphere.draw(sphere.shader.sp, viewMat, projectionMat, lighting);
-    sphere1.draw(sphere1.shader.sp, viewMat, projectionMat, lighting);
 
     // Color scenes
-    //sceneOne.draw(box.shader.sp, sphere.shader.sp, viewMat, projectionMat);
+    sceneOne.draw(viewMat, projectionMat);
     //orientationScene.draw(boxShader, viewMat, projectionMat);
 
     // Textured
@@ -791,7 +786,7 @@ function drawAll(){
     boxTex.draw(boxTex.shader.sp, viewMat, projectionMat, lighting);
     boxTex2.draw(boxTex2.shader.sp, viewMat, projectionMat, lighting);
     sphereTex.draw(sphereTex.shader.sp, viewMat, projectionMat, lighting);
-
+    sphereTex2.draw(sphereTex2.shader.sp, viewMat, projectionMat, lighting);
     // Lighting
     //boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
 
@@ -897,7 +892,7 @@ function drawAll(){
     defWavePlane.defAmt = amtDef;
 
     // BUMP
-    //bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
+    bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
     bumpQuad.light.lightColor = getColor();
     bumpQuad.light.specularColor = getSpecColor();
     bumpQuad.light.ambientColor = getAmbiColor();
@@ -947,8 +942,6 @@ function cleanUp() {
     minutePointer.shader.dispose();
     hourPointer.shader.dispose();
     box.shader.dispose();
-    sphere.shader.dispose();
-    sphere1.shader.dispose();
     
     // Scenes
     //sceneOne.dispose();
@@ -974,14 +967,13 @@ function cleanUp() {
     minutePointer.dispose();
     hourPointer.dispose();
     box.dispose();
-    sphere.dispose();
-    sphere1.dispose();
 
     // Textured - Drawables
     boxTex.dispose();
     boxTex2.dispose();
     houseTex.dispose();
     sphereTex.dispose();
+    sphereTex2.dispose();
     
     // Lighting
    // boxDiffuse.dispose();
