@@ -93,6 +93,8 @@ NOTE: Autoformat shift+alt+f
                 </select>
                 <label id="blurIterationsLabel">Iterations</label>
                 <input id="blurIterations" type="range" min="1" max="15" value="5" step="1" onchange="setBlurIterations(this.value)" />
+                <label id="blurActiveLabel">Activate PP</label>
+                <input id="blurActive" type="checkbox" onclick="setPP(this)"/>
             </div>
                 <div id="camControls">
                 <p id="camLabel"  style="text-align:center;">Camera</p>

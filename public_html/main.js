@@ -17,7 +17,6 @@ var // GL
     // Matrix for perspective or orthogonal projection
     projectionMat = VecMath.SFMatrix4f.identity(); 
     
-
 // GL Extensions
 var // unsigned int indices GL extension
     INDEX_UINT_EXT = null,
@@ -94,8 +93,10 @@ var // Blur technique:
     // - 3: H/V single pass 
     // - 4: Radial blur
     blurTechnique = 0,
-    // Amount of iterations
-    blurIterations = 5;
+    // Amount of iterations at startup
+    blurIterations = 5,
+    // De/Activate post processing
+    blurActive = false;
 
 // Render target program
 var // VS 
@@ -209,15 +210,11 @@ var a10 = new Drawable("asteroid", 4);
 var bumpQuad = new Drawable();
 var bumpSphere = new Drawable();
 
-
 // Deform-objects
 var defWaveSphere = new Drawable();
 var defWavePlane = new Drawable();
 
-// Rendertarget
-//var rt = new Drawable();
-
-// MAIN
+// MAIN ------------------------------------------------------------------------
 function main() {
     console.log("Init program - main call");
     // Get canvas
@@ -289,7 +286,7 @@ function main() {
 }
 
 function initializeObjects(){
-        // Colored -------------------------------------------
+    // Colored -------------------------------------------
     // Setup meshData for secondPointer
     mh.setupSecPointer();
     secondPointer.initGL(gl, mh.vss, mh.fss);
@@ -730,11 +727,9 @@ function animate(canvas) {
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1)));
    
-
-   
     a10.md.transformMatrix = VecMath.SFMatrix4f.identity();
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(4.5, 1.0, 0.0)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
@@ -771,6 +766,152 @@ function animate(canvas) {
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
     
     lastFrameTime = currentTime;
+}
+
+// Draw main scene
+function drawAll(){
+    gl.viewport(0, 0, 1024, 1024);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Colored
+    secondPointer.draw(secondPointer.shader.sp, viewMat, projectionMat, lighting);
+    minutePointer.draw(minutePointer.shader.sp, viewMat, projectionMat, lighting);
+    hourPointer.draw(hourPointer.shader.sp, viewMat, projectionMat, lighting);
+    clockTex.draw(clockTex.shader.sp, viewMat, projectionMat, lighting);
+    box.draw(box.shader.sp, viewMat, projectionMat, lighting);
+    sphere.draw(sphere.shader.sp, viewMat, projectionMat, lighting);
+    sphere1.draw(sphere1.shader.sp, viewMat, projectionMat, lighting);
+
+    // Color scenes
+    //sceneOne.draw(box.shader.sp, sphere.shader.sp, viewMat, projectionMat);
+    //orientationScene.draw(boxShader, viewMat, projectionMat);
+
+    // Textured
+    houseTex.draw(houseTex.shader.sp, viewMat, projectionMat, lighting);
+    boxTex.draw(boxTex.shader.sp, viewMat, projectionMat, lighting);
+    boxTex2.draw(boxTex2.shader.sp, viewMat, projectionMat, lighting);
+    sphereTex.draw(sphereTex.shader.sp, viewMat, projectionMat, lighting);
+
+    // Lighting
+    //boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
+
+    // TODO: implement shaderobject into drawable
+    //for(var i = 0; i < drawables.length; i++)
+        //drawables[i].draw(objCowShaderSpec.sp, viewMat, projectionMat, lighting, shininess);
+
+    objCow.draw(objCow.shader.sp, viewMat, projectionMat, lighting);
+
+    objCowSpec.draw(objCowSpec.shader.sp, viewMat, projectionMat, lighting);
+    objCowSpec.light.lightColor = getColor();
+    objCowSpec.light.specularColor = getSpecColor();
+    objCowSpec.light.ambientColor = getAmbiColor();
+    objCowSpec.light.shininess = shininess;
+    objCowSpec.light.diffIntensity = intDiff;
+    objCowSpec.light.specIntensity = intSpec;
+    objCowSpec.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
+    objCowSpec.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+
+
+    lightSphere.draw(lightSphere.shader.sp, viewMat, projectionMat, lighting);
+    lightSphere.light.lightColor = getColor();
+    lightSphere.light.specularColor = getSpecColor();
+    lightSphere.light.ambientColor = getAmbiColor();
+    lightSphere.light.shininess = shininess;
+    lightSphere.light.diffIntensity = intDiff;
+    lightSphere.light.specIntensity = intSpec;
+    lightSphere.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
+    lightSphere.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+
+    lightSphere.light0.lightColor = getColor();
+    lightSphere.light0.specularColor = getSpecColor();
+    lightSphere.light0.ambientColor = getAmbiColor();
+    lightSphere.light0.shininess = shininess;
+    lightSphere.light0.diffIntensity = intDiff;
+    lightSphere.light0.specIntensity = intSpec;
+    lightSphere.light0.position = new VecMath.SFVec4f(1.0, 0.0, 0.0, 1.0);
+    lightSphere.light0.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+
+
+
+    lightTexSphere.draw(lightTexSphere.shader.sp, viewMat, projectionMat, lighting);
+    lightTexSphere.light.lightColor = getColor();
+    lightTexSphere.light.specularColor = getSpecColor();
+    lightTexSphere.light.ambientColor = getAmbiColor();
+    lightTexSphere.light.shininess = shininess;
+    lightTexSphere.light.diffIntensity = intDiff;
+    lightTexSphere.light.specIntensity = intSpec;
+    lightTexSphere.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 1.0);
+    lightTexSphere.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+
+
+   /* lightTexSphere.lights[0].lightColor = getColor();
+    lightTexSphere.lights[0].specularColor = getSpecColor();
+    lightTexSphere.lights[0].ambientColor = getAmbiColor();
+    lightTexSphere.lights[0].shininess = shininess;
+    lightTexSphere.lights[0].diffIntensity = intDiff;
+    lightTexSphere.lights[0].specIntensity = intSpec;
+    lightTexSphere.lights[0].position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
+    lightTexSphere.lights[0].direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+
+    lightTexSphere.lights[1].lightColor = getColor();
+    lightTexSphere.lights[1].specularColor = getSpecColor();
+    lightTexSphere.lights[1].ambientColor = getAmbiColor();
+    lightTexSphere.lights[1].shininess = shininess;
+    lightTexSphere.lights[1].diffIntensity = intDiff;
+    lightTexSphere.lights[1].specIntensity = intSpec;
+    lightTexSphere.lights[1].position = new VecMath.SFVec4f(0.0, 1.0, 1.0, 0.0);
+    lightTexSphere.lights[1].direction = new VecMath.SFVec4f(1.0, 0.0, -1.0, 0.0);*/
+
+    //a10
+    a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
+    a10.light.lightColor = getColor();
+    a10.light.specularColor = getSpecColor();
+    a10.light.ambientColor = getAmbiColor();
+    a10.light.shininess = shininess;
+    a10.light.diffIntensity = intDiff;
+    a10.light.specIntensity = intSpec;
+    a10.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 1.0);
+    a10.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+
+    // DEFORM
+    defWaveSphere.draw(defWaveSphere.shader.sp, viewMat, projectionMat, lighting);
+    defWaveSphere.light.lightColor = getColor();
+    defWaveSphere.light.specularColor = getSpecColor();
+    defWaveSphere.light.ambientColor = getAmbiColor();
+    defWaveSphere.light.shininess = shininess; 
+    defWaveSphere.light.diffIntensity = intDiff;
+    defWaveSphere.light.specIntensity = intSpec;
+    defWaveSphere.deformStyle = 0;
+    defWaveSphere.defInt = intDef;
+    defWaveSphere.defAmt = amtDef;
+
+    defWavePlane.draw(defWavePlane.shader.sp, viewMat, projectionMat, lighting);
+    defWavePlane.light.lightColor = getColor();
+    defWavePlane.light.specularColor = getSpecColor();
+    defWavePlane.light.ambientColor = getAmbiColor();
+    defWavePlane.light.shininess = shininess; 
+    defWavePlane.light.diffIntensity = intDiff;
+    defWavePlane.light.specIntensity = intSpec;
+    defWavePlane.deformStyle = 0;
+    defWavePlane.defInt = intDef;
+    defWavePlane.defAmt = amtDef;
+
+    // BUMP
+    //bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
+    bumpQuad.light.lightColor = getColor();
+    bumpQuad.light.specularColor = getSpecColor();
+    bumpQuad.light.ambientColor = getAmbiColor();
+    bumpQuad.light.shininess = shininess; 
+    bumpQuad.light.diffIntensity = intDiff;
+    bumpQuad.light.specIntensity = intSpec;
+
+    //bumpSphere.draw(bumpSphere.shader.sp, viewMat, projectionMat, lighting);
+    bumpSphere.light.lightColor = getColor();
+    bumpSphere.light.specularColor = getSpecColor();
+    bumpSphere.light.ambientColor = getAmbiColor();
+    bumpSphere.light.shininess = shininess; 
+    bumpSphere.light.diffIntensity = intDiff;
+    bumpSphere.light.specIntensity = intSpec;
 }
 
 // Setup texture
@@ -1077,6 +1218,8 @@ function initProjection() {
 // ----------------------------------------------------------------- 
 // ------------------------- Lighting-Menue ------------------------ 
 // -----------------------------------------------------------------
+
+// Change between different light techniques
 function changeLighting(){
     var lightStyle = document.getElementById("lighting").selectedIndex;
     switch(lightStyle){
@@ -1100,30 +1243,35 @@ function changeLighting(){
     }
 }
 
+// Set shininess by gui
 function setShininess(newValue){
     //console.log("Shininess " + newValue);
     shininess = newValue;
     document.getElementById("shininessLabel").innerHTML = "Shininess: " + shininess;
 }
 
+// Set diffuse color intensity by gui
 function setIntDiff(newValue){
     //console.log("Diff intensity " + newValue);
     intDiff = newValue;
     document.getElementById("intDiffLabel").innerHTML = "Inten. Diff: " + intDiff;
 }
 
+// Set specular color intensity by gui
 function setIntSpec(newValue){
     //console.log("Spec intensity " + newValue);
     intSpec = newValue;
     document.getElementById("intSpecLabel").innerHTML = "Inten. Spec: " + intSpec;
 }
 
+// Get diffuse color by gui
 function getColor(){
     var color = hexToRgb(document.getElementById("lightColor").value);
     //console.log("Lightcolor r:" + color.r + " g:" + color.g + " b:" + color.b);
     return new VecMath.SFVec3f(color.r, color.g, color.b);
 }
 
+// get ambient color by gui
 function getAmbiColor(){
     var ambiColor = hexToRgb(document.getElementById("ambiColor").value);
     //console.log(new VecMath.SFVec3f(ambiColor.r / 255, ambiColor.g / 255, ambiColor.b / 255));
@@ -1131,6 +1279,7 @@ function getAmbiColor(){
     return new VecMath.SFVec3f(ambiColor.r / 255 , ambiColor.g / 255, ambiColor.b / 255);
 }
 
+// Get specular color by gui
 function getSpecColor(){
     var specColor = hexToRgb(document.getElementById("specColor").value);
     //console.log("Specularcolor r:" + specColor.r + " g:" + specColor.g + " b:" + specColor.b);
@@ -1150,11 +1299,14 @@ function hexToRgb(hex) {
 // ----------------------------------------------------------------- 
 // -------------------------- Deform-Menue ------------------------- 
 // -----------------------------------------------------------------
+
+// First parameter for deformshader (intensity)
 function setDefInt(newValue){
     intDef = newValue;
     document.getElementById("deformIntensityLabel").innerHTML = "Intensity: " + intDef;
 }
 
+// Second paramter for deformshader (abmount)
 function setDefAmt(newValue){
     amtDef = newValue;
     document.getElementById("deformAmountLabel").innerHTML = "Amount: " + amtDef;
@@ -1164,6 +1316,7 @@ function setDefAmt(newValue){
 // --------------------------- Blur-Menue -------------------------- 
 // -----------------------------------------------------------------
 
+// Change between different blur techniques
 function changeBlurTechnique(){
     var style = document.getElementById("blurTechnique").selectedIndex;
     switch(style){
@@ -1191,9 +1344,18 @@ function changeBlurTechnique(){
     }
 }
 
+// Set iterations for blur
 function setBlurIterations(newValue){
     blurIterations = newValue;
     document.getElementById("blurIterationsLabel").innerHTML = "Iterations: " + blurIterations;
+}
+
+// Activate or deactivate post processing
+function setPP(value){
+    if(value.checked)
+        blurActive = true;
+    else
+        blurActive = false;
 }
 
 
@@ -1201,6 +1363,7 @@ function setBlurIterations(newValue){
 // -------------------------- Camera-Menue ------------------------- 
 // -----------------------------------------------------------------
 
+// Change between different camera techniques
 function changeCamStyle(){
     var style = document.getElementById("camTechnique").selectedIndex;
     switch(style){
@@ -1235,8 +1398,7 @@ function loadStringFromFile(url) {
     return xhr.responseText;
 }
 
-
-// ------------------- Rendertarget -------------------
+// ------------------------------- Rendertarget --------------------------------
 
 // Init a single VS and FS
 function initShaders() {
@@ -1290,221 +1452,6 @@ function initShaders() {
     shaderProgram.tex = gl.getUniformLocation(shaderProgram, "tex");
 }
 
-/*
-function draw() {
-    gl.viewport(0, 0, 512, 512);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
-    
-    gl.bindTexture(gl.TEXTURE_2D, fbTex);
-    //gl.bindTexture(gl.TEXTURE_2D, null);
-    
-}*/
-
-function drawAll(){
-    
-       // gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // fbo 
-       // draw();
-        //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        //gl.bindTexture(gl.TEXTURE_2D, null);
-    
-        gl.viewport(0, 0, 1024, 1024);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        
-        // Colored
-        secondPointer.draw(secondPointer.shader.sp, viewMat, projectionMat, lighting);
-        minutePointer.draw(minutePointer.shader.sp, viewMat, projectionMat, lighting);
-        hourPointer.draw(hourPointer.shader.sp, viewMat, projectionMat, lighting);
-        clockTex.draw(clockTex.shader.sp, viewMat, projectionMat, lighting);
-        box.draw(box.shader.sp, viewMat, projectionMat, lighting);
-        sphere.draw(sphere.shader.sp, viewMat, projectionMat, lighting);
-        sphere1.draw(sphere1.shader.sp, viewMat, projectionMat, lighting);
-        
-        // Color scenes
-        //sceneOne.draw(box.shader.sp, sphere.shader.sp, viewMat, projectionMat);
-        //orientationScene.draw(boxShader, viewMat, projectionMat);
-        
-        // Textured
-        houseTex.draw(houseTex.shader.sp, viewMat, projectionMat, lighting);
-        boxTex.draw(boxTex.shader.sp, viewMat, projectionMat, lighting);
-        boxTex2.draw(boxTex2.shader.sp, viewMat, projectionMat, lighting);
-        sphereTex.draw(sphereTex.shader.sp, viewMat, projectionMat, lighting);
-       
-        // Lighting
-        //boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
-        
-        // TODO: implement shaderobject into drawable
-        //for(var i = 0; i < drawables.length; i++)
-            //drawables[i].draw(objCowShaderSpec.sp, viewMat, projectionMat, lighting, shininess);
-        
-        objCow.draw(objCow.shader.sp, viewMat, projectionMat, lighting);
-        
-        objCowSpec.draw(objCowSpec.shader.sp, viewMat, projectionMat, lighting);
-        objCowSpec.light.lightColor = getColor();
-        objCowSpec.light.specularColor = getSpecColor();
-        objCowSpec.light.ambientColor = getAmbiColor();
-        objCowSpec.light.shininess = shininess;
-        objCowSpec.light.diffIntensity = intDiff;
-        objCowSpec.light.specIntensity = intSpec;
-        objCowSpec.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
-        objCowSpec.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
-        
-        
-        lightSphere.draw(lightSphere.shader.sp, viewMat, projectionMat, lighting);
-        lightSphere.light.lightColor = getColor();
-        lightSphere.light.specularColor = getSpecColor();
-        lightSphere.light.ambientColor = getAmbiColor();
-        lightSphere.light.shininess = shininess;
-        lightSphere.light.diffIntensity = intDiff;
-        lightSphere.light.specIntensity = intSpec;
-        lightSphere.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
-        lightSphere.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
-        
-        lightSphere.light0.lightColor = getColor();
-        lightSphere.light0.specularColor = getSpecColor();
-        lightSphere.light0.ambientColor = getAmbiColor();
-        lightSphere.light0.shininess = shininess;
-        lightSphere.light0.diffIntensity = intDiff;
-        lightSphere.light0.specIntensity = intSpec;
-        lightSphere.light0.position = new VecMath.SFVec4f(1.0, 0.0, 0.0, 1.0);
-        lightSphere.light0.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
-        
-        
-        
-        lightTexSphere.draw(lightTexSphere.shader.sp, viewMat, projectionMat, lighting);
-        lightTexSphere.light.lightColor = getColor();
-        lightTexSphere.light.specularColor = getSpecColor();
-        lightTexSphere.light.ambientColor = getAmbiColor();
-        lightTexSphere.light.shininess = shininess;
-        lightTexSphere.light.diffIntensity = intDiff;
-        lightTexSphere.light.specIntensity = intSpec;
-        lightTexSphere.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 1.0);
-        lightTexSphere.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
-        
-
-       /* lightTexSphere.lights[0].lightColor = getColor();
-        lightTexSphere.lights[0].specularColor = getSpecColor();
-        lightTexSphere.lights[0].ambientColor = getAmbiColor();
-        lightTexSphere.lights[0].shininess = shininess;
-        lightTexSphere.lights[0].diffIntensity = intDiff;
-        lightTexSphere.lights[0].specIntensity = intSpec;
-        lightTexSphere.lights[0].position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
-        lightTexSphere.lights[0].direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
-        
-        lightTexSphere.lights[1].lightColor = getColor();
-        lightTexSphere.lights[1].specularColor = getSpecColor();
-        lightTexSphere.lights[1].ambientColor = getAmbiColor();
-        lightTexSphere.lights[1].shininess = shininess;
-        lightTexSphere.lights[1].diffIntensity = intDiff;
-        lightTexSphere.lights[1].specIntensity = intSpec;
-        lightTexSphere.lights[1].position = new VecMath.SFVec4f(0.0, 1.0, 1.0, 0.0);
-        lightTexSphere.lights[1].direction = new VecMath.SFVec4f(1.0, 0.0, -1.0, 0.0);*/
-       //a10
-        
-        
-        
-        // DEFORM
-        defWaveSphere.draw(defWaveSphere.shader.sp, viewMat, projectionMat, lighting);
-        defWaveSphere.light.lightColor = getColor();
-        defWaveSphere.light.specularColor = getSpecColor();
-        defWaveSphere.light.ambientColor = getAmbiColor();
-        defWaveSphere.light.shininess = shininess; 
-        defWaveSphere.light.diffIntensity = intDiff;
-        defWaveSphere.light.specIntensity = intSpec;
-        defWaveSphere.deformStyle = 0;
-        defWaveSphere.defInt = intDef;
-        defWaveSphere.defAmt = amtDef;
-        
-        defWavePlane.draw(defWavePlane.shader.sp, viewMat, projectionMat, lighting);
-        defWavePlane.light.lightColor = getColor();
-        defWavePlane.light.specularColor = getSpecColor();
-        defWavePlane.light.ambientColor = getAmbiColor();
-        defWavePlane.light.shininess = shininess; 
-        defWavePlane.light.diffIntensity = intDiff;
-        defWavePlane.light.specIntensity = intSpec;
-        defWavePlane.deformStyle = 0;
-        defWavePlane.defInt = intDef;
-        defWavePlane.defAmt = amtDef;
-        
-        // BUMP
-        //bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
-        bumpQuad.light.lightColor = getColor();
-        bumpQuad.light.specularColor = getSpecColor();
-        bumpQuad.light.ambientColor = getAmbiColor();
-        bumpQuad.light.shininess = shininess; 
-        bumpQuad.light.diffIntensity = intDiff;
-        bumpQuad.light.specIntensity = intSpec;
-
-        //bumpSphere.draw(bumpSphere.shader.sp, viewMat, projectionMat, lighting);
-        bumpSphere.light.lightColor = getColor();
-        bumpSphere.light.specularColor = getSpecColor();
-        bumpSphere.light.ambientColor = getAmbiColor();
-        bumpSphere.light.shininess = shininess; 
-        bumpSphere.light.diffIntensity = intDiff;
-        bumpSphere.light.specIntensity = intSpec;
-        
-        
-
-   /* // Use the shader
-    gl.useProgram(shaderProgram);
-    
-    // Set res
-    gl.uniform2f(shaderProgram.resolution, 512, 512);
-    
-    // Set blur technique
-    gl.uniform1i(shaderProgram.blurTechnique, blurTechnique);
-    
-    // Set blur iterations
-    gl.uniform1i(shaderProgram.iterations, blurIterations);
-    gl.uniform1f(shaderProgram.numIt, blurIterations * 2.0);
-    
-    if(fbTex && fbTex.ready){
-        gl.uniform1i(shaderProgram.tex, 0);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, fbTex);
-        
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);  // CLAMP_TO_EDGE, REPEATE
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    }
-        
-    
-    // Bind indexBuffer
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
-
-    // Bind vertexPositionBuffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.positionBuffer);
-    gl.vertexAttribPointer(shaderProgram.position, // indes of attribute
-            2, // three position components (x,y,z)
-            gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    gl.enableVertexAttribArray(shaderProgram.position);
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER, meshData.texBuffer);
-    gl.vertexAttribPointer(shaderProgram.texCoords, // index of attribute
-            2, // two texCoords (u, v)
-            gl.FLOAT, // provided data type is float
-            false, // do not normalize values
-            0, // stride (in bytes)
-            0); // offset (in bytes)
-    gl.enableVertexAttribArray(shaderProgram.texCoords);
-    
-     // Draw call
-    gl.drawElements(gl.TRIANGLES, // polyg type
-            meshData.indices.length, // buffer length
-            gl.UNSIGNED_SHORT, // buffer type
-            0); // start index
-    
-    // Disable arributes
-    gl.disableVertexAttribArray(shaderProgram.position); 
-    gl.disableVertexAttribArray(shaderProgram.texCoords);*/
-}
-
-
 function draw(canvas) {
     // Clear backbuffer
     //clearBackBuffer(canvas);
@@ -1522,7 +1469,9 @@ function draw(canvas) {
     gl.uniform1i(shaderProgram.iterations, blurIterations);
     gl.uniform1f(shaderProgram.numIt, blurIterations * 2.0);
     
+    // Rendertexture rdy
     if(fbTex && fbTex.ready){
+        // Activate renderTargetTexture
         gl.uniform1i(shaderProgram.tex, 0);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, fbTex);
@@ -1533,7 +1482,6 @@ function draw(canvas) {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
         
-
     // Bind indexBuffer
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, meshData.indexBuffer);
 
@@ -1547,36 +1495,37 @@ function draw(canvas) {
             0); // offset (in bytes)
     gl.enableVertexAttribArray(shaderProgram.position);
     
-    /*gl.bindBuffer(gl.ARRAY_BUFFER, meshData.texBuffer);
+    //gl.bindBuffer(gl.ARRAY_BUFFER, meshData.texBuffer);
     gl.vertexAttribPointer(shaderProgram.texCoords, // index of attribute
             2, // two texCoords (u, v)
             gl.FLOAT, // provided data type is float
             false, // do not normalize values
             0, // stride (in bytes)
             0); // offset (in bytes)
-    gl.enableVertexAttribArray(shaderProgram.texCoords);*/
-   
+    gl.enableVertexAttribArray(shaderProgram.texCoords);
+    
     // deactivate offscreen target
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null); // fbo 
-    gl.viewport(0, 0, 512, 512);
+    if(blurActive)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    else
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    
+    // clear buffer properites
+    gl.viewport(0, 0, 1024, 1024);
     gl.clearColor(0.0, 0.0, 0.5, 1.0);
     gl.clearDepth(1.0);
-    //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    //a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
-    
-    
-    
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     // Draw call
     gl.drawElements(gl.TRIANGLES, // polyg type
             meshData.indices.length, // buffer length
             gl.UNSIGNED_SHORT, // buffer type
             0); // start index
-    //send result to bloomX framebuffer
-    gl.bindTexture(gl.TEXTURE_2D, fbTex);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    
+      
+    if(blurActive)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    else
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     
     // Disable arributes
     gl.disableVertexAttribArray(shaderProgram.position); 
@@ -1661,6 +1610,7 @@ function initRT(gl){
     if (status != gl.FRAMEBUFFER_COMPLETE) {
         console.warn("FBO status: " + status);
     }
- 
+    else
+        console.log("FBO initialized, status: " + status);
 }
 
