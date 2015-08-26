@@ -633,7 +633,7 @@ function updateClock(){
 }
 
 function updateColorScene(){
-    box.md.transformMatrix._03 = -16;
+    box.md.transformMatrix._03 = -11;
     box.md.transformMatrix._13 = 2.0;
     box.md.transformMatrix._23 = 0.0;
     var rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
@@ -644,26 +644,26 @@ function updateColorScene(){
     
     // Textured -------------------------------------------------------------------
     angle -= 1; //* dT;
-    sphereTex.md.transformMatrix._03 = -19;
+    sphereTex.md.transformMatrix._03 = -14;
     sphereTex.md.transformMatrix._13 = 0.0;
     sphereTex.md.transformMatrix._23 = 0.0;
     rotMat = VecMath.SFMatrix4f.rotationX(1 * dT);
     sphereTex.md.transformMatrix = sphereTex.md.transformMatrix.mult(rotMat);
     
-    sphereTex2.md.transformMatrix._03 = -18;
+    sphereTex2.md.transformMatrix._03 = -13;
     sphereTex2.md.transformMatrix._13 = 0.0;
     sphereTex2.md.transformMatrix._23 = 0.0;
     rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
     sphereTex2.md.transformMatrix = sphereTex2.md.transformMatrix.mult(rotMat);
     
-    houseTex.md.transformMatrix._03 = -16.0;
+    houseTex.md.transformMatrix._03 = -11.0;
     houseTex.md.transformMatrix._13 = 0.5;
     houseTex.md.transformMatrix._23 = 0.0;
     
     
     boxTex.md.transformMatrix = VecMath.SFMatrix4f.identity();
     boxTex.md.transformMatrix = boxTex.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-13, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-8, 0.0, 0.0)));
     boxTex.md.transformMatrix = boxTex.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationX(MathHelper.DTR(angle)));
     boxTex.md.transformMatrix = boxTex.md.transformMatrix.mult(
@@ -672,7 +672,7 @@ function updateColorScene(){
     
     boxTex2.md.transformMatrix = VecMath.SFMatrix4f.identity();
     boxTex2.md.transformMatrix = boxTex2.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-14, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-9, 0.0, 0.0)));
     boxTex2.md.transformMatrix = boxTex2.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(angle)));
     boxTex2.md.transformMatrix = boxTex2.md.transformMatrix.mult(
@@ -690,7 +690,7 @@ function updateLightScene(){
  
     objCow.md.transformMatrix = VecMath.SFMatrix4f.identity();
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-1.75, 0.75, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-2.0, 0.0, 0.0)));
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
@@ -698,7 +698,7 @@ function updateLightScene(){
    
     objCowSpec.md.transformMatrix = VecMath.SFMatrix4f.identity();
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-1.75, -0.75, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     objCowSpec.md.transformMatrix = objCowSpec.md.transformMatrix.mult(
@@ -706,7 +706,7 @@ function updateLightScene(){
    
     lightSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -1.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(2.0, 0.0, 0.0)));
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
     lightSphere.md.transformMatrix = lightSphere.md.transformMatrix.mult(
@@ -714,7 +714,7 @@ function updateLightScene(){
    
     lightTexSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, 1.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(4.0, 0.0, 0.0)));
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     lightTexSphere.md.transformMatrix = lightTexSphere.md.transformMatrix.mult(
@@ -722,7 +722,7 @@ function updateLightScene(){
    
     a10.md.transformMatrix = VecMath.SFMatrix4f.identity();
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(4.5, 1.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(8.0, 0.5, 0.0)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-90.0 + angle / 2)));
     a10.md.transformMatrix = a10.md.transformMatrix.mult(
@@ -733,13 +733,13 @@ function updateLightScene(){
 function updateDeformScene(){
     defWaveSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     defWaveSphere.md.transformMatrix = defWaveSphere.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(2.5, -1.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(20.0, 0.0, 0.0)));
     defWaveSphere.md.transformMatrix = defWaveSphere.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1, 1, 1))); 
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(3, 3, 3))); 
    
     defWavePlane.md.transformMatrix = VecMath.SFMatrix4f.identity();
     defWavePlane.md.transformMatrix = defWavePlane.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(1.5, -2.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(20.0, -2.0, 0.0)));
     defWavePlane.md.transformMatrix = defWavePlane.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2, 1, 2))); 
     
@@ -749,7 +749,7 @@ function updateDeformScene(){
 function updateBumpScene(){
     bumpQuad.md.transformMatrix = VecMath.SFMatrix4f.identity();
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(35.0, 0.0, 0.0)));
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(90.0)));
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
@@ -757,7 +757,7 @@ function updateBumpScene(){
    
     bumpSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
     bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(33.0, 0.0, 0.0)));
     bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
     bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
@@ -900,7 +900,7 @@ function drawAll(){
     bumpQuad.light.diffIntensity = intDiff;
     bumpQuad.light.specIntensity = intSpec;
 
-    //bumpSphere.draw(bumpSphere.shader.sp, viewMat, projectionMat, lighting);
+    bumpSphere.draw(bumpSphere.shader.sp, viewMat, projectionMat, lighting);
     bumpSphere.light.lightColor = getColor();
     bumpSphere.light.specularColor = getSpecColor();
     bumpSphere.light.ambientColor = getAmbiColor();
@@ -1103,6 +1103,9 @@ function handleKeyboard(canvas, dT) {
     canvas.addEventListener('mouseup', handleMouseUp, true);
     canvas.addEventListener('mousemove', handleMouseMove, true);
    
+   
+    yPos = 0.0;
+    
     if(cameraMode === 0){
         if(forward && speed !== 0){
             // rotate x-axis

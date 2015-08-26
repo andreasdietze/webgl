@@ -47,7 +47,7 @@ function createCubeChain(gl, mh){
             mh.mesh.indices,
             mh.mesh.trans);
 
-        var vec = new VecMath.SFVec3f(-19 + i, -1, 0);
+        var vec = new VecMath.SFVec3f(-14 + i, -1, 0);
 
         drawable.md.transformMatrix._03 = vec.x;
         drawable.md.transformMatrix._13 = vec.y;
@@ -77,7 +77,7 @@ function createSphereChain(gl, mh){
             mh.mesh.indices,
             mh.mesh.trans);
 
-        var vec = new VecMath.SFVec3f(-19 + i, -2, 0);
+        var vec = new VecMath.SFVec3f(-14 + i, -2, 0);
 
         drawable.md.transformMatrix._03 = vec.x;
         drawable.md.transformMatrix._13 = vec.y;
