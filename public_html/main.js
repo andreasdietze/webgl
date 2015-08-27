@@ -42,7 +42,15 @@ var // Camera position
     // Camera mode:
     // - 0: First person view
     // - 1: Orbit camera
-    cameraMode = 0;
+    cameraMode = 0,
+    // Movement
+    forward = false,
+    strafe = false,
+    // Zoom
+    zoom = 1.0,
+    // Switch scene
+    scene = 0;
+    
     
 
 // Controls Mouse
@@ -549,7 +557,7 @@ function clearBackBuffer(canvas) {
     //gl.colorMask(true, true, true, false);  ???
 }
 
-// Update
+// Update ----------------------------------------------------------------------
 function animate(canvas) {
     var currentTime = Date.now(); //new Date().getTime();
     dT = currentTime - lastFrameTime;
@@ -575,9 +583,10 @@ function animate(canvas) {
         }
     }
     
-    // Handle kb user input
+    // Handle user input
     handleKeyboard(window, dT);    // window
     handleKeys();
+    updateCamera(dT);
     
     updateClock();
     updateColorScene();
@@ -944,7 +953,7 @@ function cleanUp() {
     box.shader.dispose();
     
     // Scenes
-    //sceneOne.dispose();
+    sceneOne.dispose();
     //orientationScene.dispose();
 
     // Textured - Shaders
@@ -997,10 +1006,6 @@ function handleKeyDown(event) {
 function handleKeyUp(event) {
     currentlyPressedKeys[event.keyCode] = false;
 }
-
-var forward = false;
-var strafe = false;
-var zoom = 1.0;
 
 function handleKeys() {
     if (currentlyPressedKeys[33]) {
@@ -1103,9 +1108,11 @@ function handleKeyboard(canvas, dT) {
     canvas.addEventListener('mouseup', handleMouseUp, true);
     canvas.addEventListener('mousemove', handleMouseMove, true);
    
-   
+}
+
+
+function updateCamera(dT){
     yPos = 0.0;
-    
     if(cameraMode === 0){
         if(forward && speed !== 0){
             // rotate x-axis
@@ -1141,22 +1148,47 @@ function handleKeyboard(canvas, dT) {
     // Reset view matrix
     viewMat = VecMath.SFMatrix4f.identity();
     
+    // Add offset from scene to camera position
+    var scenePosition;
+    
+    switch(scene){
+        // Colored
+        case 0: scenePosition = new VecMath.SFVec3f(11.0, 0.0, 0.0); break; 
+        // Lighting, cow diffuse
+        case 1: scenePosition = new VecMath.SFVec3f(2.0, 0.0, 0.0); break;
+        // Lighting, cow dif-spec
+        case 2: scenePosition = new VecMath.SFVec3f(0.0, 0.0, 0.0); break;
+        // Lighting, a-10
+        case 3: scenePosition = new VecMath.SFVec3f(-8.0, 0.0, 0.0); break; 
+        // Deform
+        case 4: scenePosition = new VecMath.SFVec3f(-20.0, 0.0, 0.0); break;
+        // Bump1
+        case 5: scenePosition = new VecMath.SFVec3f(-33.0, 0.0, 0.0); break;
+        // Bump2
+        case 6: scenePosition = new VecMath.SFVec3f(-35.0, 0.0, 0.0); break;
+        // Bump2
+        case 7: break;
+        default: scene = 2;
+    }
+    
     switch(cameraMode){
         case 0:
             // First person view
             viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(-pitch)));
             viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-yaw)));
-            viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos));
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(camPos.add(scenePosition)));
             break;
         case 1:
             // Orbit view
             viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(0.0, 0.0, -5.0 + zoom)));
-            viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(-pitch)));
-            viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(-yaw)));
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationX(MathHelper.DTR(pitch)));
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.rotationY(MathHelper.DTR(yaw)));
+            viewMat = viewMat.mult(VecMath.SFMatrix4f.translation(scenePosition));
             break;
         default: cameraMode = 0;
     }
 }
+
 
 function handleMouseDown(event){
     mouseDown = true;
@@ -1362,15 +1394,38 @@ function setPP(value){
 function changeCamStyle(){
     var style = document.getElementById("camTechnique").selectedIndex;
     switch(style){
-        case 0: // Horizontal blur
+        case 0: // Fist person view
             cameraMode = 0;
             console.log("Camera: First Person View");
             break;
-        case 1: // Vertical blur
+        case 1: // Orbit view
             cameraMode = 1;
             console.log("Camera: Orbit");
             break;
         default:cameraMode = 0;
+    }
+}
+
+function changeScene(){
+    var style = document.getElementById("camScene").selectedIndex;
+    switch(style){
+        // Scene0 -> Colored
+        case 0: scene = 0; break;
+        // Scene1 -> Lit, dif cow
+        case 1: scene = 1; break;
+        // Scene2 -> Lit, dif spec cow
+        case 2: scene = 2; break;
+        // Scene3 -> Lit, a-10
+        case 3: scene = 3; break;
+        // Scene4 -> Deform
+        case 4: scene = 4; break;
+        // Scene5 -> Bump1
+        case 5: scene = 5; break;
+        // Scene6 -> Bump2
+        case 6: scene = 6; break;
+        // Scene7 -> Bump2
+        case 7: scene = 7; break;
+        default: scene = 2;
     }
 }
 
@@ -1384,6 +1439,10 @@ function getSceneGraphInfo(){
         console.log("Tag: " + drawables[i].tag);
     }  
 }
+
+
+
+
 
 /// Helper: synchronously loads text file
 function loadStringFromFile(url) {

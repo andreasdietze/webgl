@@ -248,6 +248,17 @@
     margin-top: 10px;
 }
 
+#camSceneLabel{
+    position:absolute;
+    bottom: 45px;
+    margin-left: 115px;
+}
+
+#camScene{
+    margin-left:110px;
+    margin-top: 10px;
+}
+
 
 /* ----------------------------------------------------------------- 
    ----------------------------- test ------------------------------ 
