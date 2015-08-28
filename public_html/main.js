@@ -212,8 +212,11 @@ var lightTexSphere = new Drawable("lightTexSphere", 3);
 var a10 = new Drawable("asteroid", 4);
 
 // Bumped quad
-var bumpQuad = new Drawable();
-var bumpSphere = new Drawable();
+var bumpQuad = new Drawable(),
+    bumpQuad1 = new Drawable();
+var bumpSphere = new Drawable(),
+    bumpSphere1 = new Drawable();
+
 
 // Deform-objects
 var defWaveSphere = new Drawable();
@@ -509,7 +512,18 @@ function initializeObjects(){
     bumpQuad.initTexture("models/BrickDiff0.jpg");
     bumpQuad.initBumpMap("models/BrickBump0.jpg");
     
-    mh.setupTexturedTangentLightSphere(0.4);//setupTexturedTangentLightSphere();
+    mh.setupQuad();
+    bumpQuad1.initGL(gl, mh.vss, mh.fss);
+    bumpQuad1.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
+    bumpQuad1.initTexture("models/BrickDiff.jpg");
+    bumpQuad1.initBumpMap("models/BrickBump.jpg");
+    
+    mh.setupTexturedTangentLightSphere(0.4);
     bumpSphere.initGL(gl, mh.vss, mh.fss);
     bumpSphere.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -519,6 +533,17 @@ function initializeObjects(){
              mh.mesh.trans);
     bumpSphere.initTexture("models/BrickDiff0.jpg");
     bumpSphere.initBumpMap("models/BrickBump0.jpg");
+    
+    mh.setupTexturedTangentLightSphere(0.4);//setupTexturedTangentLightSphere();
+    bumpSphere1.initGL(gl, mh.vss, mh.fss);
+    bumpSphere1.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.indices,
+             mh.mesh.trans);
+    bumpSphere1.initTexture("models/BrickDiff.jpg");
+    bumpSphere1.initBumpMap("models/BrickBump.jpg");
 }
 
 function setGUIValues(){
@@ -758,10 +783,18 @@ function updateDeformScene(){
 function updateBumpScene(){
     bumpQuad.md.transformMatrix = VecMath.SFMatrix4f.identity();
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(35.0, 0.0, 0.0)));
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(36.0, 0.0, 0.0)));
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(90.0)));
     bumpQuad.md.transformMatrix = bumpQuad.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2, 2, 2))); 
+   
+    bumpQuad1.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    bumpQuad1.md.transformMatrix = bumpQuad1.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(39.0, 0.0, 0.0)));
+    bumpQuad1.md.transformMatrix = bumpQuad1.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(90.0)));
+    bumpQuad1.md.transformMatrix = bumpQuad1.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(2, 2, 2))); 
    
     bumpSphere.md.transformMatrix = VecMath.SFMatrix4f.identity();
@@ -770,6 +803,14 @@ function updateBumpScene(){
     bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
     bumpSphere.md.transformMatrix = bumpSphere.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
+   
+    bumpSphere1.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    bumpSphere1.md.transformMatrix = bumpSphere1.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(34.0, 0.0, 0.0)));
+    bumpSphere1.md.transformMatrix = bumpSphere1.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
+    bumpSphere1.md.transformMatrix = bumpSphere1.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
     
 }
@@ -908,6 +949,14 @@ function drawAll(){
     bumpQuad.light.shininess = shininess; 
     bumpQuad.light.diffIntensity = intDiff;
     bumpQuad.light.specIntensity = intSpec;
+    
+    bumpQuad1.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
+    bumpQuad1.light.lightColor = getColor();
+    bumpQuad1.light.specularColor = getSpecColor();
+    bumpQuad1.light.ambientColor = getAmbiColor();
+    bumpQuad1.light.shininess = shininess; 
+    bumpQuad1.light.diffIntensity = intDiff;
+    bumpQuad1.light.specIntensity = intSpec;
 
     bumpSphere.draw(bumpSphere.shader.sp, viewMat, projectionMat, lighting);
     bumpSphere.light.lightColor = getColor();
@@ -916,6 +965,14 @@ function drawAll(){
     bumpSphere.light.shininess = shininess; 
     bumpSphere.light.diffIntensity = intDiff;
     bumpSphere.light.specIntensity = intSpec;
+    
+    bumpSphere1.draw(bumpSphere.shader.sp, viewMat, projectionMat, lighting);
+    bumpSphere1.light.lightColor = getColor();
+    bumpSphere1.light.specularColor = getSpecColor();
+    bumpSphere1.light.ambientColor = getAmbiColor();
+    bumpSphere1.light.shininess = shininess; 
+    bumpSphere1.light.diffIntensity = intDiff;
+    bumpSphere1.light.specIntensity = intSpec;
 }
 
 // Setup texture
@@ -993,7 +1050,9 @@ function cleanUp() {
     a10.dispose();
     
     bumpQuad.dispose();
+    bumpQuad1.dispose();
     bumpSphere.dispose();
+    bumpSphere1.dispose();
 
     // Free textures
     gl.deleteTexture(tex);
@@ -1124,7 +1183,7 @@ function updateCamera(dT){
             //console.log("Fordward");
         }
 
-        if(strafe && speed !== 0 && cameraMode === 0){
+        if(strafe && speed !== 0){
             // rotate x-axis
             xPos -= Math.sin(MathHelper.DTR(yaw + 90)) * speed * dT;
             // rotate z-axis
@@ -1165,7 +1224,7 @@ function updateCamera(dT){
         // Bump1
         case 5: scenePosition = new VecMath.SFVec3f(-33.0, 0.0, 0.0); break;
         // Bump2
-        case 6: scenePosition = new VecMath.SFVec3f(-35.0, 0.0, 0.0); break;
+        case 6: scenePosition = new VecMath.SFVec3f(-36.0, 0.0, 0.0); break;
         // Bump2
         case 7: break;
         default: scene = 2;
@@ -1439,9 +1498,6 @@ function getSceneGraphInfo(){
         console.log("Tag: " + drawables[i].tag);
     }  
 }
-
-
-
 
 
 /// Helper: synchronously loads text file
