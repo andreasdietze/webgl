@@ -44,6 +44,7 @@ function createCubeChain(gl, mh){
             colors,
             mh.mesh.tex,
             mh.mesh.normals,
+            mh.mesh.tangents,
             mh.mesh.indices,
             mh.mesh.trans);
 
@@ -74,6 +75,7 @@ function createSphereChain(gl, mh){
             mh.mesh.col,
             mh.mesh.tex,
             mh.mesh.normals,
+            mh.mesh.tangents,
             mh.mesh.indices,
             mh.mesh.trans);
 

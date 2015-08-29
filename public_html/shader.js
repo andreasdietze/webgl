@@ -60,6 +60,7 @@ Shader.prototype.initShader = function (vsSourceString, fsSourceString) {
     this.sp.color = this.gl.getAttribLocation(this.sp, "color");
     this.sp.texCoords = this.gl.getAttribLocation(this.sp, "texCoords");
     this.sp.normal = this.gl.getAttribLocation(this.sp, "normal");
+    this.sp.tangent = this.gl.getAttribLocation(this.sp, "tangent");
 
     // Uniforms material
     this.sp.matAmbi = this.gl.getUniformLocation(this.sp, "Ka");

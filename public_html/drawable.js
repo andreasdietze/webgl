@@ -67,6 +67,14 @@ Drawable.prototype.initBuffers = function () {
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.normals), this.gl.STATIC_DRAW);
     }
     
+    // TangentBuffer
+    if(this.md.tangents){
+        this.md.tangentBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.tangentBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.tangents), this.gl.STATIC_DRAW);
+   
+    }
+    
     // IndexBuffer
     this.md.indexBuffer = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
@@ -75,7 +83,7 @@ Drawable.prototype.initBuffers = function () {
 
 // Set md, translation and rotation. 
 // Finally init buffers
-Drawable.prototype.setBufferData = function (vertices, colors, tex, normals, indices, translation) {
+Drawable.prototype.setBufferData = function (vertices, colors, tex, normals, tangents, indices, translation) {
     // Set md
     this.md = {
         // Setup vetices
@@ -86,6 +94,8 @@ Drawable.prototype.setBufferData = function (vertices, colors, tex, normals, ind
         tex: tex,
         // Setup normals
         normals: normals,
+        // Setup tangents
+        tangents: tangents,
         // Setup indices
         indices: indices,
         // Setup translation
@@ -98,7 +108,7 @@ Drawable.prototype.setBufferData = function (vertices, colors, tex, normals, ind
     this.initBuffers();
 };
 
-// Geht nicht, immer die letzte function ist aktiv
+// Update
 Drawable.prototype.update = function (transformMatrix) {
     this.md.transformMatrix = transformMatrix;
 };
@@ -299,18 +309,36 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
         this.gl.enableVertexAttribArray(sp.normal);
     }
     
-    // Draw call
-    this.gl.drawElements(this.gl.TRIANGLES, // polyg type
-            this.md.indices.length, // buffer length
-            this.gl.UNSIGNED_SHORT, // buffer type
-            0); // start index
-
+    // Bind tangentBuffer
+    if(this.md.normals && this.md.tangents){
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.tangentBuffer);
+        this.gl.vertexAttribPointer(sp.tangent, // index of attribute
+                3, // three position components (x,y,z)
+                this.gl.FLOAT, // provided data type is float
+                false, // do not normalize values
+                0, // stride (in bytes)
+                0); // offset (in bytes)
+        this.gl.enableVertexAttribArray(sp.tangent);
+    }
+    
+    if(this.md.indices){
+        // Draw call
+        this.gl.drawElements(this.gl.TRIANGLES, // polyg type
+                this.md.indices.length, // buffer length
+                this.gl.UNSIGNED_SHORT, // buffer type
+                0); // start index   
+    } else {
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, this.md.vertices.length / 3);
+    }
+    
     // Disable arributes
     this.gl.disableVertexAttribArray(sp.position);
     if(this.md.col)
         this.gl.disableVertexAttribArray(sp.color);
     if(this.md.normals && !this.md.col)
         this.gl.disableVertexAttribArray(sp.normal);
+    if(this.md.tangents)
+        this.gl.disableVertexAttribArray(sp.tangent);
     if(this.md.tex)
         this.gl.disableVertexAttribArray(sp.texCoords);
 
@@ -329,6 +357,8 @@ Drawable.prototype.dispose = function () {
         this.gl.deleteBuffer(this.md.colorBuffer);
     if(this.md.normals && !this.md.col)
         this.gl.deleteBuffer(this.md.normalBuffer);
+    if(this.md.tangents)
+        this.gl.deleteBuffer(this.md.tangentBuffer);
     if(this.md.tex)
         this.gl.deleteBuffer(this.md.texBuffer);
     this.gl.deleteBuffer(this.md.indexBuffer);

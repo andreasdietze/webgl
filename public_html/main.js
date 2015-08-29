@@ -216,6 +216,7 @@ var bumpQuad = new Drawable(),
     bumpQuad1 = new Drawable();
 var bumpSphere = new Drawable(),
     bumpSphere1 = new Drawable();
+var bumpBox = new Drawable();
 
 
 // Deform-objects
@@ -302,6 +303,7 @@ function initializeObjects(){
             mh.mesh.col,
             mh.mesh.tex,
             mh.mesh.normals,
+            mh.mesh.tangents,
             mh.mesh.indices,
             mh.mesh.trans);
 
@@ -312,6 +314,7 @@ function initializeObjects(){
             mh.mesh.col,
             mh.mesh.tex,
             mh.mesh.normals,
+            mh.mesh.tangents,
             mh.mesh.indices,
             mh.mesh.trans);
 
@@ -322,6 +325,7 @@ function initializeObjects(){
             mh.mesh.col,
             mh.mesh.tex,
             mh.mesh.normals,
+            mh.mesh.tangents,
             mh.mesh.indices,
             mh.mesh.trans);
             
@@ -332,6 +336,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     clockTex.initTexture("models/clock.png");
@@ -342,6 +347,7 @@ function initializeObjects(){
             mh.mesh.col,
             mh.mesh.tex,
             mh.mesh.normals,
+            mh.mesh.tangents,
             mh.mesh.indices,
             mh.mesh.trans);    
             
@@ -355,6 +361,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     houseTex.initTexture("models/tex2.png");
@@ -365,6 +372,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     boxTex.initTexture("models/tex2.png");
@@ -375,6 +383,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     boxTex2.initTexture("models/crazyCube.png");
@@ -385,6 +394,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     sphereTex.initTexture("models/tex2.png");
@@ -395,6 +405,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     sphereTex2.initTexture("models/crazyCube.png");
@@ -418,6 +429,7 @@ function initializeObjects(){
                          mh.mesh.colors,
                          mh.mesh.tex,
                          mh.mesh.normals,
+                         mh.mesh.tangents,
                          mh.mesh.indices,
                          mh.mesh.trans);
     // Add to scenegraph
@@ -429,6 +441,7 @@ function initializeObjects(){
                          mh.mesh.colors,
                          mh.mesh.tex,
                          mh.mesh.normals,
+                         mh.mesh.tangents,
                          mh.mesh.indices,
                          mh.mesh.trans); 
     // Add to scenegraph
@@ -440,6 +453,7 @@ function initializeObjects(){
                          mh.mesh.colors,
                          mh.mesh.tex,
                          mh.mesh.normals,
+                         mh.mesh.tangents,
                          mh.mesh.indices,
                          mh.mesh.trans); 
     // Add to scenegraph
@@ -455,6 +469,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     lightTexSphere.initTexture("models/tex2.png");
@@ -470,6 +485,7 @@ function initializeObjects(){
                          mh.mesh.colors,
                          mh.mesh.tex,
                          mh.mesh.normals,
+                         mh.mesh.tangents,
                          mh.mesh.indices,
                          mh.mesh.trans); 
     //a10.initTexture("models/A10/A-10_Thunderbolt_II_P01.png"); 
@@ -483,6 +499,7 @@ function initializeObjects(){
                          mh.mesh.colors,
                          mh.mesh.tex,
                          mh.mesh.normals,
+                         mh.mesh.tangents,
                          mh.mesh.indices,
                          mh.mesh.trans); 
     // Add to scenegraph
@@ -494,6 +511,7 @@ function initializeObjects(){
                          mh.mesh.colors,
                          mh.mesh.tex,
                          mh.mesh.normals,
+                         mh.mesh.tangents,
                          mh.mesh.indices,
                          mh.mesh.trans);
     // Add to scenegraph
@@ -507,6 +525,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     bumpQuad.initTexture("models/BrickDiff0.jpg");
@@ -518,6 +537,7 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     bumpQuad1.initTexture("models/BrickDiff.jpg");
@@ -529,21 +549,35 @@ function initializeObjects(){
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     bumpSphere.initTexture("models/BrickDiff0.jpg");
     bumpSphere.initBumpMap("models/BrickBump0.jpg");
     
-    mh.setupTexturedTangentLightSphere(0.4);//setupTexturedTangentLightSphere();
+    mh.setupTexturedTangentLightSphere(0.4);
     bumpSphere1.initGL(gl, mh.vss, mh.fss);
     bumpSphere1.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
              mh.mesh.tex,
              mh.mesh.normals,
+             mh.mesh.tangents,
              mh.mesh.indices,
              mh.mesh.trans);
     bumpSphere1.initTexture("models/BrickDiff.jpg");
     bumpSphere1.initBumpMap("models/BrickBump.jpg");
+    
+    mh.setupBumpBox();
+    bumpBox.initGL(gl, mh.vss, mh.fss);
+    bumpBox.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.tangents,
+             mh.mesh.indices,
+             mh.mesh.trans);
+    bumpBox.initTexture("models/BrickDiff0.jpg");
+    bumpBox.initBumpMap("models/BrickBump0.jpg");
 }
 
 function setGUIValues(){
@@ -609,9 +643,10 @@ function animate(canvas) {
     }
     
     // Handle user input
+    updateCamera(dT);
     handleKeyboard(window, dT);    // window
     handleKeys();
-    updateCamera(dT);
+    
     
     updateClock();
     updateColorScene();
@@ -812,6 +847,14 @@ function updateBumpScene(){
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
     bumpSphere1.md.transformMatrix = bumpSphere1.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
+   
+    bumpBox.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    bumpBox.md.transformMatrix = bumpBox.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(42.0, 0.0, 0.0)));
+    bumpBox.md.transformMatrix = bumpBox.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
+    bumpBox.md.transformMatrix = bumpBox.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
     
 }
 
@@ -973,6 +1016,14 @@ function drawAll(){
     bumpSphere1.light.shininess = shininess; 
     bumpSphere1.light.diffIntensity = intDiff;
     bumpSphere1.light.specIntensity = intSpec;
+    
+    bumpBox.draw(bumpBox.shader.sp, viewMat, projectionMat, 0);
+    bumpBox.light.lightColor = getColor();
+    bumpBox.light.specularColor = getSpecColor();
+    bumpBox.light.ambientColor = getAmbiColor();
+    bumpBox.light.shininess = shininess; 
+    bumpBox.light.diffIntensity = intDiff;
+    bumpBox.light.specIntensity = intSpec;
 }
 
 // Setup texture
@@ -1053,6 +1104,7 @@ function cleanUp() {
     bumpQuad1.dispose();
     bumpSphere.dispose();
     bumpSphere1.dispose();
+    bumpBox.dispose();
 
     // Free textures
     gl.deleteTexture(tex);
@@ -1281,7 +1333,7 @@ function handleMouseMove(event){
         var deltaY;
         deltaX = (newX - lastMouseX) * turnSpeed;
         deltaY = (newY - lastMouseY) * turnSpeed;
-       // console.log(deltaX + " " + deltaY);
+        //console.log(deltaX + " " + deltaY);
 
         mouseX = deltaX; mouseY = deltaY;
         
