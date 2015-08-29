@@ -1278,7 +1278,7 @@ function updateCamera(dT){
         // Bump2
         case 6: scenePosition = new VecMath.SFVec3f(-36.0, 0.0, 0.0); break;
         // Bump2
-        case 7: break;
+        case 7: scenePosition = new VecMath.SFVec3f(-42.0, 0.0, 0.0);break;
         default: scene = 2;
     }
     
@@ -1534,7 +1534,7 @@ function changeScene(){
         case 5: scene = 5; break;
         // Scene6 -> Bump2
         case 6: scene = 6; break;
-        // Scene7 -> Bump2
+        // Scene7 -> Bump3
         case 7: scene = 7; break;
         default: scene = 2;
     }
