@@ -217,6 +217,7 @@ var bumpQuad = new Drawable(),
 var bumpSphere = new Drawable(),
     bumpSphere1 = new Drawable();
 var bumpBox = new Drawable();
+var bumpSphere2 = new Drawable();
 
 
 // Deform-objects
@@ -543,7 +544,7 @@ function initializeObjects(){
     bumpQuad1.initTexture("models/BrickDiff.jpg");
     bumpQuad1.initBumpMap("models/BrickBump.jpg");
     
-    mh.setupTexturedTangentLightSphere(0.4);
+    mh.setupTangetSphere(0.4, 1);
     bumpSphere.initGL(gl, mh.vss, mh.fss);
     bumpSphere.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -555,7 +556,7 @@ function initializeObjects(){
     bumpSphere.initTexture("models/BrickDiff0.jpg");
     bumpSphere.initBumpMap("models/BrickBump0.jpg");
     
-    mh.setupTexturedTangentLightSphere(0.4);
+    mh.setupTangetSphere(0.4, 1);
     bumpSphere1.initGL(gl, mh.vss, mh.fss);
     bumpSphere1.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -578,6 +579,18 @@ function initializeObjects(){
              mh.mesh.trans);
     bumpBox.initTexture("models/BrickDiff0.jpg");
     bumpBox.initBumpMap("models/BrickBump0.jpg");
+    
+    mh.setupTangetSphere(0.4, 0);
+    bumpSphere2.initGL(gl, mh.vss, mh.fss);
+    bumpSphere2.setBufferData(mh.mesh.vertices,
+             mh.mesh.col,
+             mh.mesh.tex,
+             mh.mesh.normals,
+             mh.mesh.tangents,
+             mh.mesh.indices,
+             mh.mesh.trans);
+    bumpSphere2.initTexture("models/BrickDiff0.jpg");
+    bumpSphere2.initBumpMap("models/BrickBump0.jpg");
 }
 
 function setGUIValues(){
@@ -855,6 +868,14 @@ function updateBumpScene(){
             VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
     bumpBox.md.transformMatrix = bumpBox.md.transformMatrix.mult(
            VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
+   
+    bumpSphere2.md.transformMatrix = VecMath.SFMatrix4f.identity();
+    bumpSphere2.md.transformMatrix = bumpSphere2.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(44.0, 0.0, 0.0)));
+    bumpSphere2.md.transformMatrix = bumpSphere2.md.transformMatrix.mult(
+            VecMath.SFMatrix4f.rotationZ(MathHelper.DTR(0.0)));
+    bumpSphere2.md.transformMatrix = bumpSphere2.md.transformMatrix.mult(
+           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(1,1,1))); 
     
 }
 
@@ -1009,13 +1030,21 @@ function drawAll(){
     bumpSphere.light.diffIntensity = intDiff;
     bumpSphere.light.specIntensity = intSpec;
     
-    bumpSphere1.draw(bumpSphere.shader.sp, viewMat, projectionMat, lighting);
+    bumpSphere1.draw(bumpSphere1.shader.sp, viewMat, projectionMat, lighting);
     bumpSphere1.light.lightColor = getColor();
     bumpSphere1.light.specularColor = getSpecColor();
     bumpSphere1.light.ambientColor = getAmbiColor();
     bumpSphere1.light.shininess = shininess; 
     bumpSphere1.light.diffIntensity = intDiff;
     bumpSphere1.light.specIntensity = intSpec;
+    
+    bumpSphere2.draw(bumpSphere2.shader.sp, viewMat, projectionMat, lighting);
+    bumpSphere2.light.lightColor = getColor();
+    bumpSphere2.light.specularColor = getSpecColor();
+    bumpSphere2.light.ambientColor = getAmbiColor();
+    bumpSphere2.light.shininess = shininess; 
+    bumpSphere2.light.diffIntensity = intDiff;
+    bumpSphere2.light.specIntensity = intSpec;
     
     bumpBox.draw(bumpBox.shader.sp, viewMat, projectionMat, 0);
     bumpBox.light.lightColor = getColor();
@@ -1105,6 +1134,7 @@ function cleanUp() {
     bumpSphere.dispose();
     bumpSphere1.dispose();
     bumpBox.dispose();
+    bumpSphere2.dispose();
 
     // Free textures
     gl.deleteTexture(tex);

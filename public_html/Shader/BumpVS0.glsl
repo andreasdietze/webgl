@@ -2,6 +2,7 @@
 attribute vec3 position;
 attribute vec2 texCoords;
 attribute vec3 normal;
+attribute vec3 tangent;
 
 // init Uniforms
 uniform vec3 translation;
@@ -22,7 +23,8 @@ void main() {
    vTexCoords = texCoords;
 
 // bump stuff
-   vec3 tangent = vec3(1.0, 0.0, 0.0);
+   //vec3 tangent = vec3(1.0, 0.0, 0.0);
+   vec3 tangent = (normalMat * vec4(tangent, 0.0)).xyz;
    vec3 binormal = cross(tangent, vNormal);
    vTBN = mat3(tangent, binormal, vNormal);
 

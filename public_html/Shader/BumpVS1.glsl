@@ -2,6 +2,7 @@
 attribute vec3 position;
 attribute vec2 texCoords;
 attribute vec3 normal;
+attribute vec3 tangent;
 
 // init Uniforms
 uniform vec3 translation;
@@ -24,9 +25,14 @@ void main() {
    vTexCoords = texCoords;
 
    vec3 n = normalize((normalMat * vec4(normal, 0.0)).xyz);
-   vec3 t = normalize((normalMat * vec4(1.0, 0.0, 0.0, 0.0)).xyz);
-   //vec3 b = normalize((viewMat * vec4(cross(n, t), 0.0)).xyz);
-   vec3 b = normalize(cross(n, t));
+   vec3 t;
+   if(tangent.x != 0.0){
+	 t = normalize((normalMat * vec4(tangent, 0.0)).xyz); 
+	} else {
+	 t = normalize((normalMat * vec4(1.0, 0.0, 0.0, 0.0)).xyz);  
+	}
+   vec3 b = normalize((viewMat * vec4(cross(n, t), 0.0)).xyz);  // viewMat
+   //vec3 b = normalize(cross(n, t));
    //vec3 b = cross(n, t);
 
    // vec3 tmpVec = vec3(vec3(0.0, 0.0, 5.0) - vPosition);

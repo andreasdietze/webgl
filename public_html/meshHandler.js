@@ -1126,18 +1126,15 @@ MeshHandler.prototype.setupTexturedLightSphere = function (radius) {
     this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
 };
 
-MeshHandler.prototype.setupTexturedTangentLightSphere = function (radius) {
-    // Vertex shader string
-    //this.vss = this.blinnPhongVSS;
+MeshHandler.prototype.setupTangetSphere = function (radius, shader) {
 
-    // Fragment shader string
-    //this.fss = this.blinnPhongFSS;
-    
-    // Vertex shader string
-    this.vss = this.bumpVSS1;
-
-    // Fragment shader string
-    this.fss = this.bumpFSS1;
+    if(shader === 0){
+        this.vss = this.bumpVSS0;
+        this.fss = this.bumpFSS0;
+    } else if(shader === 1){
+        this.vss = this.bumpVSS1;
+        this.fss = this.bumpFSS1;
+    }
     
     var latitudeBands = 30;
     var longitudeBands = 30;
@@ -1172,10 +1169,26 @@ MeshHandler.prototype.setupTexturedTangentLightSphere = function (radius) {
             normals.push(x);
             normals.push(y);
             normals.push(z);
-            //tangents.push(u - x);
-            //tangents.push(y);
-            //tangents.push(z); 
+           // tangents.push(u - x);
+           // tangents.push(y);
+           // tangents.push(z); 
         }
+    }
+    
+    // TMP vec
+    var tangente = new VecMath.SFVec3f(0.0, 0.0, 0.0);
+    
+    // Für jeden Vertex i subrahiere vertex i+1, verwende weiterhin z von i
+    // -> Tangente von vertex 
+    for(var i = 0; i < verts.length; i++){
+        
+        tangente.x = verts[i+3] - verts[i];   
+        tangente.y = verts[i+4] - verts[i+1];
+        tangente.z = verts[i+2]; // verts[i+5] - verts[i+2];
+        
+        tangents.push(tangente.x);
+        tangents.push(tangente.y);
+        tangents.push(tangente.z);
     }
 
     for (var latNumber = 0; latNumber < latitudeBands; latNumber++) {
@@ -1197,6 +1210,7 @@ MeshHandler.prototype.setupTexturedTangentLightSphere = function (radius) {
         vertices: verts,
         tex: tex,
         normals:normals,
+        tangents: tangents,
         indices: inds,
         trans: {x: 0, y: 0, z: 0}
     };
