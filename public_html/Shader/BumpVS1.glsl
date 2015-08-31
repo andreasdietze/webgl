@@ -54,7 +54,7 @@ void main() {
    vHalfVec.x = dot(tmpVec, t);
    vHalfVec.y = dot(tmpVec, b);
    vHalfVec.z = dot(tmpVec, n);
-   vHalfVec = normalize(vHalfVec);
+   //vHalfVec = normalize(vHalfVec);
    
    gl_Position = transformation * vec4(position, 1.0);
 }

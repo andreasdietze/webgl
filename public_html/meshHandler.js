@@ -1135,6 +1135,10 @@ MeshHandler.prototype.setupTangetSphere = function (radius, shader) {
         this.vss = this.bumpVSS1;
         this.fss = this.bumpFSS1;
     }
+    else if (shader === 2){
+        this.vss = this.bumpVSS2;
+        this.fss = this.bumpFSS2;
+    }
     
     var latitudeBands = 30;
     var longitudeBands = 30;
@@ -1175,20 +1179,46 @@ MeshHandler.prototype.setupTangetSphere = function (radius, shader) {
         }
     }
     
+   // var coefs = [];
+   // var coef;
+    
+   // for(var i = 0; i < tex.length; i += 2){
+       // coef = 1 / (tex[i].u * tex[i+1].v - tex[i+1].u * tex[i].v);
+       // coefs.push(coef);
+   // }
+    
+    
     // TMP vec
     var tangente = new VecMath.SFVec3f(0.0, 0.0, 0.0);
     
     // Für jeden Vertex i subrahiere vertex i+1, verwende weiterhin z von i
     // -> Tangente von vertex 
-    for(var i = 0; i < verts.length; i++){
+    for(var i = 0; i < verts.length; i+=3){  // i+=3
         
-        tangente.x = verts[i+3] - verts[i];   
-        tangente.y = verts[i+4] - verts[i+1];
-        tangente.z = verts[i+2]; // verts[i+5] - verts[i+2];
+        if(i === verts.length - 4){
+            tangente.x = verts[0] - verts[i];   
+            tangente.y = verts[1] - verts[i+1];
+            tangente.z = verts[i+2]; // verts[i+5] - verts[i+2];
+            
+            tangente.normalize();
         
-        tangents.push(tangente.x);
-        tangents.push(tangente.y);
-        tangents.push(tangente.z);
+            tangents.push(-tangente.x);
+            tangents.push(-tangente.y);
+            tangents.push(-tangente.z); 
+        } else if( i > verts.length - 3){
+            ;
+        } else {
+            tangente.x = verts[i+3] - verts[i];   
+            tangente.y = verts[i+4] - verts[i+1];
+            tangente.z = verts[i+2]; ;
+            
+            tangente.normalize();
+        
+            tangents.push(-tangente.x);
+            tangents.push(-tangente.y);
+            tangents.push(-tangente.z); 
+        }
+
     }
 
     for (var latNumber = 0; latNumber < latitudeBands; latNumber++) {

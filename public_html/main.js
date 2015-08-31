@@ -544,7 +544,7 @@ function initializeObjects(){
     bumpQuad1.initTexture("models/BrickDiff.jpg");
     bumpQuad1.initBumpMap("models/BrickBump.jpg");
     
-    mh.setupTangetSphere(0.4, 1);
+    mh.setupTangetSphere(0.4, 2);
     bumpSphere.initGL(gl, mh.vss, mh.fss);
     bumpSphere.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -556,7 +556,7 @@ function initializeObjects(){
     bumpSphere.initTexture("models/BrickDiff0.jpg");
     bumpSphere.initBumpMap("models/BrickBump0.jpg");
     
-    mh.setupTangetSphere(0.4, 1);
+    mh.setupTangetSphere(0.4, 2);
     bumpSphere1.initGL(gl, mh.vss, mh.fss);
     bumpSphere1.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
