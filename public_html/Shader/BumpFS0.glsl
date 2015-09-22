@@ -30,33 +30,33 @@ void main() {
    vec3 diffuseColor = vec3(1.0, 1.0, 1.0);
    // vec3 lightDirection = (viewMat * vec4(-1.0, 0.0, -1.0, 0.0)).xyz;
    vec3 lightDirection= (vTBN * vec3(-1.0, 0.0, -1.0)).xyz;
-   vec3 eye = (vTBN * vPosition).xyz;
+   vec3 eye = (vTBN * -vPosition).xyz;
 
    vec3 light = normalize(-lightDirection);
-   vec3 view = normalize(-eye); //(-vPosition);
+   vec3 view = normalize(eye); //(-vPosition);
    vec3 normal = normalize(vNormal);
    vec3 halfVec = normalize(light + view);
    
 
 //Get the color of the texture
-   vec3 bumpNorm = vec3(texture2D(bumpMap, vTexCoords));
+   vec3 bumpNorm = vec3(texture2D(bumpMap, vTexCoords).xyz);
    bumpNorm = (bumpNorm - 0.5) * 2.0;
 
    vec3 color = vec3(0.0);
    float NdotL = 0.0;
    
    if(lighting == 1){
-   float NdotL = max(dot(bumpNorm, view), 0.0);
-   color = ambientColor + (diffuseColor * NdotL * lightColor) * diffIntensity + (pow(NdotL, shininess) * specularColor) * specIntensity;
-}
+    float NdotL = max(dot(bumpNorm, light), 0.0);
+    color = ambientColor + (diffuseColor * NdotL * lightColor) * diffIntensity + (pow(NdotL, shininess) * specularColor) * specIntensity;
+   }
 
  if(lighting == 0){
    // Diffuser Anteil
-   NdotL = max(dot(bumpNorm, light), 0.0);
+   NdotL = max(dot(vNormal, light), 0.0);
    vec3 diffuse = (diffuseColor * NdotL * lightColor) * diffIntensity;
 
-   // Specularer Anteil \n" + 
-   float powNdotH = pow(max(dot(bumpNorm, halfVec), 0.0), shininess);
+   // Specularer Anteil \n" + e
+   float powNdotH = pow(max(dot(vNormal, view), 0.0), shininess);
    vec3 specular = (specularColor * powNdotH) * specIntensity;
 
    // Finale Farbe 

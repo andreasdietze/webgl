@@ -103,6 +103,8 @@ var // Blur technique:
     blurTechnique = 0,
     // Amount of iterations at startup
     blurIterations = 5,
+    // Radial blur distance
+    radDist,
     // De/Activate post processing
     blurActive = false;
 
@@ -307,6 +309,8 @@ function initializeObjects(){
             mh.mesh.tangents,
             mh.mesh.indices,
             mh.mesh.trans);
+            
+    //console.log("Fin: 0");
 
     // Setup meshData for secondPointer
     mh.setupMinPointer();
@@ -318,6 +322,8 @@ function initializeObjects(){
             mh.mesh.tangents,
             mh.mesh.indices,
             mh.mesh.trans);
+            
+    //console.log("Fin: 1");
 
     // Setup meshData for hourPointer
     mh.setupHourPointer();
@@ -331,7 +337,7 @@ function initializeObjects(){
             mh.mesh.trans);
             
     // Setup meshDate for clockTex  
-    mh.setupQuad();
+    mh.setupQuad(2);
     clockTex.initGL(gl, mh.vss, mh.fss);
     clockTex.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -413,16 +419,16 @@ function initializeObjects(){
     
     // Lighting ---------------------------------------
     
-  /* mh.setupDiffusedBox();
-    boxDiffuseShader.initGL(gl);
-    boxDiffuseShader.initShader(mh.vss, mh.fss);
-    boxDiffuse.initGL(gl);
-    boxDiffuse.setBufferData(mh.mesh.vertices,
+  // mh.setupDiffusedBox();
+   // boxDiffuseShader.initGL(gl);
+  //  boxDiffuseShader.initShader(mh.vss, mh.fss);
+  //  boxDiffuse.initGL(gl);
+  //  boxDiffuse.setBufferData(mh.mesh.vertices,
             //mh.mesh.col, // auskommentieren
-            mh.mesh.tex,
-            mh.mesh.indices,
-            mh.mesh.trans);
-    boxDiffuse.initTexture("models/crazyCube.png");*/
+        //    mh.mesh.tex,
+        //    mh.mesh.indices,
+        //    mh.mesh.trans);
+   // boxDiffuse.initTexture("models/crazyCube.png");
     
     mh.loadOBJ("models/cow.obj", 0.175);
     objCow.initGL(gl, mh.vss, mh.fss);
@@ -434,7 +440,7 @@ function initializeObjects(){
                          mh.mesh.indices,
                          mh.mesh.trans);
     // Add to scenegraph
-    drawables.push(objCow);                     
+    //drawables.push(objCow);                     
                          
     mh.loadOBJSpec("models/cow.obj", 0.175, 0);
     objCowSpec.initGL(gl, mh.vss, mh.fss);
@@ -460,8 +466,8 @@ function initializeObjects(){
     // Add to scenegraph
     drawables.push(lightSphere); 
     
-    var light0 = new Light(),
-        light1 = new Light();
+    //var light0 = new Light(),
+    //    light1 = new Light();
     
     
     mh.setupTexturedLightSphere(0.4);
@@ -474,8 +480,8 @@ function initializeObjects(){
              mh.mesh.indices,
              mh.mesh.trans);
     lightTexSphere.initTexture("models/tex2.png");
-    lightTexSphere.lights.push(light0);
-    lightTexSphere.lights.push(light1);
+    //lightTexSphere.lights.push(light0);
+    //lightTexSphere.lights.push(light1);
     
      // Add to scenegraph
     drawables.push(lightTexSphere);   
@@ -504,9 +510,9 @@ function initializeObjects(){
                          mh.mesh.indices,
                          mh.mesh.trans); 
     // Add to scenegraph
-    drawables.push(defWaveSphere); 
+    //drawables.push(defWaveSphere); 
     
-    mh.loadOBJSpec("models/plane16x16.obj", 0.425, 0);
+    mh.loadOBJSpec("models/plane16x16.obj", 0.425, 1);
     defWavePlane.initGL(gl, mh.vss, mh.fss);
     defWavePlane.setBufferData(mh.mesh.vertices,
                          mh.mesh.colors,
@@ -516,11 +522,11 @@ function initializeObjects(){
                          mh.mesh.indices,
                          mh.mesh.trans);
     // Add to scenegraph
-    drawables.push(defWavePlane); 
+    //drawables.push(defWavePlane); 
     
     // Bumped quad
     //mh.setupTexturedLightSphere(0.4);
-    mh.setupQuad();
+    mh.setupQuad(0);
     bumpQuad.initGL(gl, mh.vss, mh.fss);
     bumpQuad.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -531,8 +537,9 @@ function initializeObjects(){
              mh.mesh.trans);
     bumpQuad.initTexture("models/BrickDiff0.jpg");
     bumpQuad.initBumpMap("models/BrickBump0.jpg");
+    drawables.push(bumpQuad); 
     
-    mh.setupQuad();
+    mh.setupQuad(0);
     bumpQuad1.initGL(gl, mh.vss, mh.fss);
     bumpQuad1.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -543,8 +550,9 @@ function initializeObjects(){
              mh.mesh.trans);
     bumpQuad1.initTexture("models/BrickDiff.jpg");
     bumpQuad1.initBumpMap("models/BrickBump.jpg");
+    drawables.push(bumpQuad1);
     
-    mh.setupTangetSphere(0.4, 2);
+    mh.setupTangetSphere(0.4, 1);
     bumpSphere.initGL(gl, mh.vss, mh.fss);
     bumpSphere.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -555,6 +563,7 @@ function initializeObjects(){
              mh.mesh.trans);
     bumpSphere.initTexture("models/BrickDiff0.jpg");
     bumpSphere.initBumpMap("models/BrickBump0.jpg");
+    drawables.push(bumpSphere);
     
     mh.setupTangetSphere(0.4, 2);
     bumpSphere1.initGL(gl, mh.vss, mh.fss);
@@ -567,6 +576,7 @@ function initializeObjects(){
              mh.mesh.trans);
     bumpSphere1.initTexture("models/BrickDiff.jpg");
     bumpSphere1.initBumpMap("models/BrickBump.jpg");
+    drawables.push(bumpSphere1);
     
     mh.setupBumpBox();
     bumpBox.initGL(gl, mh.vss, mh.fss);
@@ -579,6 +589,7 @@ function initializeObjects(){
              mh.mesh.trans);
     bumpBox.initTexture("models/BrickDiff0.jpg");
     bumpBox.initBumpMap("models/BrickBump0.jpg");
+    drawables.push(bumpBox);
     
     mh.setupTangetSphere(0.4, 0);
     bumpSphere2.initGL(gl, mh.vss, mh.fss);
@@ -590,7 +601,8 @@ function initializeObjects(){
              mh.mesh.indices,
              mh.mesh.trans);
     bumpSphere2.initTexture("models/BrickDiff0.jpg");
-    bumpSphere2.initBumpMap("models/BrickBump0.jpg");
+    bumpSphere2.initBumpMap("models/BrickBump0.jpg"); 
+    drawables.push(bumpSphere2);
 }
 
 function setGUIValues(){
@@ -736,11 +748,11 @@ function updateColorScene(){
     sphereTex2.md.transformMatrix._13 = 0.0;
     sphereTex2.md.transformMatrix._23 = 0.0;
     rotMat = VecMath.SFMatrix4f.rotationY(1 * dT);
-    sphereTex2.md.transformMatrix = sphereTex2.md.transformMatrix.mult(rotMat);
+    sphereTex2.md.transformMatrix = sphereTex2.md.transformMatrix.mult(rotMat); 
     
     houseTex.md.transformMatrix._03 = -11.0;
     houseTex.md.transformMatrix._13 = 0.5;
-    houseTex.md.transformMatrix._23 = 0.0;
+    houseTex.md.transformMatrix._23 = 0.0; 
     
     
     boxTex.md.transformMatrix = VecMath.SFMatrix4f.identity();
@@ -762,13 +774,13 @@ function updateColorScene(){
 }
 
 function updateLightScene(){
-  /*  boxDiffuse.md.transformMatrix = VecMath.SFMatrix4f.identity();
-    boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-4.5, 0.0, 0.0)));
-    boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
-            VecMath.SFMatrix4f.rotationY(MathHelper.DTR(angle)));
-    boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
-           VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); */
+ //  boxDiffuse.md.transformMatrix = VecMath.SFMatrix4f.identity();
+ //   boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
+ //           VecMath.SFMatrix4f.translation(new VecMath.SFVec3f(-4.5, 0.0, 0.0)));
+ //   boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
+ //           VecMath.SFMatrix4f.rotationY(MathHelper.DTR(angle)));
+ //   boxDiffuse.md.transformMatrix = boxDiffuse.md.transformMatrix.mult(
+  //         VecMath.SFMatrix4f.scale(new VecMath.SFVec3f(0.25, 0.25, 0.25))); 
  
     objCow.md.transformMatrix = VecMath.SFMatrix4f.identity();
     objCow.md.transformMatrix = objCow.md.transformMatrix.mult(
@@ -900,17 +912,27 @@ function drawAll(){
     boxTex.draw(boxTex.shader.sp, viewMat, projectionMat, lighting);
     boxTex2.draw(boxTex2.shader.sp, viewMat, projectionMat, lighting);
     sphereTex.draw(sphereTex.shader.sp, viewMat, projectionMat, lighting);
-    sphereTex2.draw(sphereTex2.shader.sp, viewMat, projectionMat, lighting);
+    sphereTex2.draw(sphereTex2.shader.sp, viewMat, projectionMat, lighting); 
+    
     // Lighting
     //boxDiffuse.draw(boxDiffuseShader.sp, viewMat, projectionMat);
-
-    // TODO: implement shaderobject into drawable
-    //for(var i = 0; i < drawables.length; i++)
-        //drawables[i].draw(objCowShaderSpec.sp, viewMat, projectionMat, lighting, shininess);
-
+    
     objCow.draw(objCow.shader.sp, viewMat, projectionMat, lighting);
 
-    objCowSpec.draw(objCowSpec.shader.sp, viewMat, projectionMat, lighting);
+    // TODO: implement shaderobject into drawable
+    for(var i = 0; i < drawables.length; i++){
+        drawables[i].draw(drawables[i].shader.sp, viewMat, projectionMat, lighting);
+        drawables[i].light.lightColor = getColor();
+        drawables[i].light.specularColor = getSpecColor();
+        drawables[i].light.ambientColor = getAmbiColor();
+        drawables[i].light.shininess = shininess;
+        drawables[i].light.diffIntensity = intDiff;
+        drawables[i].light.specIntensity = intSpec;
+        drawables[i].light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
+        drawables[i].light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+    } 
+
+   /* objCowSpec.draw(objCowSpec.shader.sp, viewMat, projectionMat, lighting);
     objCowSpec.light.lightColor = getColor();
     objCowSpec.light.specularColor = getSpecColor();
     objCowSpec.light.ambientColor = getAmbiColor();
@@ -918,7 +940,7 @@ function drawAll(){
     objCowSpec.light.diffIntensity = intDiff;
     objCowSpec.light.specIntensity = intSpec;
     objCowSpec.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 0.0);
-    objCowSpec.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+    objCowSpec.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0); 
 
 
     lightSphere.draw(lightSphere.shader.sp, viewMat, projectionMat, lighting);
@@ -940,8 +962,6 @@ function drawAll(){
     lightSphere.light0.position = new VecMath.SFVec4f(1.0, 0.0, 0.0, 1.0);
     lightSphere.light0.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
 
-
-
     lightTexSphere.draw(lightTexSphere.shader.sp, viewMat, projectionMat, lighting);
     lightTexSphere.light.lightColor = getColor();
     lightTexSphere.light.specularColor = getSpecColor();
@@ -950,7 +970,7 @@ function drawAll(){
     lightTexSphere.light.diffIntensity = intDiff;
     lightTexSphere.light.specIntensity = intSpec;
     lightTexSphere.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 1.0);
-    lightTexSphere.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+    lightTexSphere.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0); */
 
 
    /* lightTexSphere.lights[0].lightColor = getColor();
@@ -969,10 +989,10 @@ function drawAll(){
     lightTexSphere.lights[1].diffIntensity = intDiff;
     lightTexSphere.lights[1].specIntensity = intSpec;
     lightTexSphere.lights[1].position = new VecMath.SFVec4f(0.0, 1.0, 1.0, 0.0);
-    lightTexSphere.lights[1].direction = new VecMath.SFVec4f(1.0, 0.0, -1.0, 0.0);*/
+    lightTexSphere.lights[1].direction = new VecMath.SFVec4f(1.0, 0.0, -1.0, 0.0);  */
 
     //a10
-    a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
+    /*a10.draw(a10.shader.sp, viewMat, projectionMat, lighting);
     a10.light.lightColor = getColor();
     a10.light.specularColor = getSpecColor();
     a10.light.ambientColor = getAmbiColor();
@@ -980,7 +1000,7 @@ function drawAll(){
     a10.light.diffIntensity = intDiff;
     a10.light.specIntensity = intSpec;
     a10.light.position = new VecMath.SFVec4f(0.0, 0.0, 1.0, 1.0);
-    a10.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);
+    a10.light.direction = new VecMath.SFVec4f(-1.0, 0.0, -1.0, 0.0);  */
 
     // DEFORM
     defWaveSphere.draw(defWaveSphere.shader.sp, viewMat, projectionMat, lighting);
@@ -1006,7 +1026,7 @@ function drawAll(){
     defWavePlane.defAmt = amtDef;
 
     // BUMP
-    bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
+   /* bumpQuad.draw(bumpQuad.shader.sp, viewMat, projectionMat, lighting);
     bumpQuad.light.lightColor = getColor();
     bumpQuad.light.specularColor = getSpecColor();
     bumpQuad.light.ambientColor = getAmbiColor();
@@ -1052,7 +1072,7 @@ function drawAll(){
     bumpBox.light.ambientColor = getAmbiColor();
     bumpBox.light.shininess = shininess; 
     bumpBox.light.diffIntensity = intDiff;
-    bumpBox.light.specIntensity = intSpec;
+    bumpBox.light.specIntensity = intSpec;*/
 }
 
 // Setup texture
@@ -1091,21 +1111,22 @@ function cleanUp() {
     
     // Scenes
     sceneOne.dispose();
+    
     //orientationScene.dispose();
 
     // Textured - Shaders
-    /*boxTex.shader.dispose();
+    boxTex.shader.dispose();
     houseTex.shader.dispose();
-    sphere.shader.dispose();
-    sphere1.shader.dispose();
+    //sphere.shader.dispose();
+    //sphere1.shader.dispose(); 
     
     // Lighting
-    boxDiffuseShader.dispose();
+    //boxDiffuseShader.dispose();
     objCow.shader.dispose();
     objCowSpec.shader.dispose();
     lightSphere.shader.dispose();
     lightTexSphere.shader.dispose();
-    a10.shader.dispose(); */
+    a10.shader.dispose(); 
     
     // Free buffers of drawable
     // Colors - Drawables
@@ -1135,6 +1156,11 @@ function cleanUp() {
     bumpSphere1.dispose();
     bumpBox.dispose();
     bumpSphere2.dispose();
+    
+    defWavePlane.dispose();
+    defWaveSphere.dispose();
+    
+    
 
     // Free textures
     gl.deleteTexture(tex);
@@ -1514,8 +1540,28 @@ function changeBlurTechnique(){
 
 // Set iterations for blur
 function setBlurIterations(newValue){
-    blurIterations = newValue;
-    document.getElementById("blurIterationsLabel").innerHTML = "Iterations: " + blurIterations;
+    var regler;
+    if(blurTechnique === 4)
+    {
+        radDist = newValue;
+        document.getElementById("blurIterationsLabel").innerHTML = "Rad-Dist: " + radDist;
+        regler = document.getElementById("blurIterations");
+        regler.setAttribute("min", 0.1);
+        regler.setAttribute("max", 3.0);
+        regler.setAttribute("value", 2.2);
+        regler.setAttribute("step", 0.1);
+    }
+    else // if(blurTechnique === 0 || blurTechnique === 1 || blurTechnique === 3)
+    {
+        blurIterations = newValue; 
+        document.getElementById("blurIterationsLabel").innerHTML = "Iterations: " + blurIterations;
+        regler = document.getElementById("blurIterations");
+        regler.setAttribute("min", 1);
+        regler.setAttribute("max", 15);
+        regler.setAttribute("value", 5);
+        regler.setAttribute("step", 1);
+       // regler.setAttribute("onchange", setRadDist(regler.value));
+    }
 }
 
 // Activate or deactivate post processing
@@ -1525,7 +1571,6 @@ function setPP(value){
     else
         blurActive = false;
 }
-
 
 // ----------------------------------------------------------------- 
 // -------------------------- Camera-Menue ------------------------- 
@@ -1642,6 +1687,7 @@ function initShaders() {
     shaderProgram.iterations = gl.getUniformLocation(shaderProgram, "it");
     shaderProgram.numIt = gl.getUniformLocation(shaderProgram, "numIt");
     shaderProgram.tex = gl.getUniformLocation(shaderProgram, "tex");
+    shaderProgram.radialDist = gl.getUniformLocation(shaderProgram, "radDist");
 }
 
 function draw(canvas) {
@@ -1659,7 +1705,10 @@ function draw(canvas) {
     
     // Set blur iterations
     gl.uniform1i(shaderProgram.iterations, blurIterations);
-    gl.uniform1f(shaderProgram.numIt, blurIterations * 2.0);
+    gl.uniform1f(shaderProgram.numIt, (blurIterations * 2.0) + 1.0);
+    
+    // Set distance for radial blur
+    gl.uniform1f(shaderProgram.radialDist, radDist);
     
     // Rendertexture rdy
     if(fbTex && fbTex.ready){

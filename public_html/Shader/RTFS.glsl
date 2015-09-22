@@ -3,26 +3,28 @@ uniform int blurTech;
 uniform int it;
 uniform float numIt;
 uniform vec2 resolution;
+uniform float radDist;
 varying vec2 vTexCoords;
 
 void main() {
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-	//const int it = 5;
+	//const int it = 5; // -> Für Chrome
+	
 	if(blurTech == 0 || blurTech == 2){
 		// i legt anzahl der umliegenden Pixel fest die betrachtet werden sollen 
 		for(int i = -it; i < it; i++)
 		{
-			// Vertikal
-			color += texture2D(tex, vTexCoords + vec2(i, 0.0) / (resolution.x / 2.0));
+			// Horizontal -> Durch Auflösung teilen um Mittelwert zu erhalten (mappen von 0-1)
+			color += texture2D(tex, vTexCoords + vec2(i, 0.0) / (resolution.x / 1.0));
 		}
-		// Durch die Gesamtanzahl der Pixel teilen um Mittelwert zu erhalten
+		// Durch die Gesamtanzahl der Iterationen(Kernel) teilen um Mittelwert zu erhalten
 		color /= numIt;
 	}
 	
 	if(blurTech == 1 || blurTech == 2){
 		for(int i = -it; i < it; i++)
 		{
-			// Horizontal 
+			// Vertikal 
 			color += texture2D(tex, vTexCoords + vec2(0.0, i) / (resolution.y / 2.0));
 		}
 		color /= numIt;
@@ -56,7 +58,7 @@ void main() {
 	vec4 sum;
 	
 	float sampleDist = 0.5;
-    float sampleStrength = 2.2; 
+    //float sampleStrength = 2.2; 
 	
 	if(blurTech == 4){
 		dir = 0.5 - vTexCoords; 
@@ -70,7 +72,7 @@ void main() {
 			sum += texture2D( tex, vTexCoords + dir * samples[i] * sampleDist );
 
 		sum *= 1.0/11.0;
-		float t = dist * sampleStrength;
+		float t = dist * radDist; // sampleStrength
 		t = clamp( t ,0.0,1.0);
 
 		gl_FragColor = mix( color, sum, t );

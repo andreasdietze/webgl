@@ -256,12 +256,31 @@ MeshHandler.prototype.setupHourPointer = function () {
     this.mesh.transformMatrix = VecMath.SFMatrix4f.identity();
 };
 
-MeshHandler.prototype.setupQuad = function () {
-    // Vertex shader string
-    this.vss = this.bumpVSS1;
+MeshHandler.prototype.setupQuad = function (type) {
+    
+    if(type === 0){
+        // Vertex shader string
+        this.vss = this.bumpVSS1;
 
-    // Fragment shader string
-    this.fss = this.bumpFSS1;
+        // Fragment shader string
+        this.fss = this.bumpFSS1;
+    }
+    else if (type === 1){
+        // Vertex shader string
+        this.vss = this.deformVSS;
+
+        // Fragment shader string
+        this.fss = this.deformFSS;
+    }
+    else if (type === 2){
+        // Vertex shader string
+        this.vss = this.texVSS;
+
+        // Fragment shader string
+        this.fss = this.texFSS;
+    }
+    
+
 
     // Setup triangle vertices
     this.mesh = {
@@ -1290,6 +1309,7 @@ MeshHandler.prototype.loadOBJSpec = function (fileName, scaleFac, shader) {
             this.vss = this.deformVSS;
             // Fragment shader string
             this.fss = this.deformFSS;
+            
         break;
         
         default: 

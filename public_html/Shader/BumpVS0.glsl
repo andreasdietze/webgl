@@ -26,7 +26,10 @@ void main() {
    //vec3 tangent = vec3(1.0, 0.0, 0.0);
    vec3 tangent = (normalMat * vec4(tangent, 0.0)).xyz;
    vec3 binormal = cross(tangent, vNormal);
-   vTBN = mat3(tangent, binormal, vNormal);
+   //binormal = (normalMat * vec4(binormal, 0.0)).xyz;
+   mat3 tbn = mat3(tangent, binormal, vNormal);
+   //vTBN = transpose(tbn);
+   vTBN = tbn;
 
    gl_Position = transformation * vec4(position, 1.0);
 }

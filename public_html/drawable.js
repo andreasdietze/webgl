@@ -9,7 +9,7 @@
 // Basic constructor -> set interface to GL-API
 var Drawable = function (tag, id) {
     this.gl = null;       // Access to GL-API
-    this.md = null;       // MeshData
+    //this.md = null;
     this.angle = 0.0;     // Degrees for rotationZ
     this.tex = null;      // Texture object
     this.bumpMap = null;  // Bumpmap
@@ -26,8 +26,7 @@ var Drawable = function (tag, id) {
     this.defInt = 0.05;
     this.defAmt = 4.0;
     
-    this.lights = [];
-    
+    this.lights = [];   
 };
 
 // Init interface to GL
@@ -36,6 +35,33 @@ Drawable.prototype.initGL = function (gl, vss, fss) {
     this.shader = new Shader();
     this.shader.initGL(gl);
     this.shader.initShader(vss, fss);
+};
+
+// Set md, translation and rotation. 
+// Finally init buffers
+Drawable.prototype.setBufferData = function (vertices, colors, tex, normals, tangents, indices, translation) {
+    // Set md
+    this.md = {
+        // Setup vetices
+        vertices: vertices,
+        // Setup vertex colors
+        col: colors,
+        // Seupt texCoords
+        tex: tex,
+        // Setup normals
+        normals: normals,
+        // Setup tangents
+        tangents: tangents,
+        // Setup indices
+        indices: indices,
+        // Setup translation
+        trans: translation
+    };
+
+    this.md.transformMatrix = VecMath.SFMatrix4f.identity();
+
+    // Init buffers
+    this.initBuffers();
 };
 
 // Init and bind buffers
@@ -72,40 +98,12 @@ Drawable.prototype.initBuffers = function () {
         this.md.tangentBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.tangentBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.md.tangents), this.gl.STATIC_DRAW);
-   
     }
-    
+
     // IndexBuffer
     this.md.indexBuffer = this.gl.createBuffer();
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.md.indexBuffer);
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.md.indices), this.gl.STATIC_DRAW);
-};
-
-// Set md, translation and rotation. 
-// Finally init buffers
-Drawable.prototype.setBufferData = function (vertices, colors, tex, normals, tangents, indices, translation) {
-    // Set md
-    this.md = {
-        // Setup vetices
-        vertices: vertices,
-        // Setup vertex colors
-        col: colors,
-        // Seupt texCoords
-        tex: tex,
-        // Setup normals
-        normals: normals,
-        // Setup tangents
-        tangents: tangents,
-        // Setup indices
-        indices: indices,
-        // Setup translation
-        trans: translation
-    };
-
-    this.md.transformMatrix = VecMath.SFMatrix4f.identity();
-
-    // Init buffers
-    this.initBuffers();
 };
 
 // Update
@@ -308,9 +306,11 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
                 0); // offset (in bytes)
         this.gl.enableVertexAttribArray(sp.normal);
     }
+
     
     // Bind tangentBuffer
     if(this.md.normals && this.md.tangents){
+    //if((typeof this.md.normals !== "undefined") && (typeof this.md.normals !== "undefined")){
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.md.tangentBuffer);
         this.gl.vertexAttribPointer(sp.tangent, // index of attribute
                 3, // three position components (x,y,z)
@@ -320,6 +320,8 @@ Drawable.prototype.draw = function (sp, viewMat, projectionMat, lighting) {
                 0); // offset (in bytes)
         this.gl.enableVertexAttribArray(sp.tangent);
     }
+    //}
+    //console.log(this.md.tangents);
     
     if(this.md.indices){
         // Draw call

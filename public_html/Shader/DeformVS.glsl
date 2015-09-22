@@ -39,6 +39,7 @@ void main() {
 		gl_Position = transformation * vec4(v, 1.0);
 	}
 	
+	
 	float angle, freqx, freqy, freqz, amp, f;
 	float posX, posY, posZ;
 	if(deformStyle == 1){
