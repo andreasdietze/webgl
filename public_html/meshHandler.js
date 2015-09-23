@@ -1216,7 +1216,7 @@ MeshHandler.prototype.setupTangetSphere = function (radius, shader) {
         
         if(i === verts.length - 4){
             tangente.x = verts[0] - verts[i];   
-            tangente.y = verts[1] - verts[i+1];
+            tangente.y = verts[i+1];;// - verts[i+1];
             tangente.z = verts[i+2]; // verts[i+5] - verts[i+2];
             
             tangente.normalize();
@@ -1228,7 +1228,7 @@ MeshHandler.prototype.setupTangetSphere = function (radius, shader) {
             ;
         } else {
             tangente.x = verts[i+3] - verts[i];   
-            tangente.y = verts[i+4] - verts[i+1];
+            tangente.y = verts[i+1]//verts[i+4] - verts[i+1];
             tangente.z = verts[i+2]; ;
             
             tangente.normalize();

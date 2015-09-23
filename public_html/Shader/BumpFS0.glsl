@@ -52,11 +52,11 @@ void main() {
 
  if(lighting == 0){
    // Diffuser Anteil
-   NdotL = max(dot(vNormal, light), 0.0);
+   NdotL = max(dot(bumpNorm, light), 0.0);
    vec3 diffuse = (diffuseColor * NdotL * lightColor) * diffIntensity;
 
    // Specularer Anteil \n" + e
-   float powNdotH = pow(max(dot(vNormal, view), 0.0), shininess);
+   float powNdotH = pow(max(dot(bumpNorm, view), 0.0), shininess);
    vec3 specular = (specularColor * powNdotH) * specIntensity;
 
    // Finale Farbe 

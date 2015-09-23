@@ -50,7 +50,7 @@ void main() {
    vEyeVec.y = dot(tmpVec, b);
    vEyeVec.z = dot(tmpVec, n);
    
-   tmpVec = (-vLightVec + vEyeVec );  // +normalize(vEyeVec)
+   tmpVec = (vLightVec + vEyeVec );  // +normalize(vEyeVec)
    vHalfVec.x = dot(tmpVec, t);
    vHalfVec.y = dot(tmpVec, b);
    vHalfVec.z = dot(tmpVec, n);

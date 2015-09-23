@@ -32,11 +32,11 @@ void main() {
    vec3 diffuseColor = vec3(1.0, 1.0, 1.0);
    float distSqr = dot(vLightVec, vLightVec);
    float att = clamp(1.0 * sqrt(distSqr), 0.0, 1.0);
-   vec3 lVec = vLightVec * inversesqrt(distSqr); // * inversesqrt(distSqr);
+   vec3 lVec = vLightVec * inversesqrt(distSqr);
 
    vec3 vVec = normalize(vEyeVec);
    vec3 base = vec3(texture2D(tex, vTexCoords));
-   vec3 bump = normalize(texture2D(bumpMap, vTexCoords).rgb * 2.0 - 1.0);
+   vec3 bump = normalize(texture2D(bumpMap, vTexCoords).xyz * 2.0 - 1.0);
    //vec3 half = normalize(vHalfVec);
    //bump = normalize(bump);
    vec3 vAmbient = ambientColor;

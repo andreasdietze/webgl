@@ -565,7 +565,7 @@ function initializeObjects(){
     bumpSphere.initBumpMap("models/BrickBump0.jpg");
     drawables.push(bumpSphere);
     
-    mh.setupTangetSphere(0.4, 2);
+    mh.setupTangetSphere(0.4, 1);
     bumpSphere1.initGL(gl, mh.vss, mh.fss);
     bumpSphere1.setBufferData(mh.mesh.vertices,
              mh.mesh.col,
@@ -1234,6 +1234,8 @@ function handleKeys() {
     }
     //console.log("forward: " + forward);
     //console.log("strafe : " + strafe);
+    
+    //console.log(currentlyPressedKeys);
 }
 
 function handleKeyboard(canvas, dT) {
@@ -1359,12 +1361,12 @@ function updateCamera(dT){
 
 function handleMouseDown(event){
     mouseDown = true;
-    lastMouseX = event.layerX;
-    lastMouseY = event.layerY;
 }
 
 function handleMouseUp(){
     mouseDown = false;
+    mouseX = 0.0;
+    mouseY = 0.0;
 }
 
 // http://learningwebgl.com/blog/?p=1253
@@ -1385,16 +1387,18 @@ function handleMouseMove(event){
     if(isCanvas === "glCanvas"){
         var turnSpeed = 30.0;
 
-        var deltaX; 
+        var deltaX;
         var deltaY;
-        deltaX = (newX - lastMouseX) * turnSpeed;
-        deltaY = (newY - lastMouseY) * turnSpeed;
-        //console.log(deltaX + " " + deltaY);
+        deltaX = newX - lastMouseX;
+        deltaY = newY - lastMouseY;
 
-        mouseX = deltaX; mouseY = deltaY;
+        mouseX = deltaX; 
+        mouseY = deltaY;
         
-        yawRate = -mouseX; 
-        pitchRate = -mouseY;
+        //console.log(mouseX + " " + mouseY);
+        
+        yawRate = -mouseX * turnSpeed;  
+        pitchRate = -mouseY * turnSpeed;
     }
     
     lastMouseX = newX;
@@ -1482,6 +1486,12 @@ function getSpecColor(){
 
 // http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 function hexToRgb(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+    
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
         r: parseInt(result[1], 16),

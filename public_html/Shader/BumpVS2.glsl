@@ -25,6 +25,7 @@ void main() {
 	// http://www.ozone3d.net/smf/index.php?topic=80.0
 	vec3 t;
 	vec3 b;
+	vec3 n;
 
 	vec3 c1 = cross(normal, vec3(0.0, 0.0, 1.0) );
 	vec3 c2 = cross(normal, vec3(0.0, 1.0, 0.0) );
@@ -38,25 +39,29 @@ void main() {
 		t = c2;	
 	}
 
-	t = normalize(t);  // tangent
-
-	b = cross(normal, t);
+	t = normalize(tangent);  // tangent
+	n = normalize(normal);
+	b = cross(n, t);
 	b = normalize(b);
+	
+	//t = tangent;  // tangent
+	//n = normal;
+	//b = cross(n, t);
 	
 	vec3 tmpVec = normalize((viewMat * vec4(-1.0, 0.0, -1.0, 1.0)).xyz);  // viewMat
 	vLightVec.x = dot(tmpVec, t);
 	vLightVec.y = dot(tmpVec, b);
-	vLightVec.z = dot(tmpVec, normalize(vNormal));
+	vLightVec.z = dot(tmpVec, n);
 
 	tmpVec = -vPosition;
 	vEyeVec.x = dot(tmpVec, t);
 	vEyeVec.y = dot(tmpVec, b);
-	vEyeVec.z = dot(tmpVec, normalize(vNormal));
+	vEyeVec.z = dot(tmpVec, n);
 
 	tmpVec = (vLightVec + vEyeVec);
 	vHalfVec.x = dot(tmpVec, t);
 	vHalfVec.y = dot(tmpVec, b);
-	vHalfVec.z = dot(tmpVec, normalize(vNormal));
+	vHalfVec.z = dot(tmpVec, n);
    
 	// Set the position of the current vertex
 	gl_Position = transformation * vec4(position, 1.0);
